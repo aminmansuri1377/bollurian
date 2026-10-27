@@ -1,0 +1,1732 @@
+diff --git a/app/globals.css b/app/globals.css
+index 820229b..348b928 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -1 +1,17 @@
+-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#edf3fa;color:#15335d;font-family:Tahoma,'Segoe UI',sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}
++@import "tailwindcss";
++
++/* Shared design tokens only. Component layout lives in Tailwind className. */
++@theme inline {
++  --font-sans: var(--font-peyda), Tahoma, Arial, sans-serif;
++  --color-brand: #07346c;
++  --color-brand-end: #255998;
++  --color-outline: #8ca8cd;
++  --color-lavender: #d8deff;
++  --color-caption: #a4b1c6;
++}
++
++/* Page geometry has no HTML element to attach a utility class to. */
++@page {
++  size: A4 portrait;
++  margin: 12mm;
++}
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 9179eac..aaacf84 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,3 +1,31 @@
+-import type {Metadata} from 'next';import './globals.css';
+-export const metadata:Metadata={title:'بلوریان | سیستم قیمت آسانسور',description:'نرم افزار آفلاین لیست قیمت آسانسور'};
+-export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="fa" dir="rtl"><body>{children}</body></html>}
++import type { Metadata } from "next";
++import localFont from "next/font/local";
++import "./globals.css";
++
++const peyda = localFont({
++  src: [
++    { path: "../public/font/peyda-light.ttf", weight: "300", style: "normal" },
++    { path: "../public/font/Peyda-Regular.ttf", weight: "400", style: "normal" },
++    { path: "../public/font/Peyda-Medium.ttf", weight: "500", style: "normal" },
++    { path: "../public/font/Peyda-Bold.ttf", weight: "700", style: "normal" },
++    { path: "../public/font/Peyda-Black.ttf", weight: "900", style: "normal" },
++  ],
++  variable: "--font-peyda",
++  display: "swap",
++  fallback: ["Tahoma", "Arial"],
++});
++
++export const metadata: Metadata = {
++  title: "بلوریان | لیست قیمت آسانسور",
++  description: "نرم‌افزار آفلاین محاسبه و صدور لیست قیمت آسانسور بلوریان",
++};
++
++export default function RootLayout({ children }: { children: React.ReactNode }) {
++  return (
++    <html lang="fa" dir="rtl" className={peyda.variable}>
++      <body className="min-w-[1154px] bg-white font-sans text-brand antialiased selection:bg-lavender print:min-w-0 print:[print-color-adjust:exact] print:[-webkit-print-color-adjust:exact]">
++        {children}
++      </body>
++    </html>
++  );
++}
+diff --git a/app/page.css b/app/page.css
+deleted file mode 100644
+index e71f11c..0000000
+--- a/app/page.css
++++ /dev/null
+@@ -1,3 +0,0 @@
+-.app-shell{min-height:100vh;padding:24px 18px}.screen{max-width:1150px;margin:auto}.hero{display:grid;grid-template-columns:1fr 370px;gap:28px;align-items:center;background:linear-gradient(135deg,#071e3d,#123d72 70%,#214d86);border-radius:24px;min-height:400px;padding:30px 34px;color:white;box-shadow:0 18px 42px #163e6b20}.hero-copy{padding:20px}.eyebrow{letter-spacing:3px;color:#a9c4e8;font-size:12px}.hero h1{font-size:clamp(30px,4vw,53px);line-height:1.4;margin:14px 0}.hero p{font-size:14px;color:#d3e2f5;line-height:2}.hero-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.hero-stats span{padding:10px 14px;border:1px solid #ffffff35;border-radius:30px;font-size:12px}.selector{background:#fff;color:#16345c;padding:23px;border-radius:18px;box-shadow:0 10px 20px #0001}.selector h2{font-size:19px;margin:0 0 15px}.selector label{display:block;font-size:11px;margin:11px 0 6px;color:#587394}.selector select,.toolbar input,.brand-detail select{width:100%;background:#fff;border:1px solid #bfd0e5;border-radius:10px;padding:10px 12px;color:#17365f;outline-color:#1b4c91}.primary{background:#164681;color:#fff;border:0;border-radius:10px;padding:12px 22px;font-weight:bold}.full{width:100%;margin-top:15px}.sheet{margin:25px 0 45px;border:1px solid #b3c8e0;background:#fff;border-radius:19px;overflow:hidden;padding:24px 28px 20px;box-shadow:0 12px 35px #1a40620c}.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-bottom:19px;border-bottom:1px solid #e0e9f5}.brand-mark{display:flex;gap:10px;align-items:center;direction:ltr}.brand-mark strong{display:block;font-family:Arial,sans-serif;font-size:28px;font-weight:400;letter-spacing:-1px}.brand-mark small{font-size:9px;letter-spacing:5px}.logo-placeholder{width:49px;height:49px;border:3px solid #244e8d;font:700 34px Arial;display:grid;place-items:center}.head-actions{display:flex;gap:7px}.head-actions button,.footer-actions button,.file-btn{border:1px solid #b4c8e4;background:white;color:#244d82;border-radius:20px;padding:9px 16px;font-size:12px}.head-actions .active-tab{background:#1d4c8d;color:white}.meta{display:flex;gap:10px;flex-wrap:wrap;margin:19px 0}.meta span{border:1px solid #c5d6ed;padding:8px 13px;border-radius:30px;font-size:12px;flex:1;min-width:160px;text-align:center}.meta b{color:#123d78}.toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.toolbar label{font-size:11px;color:#6680a0}.toolbar input{margin-top:6px}.notice,.alert{background:#fff6df;color:#875d1b;border:1px solid #f0d99e;padding:12px 15px;border-radius:10px;margin:12px 0;font-size:12px;line-height:2}.alert{display:flex;justify-content:space-between}.alert button{background:transparent;border:0;font-size:22px}.table-wrap{overflow:auto;border:1px solid #d2e0ef;border-radius:12px}.table-wrap table{width:100%;border-collapse:collapse;min-width:790px;font-size:12px}.table-wrap th{background:#1a4a88;color:white;padding:13px 9px;text-align:right;white-space:nowrap}.table-wrap th:first-child{border-top-right-radius:10px}.table-wrap td{padding:10px 9px;border-bottom:1px solid #e5ecf6;vertical-align:middle}.table-wrap tr:nth-child(even){background:#f4f7fe}.table-wrap tr.muted{opacity:.5}.table-wrap td:first-child{color:#6b86a7}.table-wrap td input[type=number]{width:120px;border:1px solid #c6d7eb;background:white;border-radius:8px;padding:7px;color:#193c6b;direction:ltr;text-align:center}.table-wrap td input.missing{border-color:#e8b766;background:#fff9ee}.table-wrap td input[type=checkbox]{accent-color:#1d4b86;width:17px;height:17px}.item-name{display:flex;align-items:center;gap:7px;min-width:260px}.chevron{background:#e7effc;color:#1c4c87;border:0;border-radius:50%;width:23px;height:23px;font-size:15px;flex-shrink:0}.brand-detail{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;margin-top:8px;background:#e9f0fc;border-radius:8px}.brand-detail label{font-size:11px}.brand-detail select{width:auto;min-width:130px}.brand-detail small{color:#647e9f}.money{font-weight:700;white-space:nowrap}.summary{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:18px 0}.summary>div{display:flex;gap:16px;align-items:center;background:#edf3ff;border-radius:11px;padding:12px 18px;font-size:12px}.summary strong{font-size:17px}.summary .grand{background:#1a4a88;color:#fff}.danger{color:#b02d2d}.footer-actions{display:flex;justify-content:flex-end;gap:9px;align-items:center}.footer-actions .primary{border-radius:20px;color:white;background:#1d4c8d}.file-btn{cursor:pointer}.file-btn input{display:none}.sheet-bottom{border-top:1px solid #dce7f5;margin-top:20px;padding-top:15px;display:flex;justify-content:space-between;gap:12px;font-size:10px;color:#8096b0;overflow-wrap:anywhere}.info{font-size:12px;color:#68809d}.print-document{display:none}
+-@media(max-width:850px){.hero{grid-template-columns:1fr;padding:18px}.hero-copy{padding:5px}.toolbar{grid-template-columns:repeat(2,1fr)}.sheet{padding:18px 12px}.sheet-head{flex-wrap:wrap}.meta span{min-width:130px}}
+-@media print{@page{size:A4 portrait;margin:12mm}.screen{display:none!important}.app-shell{padding:0;background:white}.print-document{display:block!important;font-family:Tahoma,Arial,sans-serif;color:#1b3457;font-size:9pt}.print-title{display:flex;justify-content:space-between;border-bottom:3px solid #174681;padding:10px 0 18px}.print-title h1{font-size:23pt;margin:0;color:#174681}.print-title h2{font-size:20pt;margin:0}.print-title p{margin:5px 0}.print-meta{display:flex;flex-wrap:wrap;gap:13px;padding:15px 0}.print-meta span{padding:5px 9px;background:#edf3ff;border-radius:6px}.print-document table{border-collapse:collapse;width:100%;font-size:8pt}.print-document th{background:#174681;color:white;padding:9px 5px;text-align:right}.print-document td{border-bottom:1px solid #d6e1ef;padding:7px 5px}.print-document tbody tr:nth-child(even){background:#eef3fd}.print-document thead{display:table-header-group}.print-document tr{break-inside:avoid}.print-total{margin-top:18px;padding:12px;background:#174681;color:#fff;font-size:13pt;font-weight:bold;text-align:left}.print-sign{display:flex;justify-content:space-around;margin:50px 0 80px}.print-bottom{text-align:center;border-top:1px solid #b4c8df;padding:12px;font-size:8pt}}
+diff --git a/app/page.tsx b/app/page.tsx
+index 85a828c..1e61e84 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -1,47 +1,5 @@
+-'use client';
+-import {useEffect,useMemo,useState} from 'react';
+-import {invoke} from '@tauri-apps/api/core';
+-import catalog from '../data/catalog.json';
+-import './page.css';
++import { PriceManager } from "@/components/price-manager/price-manager";
+ 
+-type Product = {id:string;name:string;group:string;unit:string;price:number|null;previous:number|null;quantities:Record<string,number|null>;brands:string[];source:string;notes:string};
+-type State = {motor:string;stops:number;capacity:string;pack:string;prices:Record<string,number>;quantities:Record<string,number>;brands:Record<string,string>;excluded:string[];customer:string;rate:number;quoteNumber:string};
+-const products=catalog as Product[];
+-const PACKS=[['rail','ریل'],['mechanic','مکانیک'],['auto','راه‌اندازی تمام اتومات'],['semi','راه‌اندازی نیمه اتومات'],['mech-auto','مکانیک + راه‌اندازی تمام اتومات'],['mech-semi','مکانیک + راه‌اندازی نیمه اتومات'],['full-auto','ریل + مکانیک + راه‌اندازی تمام اتومات'],['full-semi','ریل + مکانیک + راه‌اندازی نیمه اتومات']];
+-const initial:State={motor:'gearbox',stops:5,capacity:'4-6',pack:'full-auto',prices:{},quantities:{},brands:{},excluded:[],customer:'',rate:0,quoteNumber:''};
+-const fmt=(v:number)=>new Intl.NumberFormat('fa-IR',{maximumFractionDigits:0}).format(v);
+-const number=(v:unknown)=>Number.isFinite(Number(v))?Number(v):0;
+-const getGroups=(p:string)=>( ({rail:['rail'],mechanic:['mechanic','motor'],auto:['startup','auto','motor'],semi:['startup','semi','motor'],'mech-auto':['mechanic','motor','startup','auto'],'mech-semi':['mechanic','motor','startup','semi'],'full-auto':['rail','mechanic','motor','startup','auto'],'full-semi':['rail','mechanic','motor','startup','semi']} as Record<string,string[]>)[p]||[] );
+-function validMotor(item:Product,capacity:string){if(item.id==='P-MOTOR-7.5'||item.id==='P-CONTROL-7.5')return capacity==='4-6';if(item.id==='P-MOTOR-11'||item.id==='P-CONTROL-11')return capacity==='8';return true;}
+-const asPersian=(d:Date)=>d.toLocaleDateString('fa-IR');
+-export default function Home(){
+- const [s,setS]=useState<State>(initial);const [ready,setReady]=useState(false);const [show,setShow]=useState(true);const [tab,setTab]=useState<'quote'|'prices'>('quote');const [query,setQuery]=useState('');const [expanded,setExpanded]=useState<string[]>([]);const [dbPath,setDbPath]=useState('');const [message,setMessage]=useState('');
+- const update=(patch:Partial<State>)=>setS(x=>({...x,...patch}));
+- useEffect(()=>{(async()=>{try{const inTauri=typeof window!=='undefined'&&'__TAURI_INTERNALS__' in window;const raw=inTauri?await invoke<string|null>('load_state'):localStorage.getItem('bollourian-state');if(raw){const parsed=JSON.parse(raw);setS({...initial,...parsed});}if(inTauri)setDbPath(await invoke<string>('database_path'));}catch(e){console.error(e);setMessage('بارگذاری داده‌ها ناموفق بود.')}finally{setReady(true)}})()},[]);
+- useEffect(()=>{if(!ready)return;const payload=JSON.stringify(s);localStorage.setItem('bollourian-state',payload);if('__TAURI_INTERNALS__' in window)invoke('save_state',{payload}).catch(e=>console.error('SQLite',e));},[s,ready]);
+- const rows=useMemo(()=>products.filter(p=>getGroups(s.pack).includes(p.group)&&validMotor(p,s.capacity)&&p.id!=='R038').filter(p=>!query||`${p.name} ${p.id}`.includes(query)),[s.pack,s.capacity,query]);
+- const compute=(p:Product)=>{const qty=s.quantities[p.id]??p.quantities[String(s.stops)]??null;const price=s.prices[p.id]??p.price;const enabled=!s.excluded.includes(p.id);return {qty,price,total:qty!==null&&price!==null&&enabled?Math.round(qty*price*(1+s.rate/100)):null,enabled};};
+- const priced=rows.filter(p=>compute(p).enabled);const unresolved=priced.filter(p=>compute(p).total===null);const total=priced.reduce((a,p)=>a+(compute(p).total??0),0);
+- const changePrice=(id:string,v:number)=>update({prices:{...s.prices,[id]:v}});const changeQty=(id:string,v:number)=>update({quantities:{...s.quantities,[id]:v}});
+- const toggle=(id:string)=>update({excluded:s.excluded.includes(id)?s.excluded.filter(x=>x!==id):[...s.excluded,id]});
+- const exportJSON=()=>{const blob=new Blob([JSON.stringify({version:1,createdAt:new Date().toISOString(),state:s},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bollourian-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
+- const importJSON=async(file:File|undefined)=>{if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed.state||!parsed.state.pack)throw Error('invalid');setS({...initial,...parsed.state});setMessage('فایل پشتیبان بازیابی شد.')}catch{setMessage('فایل پشتیبان معتبر نیست.')}};
+- const print=async()=>{if(unresolved.length){setMessage(`برای صدور PDF باید قیمت و تعداد ${unresolved.length} ردیف ناقص را تکمیل کنی.`);return;}try{if('__TAURI_INTERNALS__' in window)await invoke('save_quote',{payload:JSON.stringify({settings:s,rows:priced.map(p=>({...p,...compute(p)})),total})});}catch(e){console.error(e)}window.print()};
+- return <main dir="rtl" className="app-shell">
+- <div className="screen">
+-  <section className="hero"><div className="hero-copy"><div className="eyebrow">BOLLOURIAN • ELEVATOR SYSTEMS</div><h1>سیستم هوشمند<br/>لیست قیمت آسانسور</h1><p>محاسبه خودکار، انتخاب تجهیزات و صدور پیش‌فاکتور — بدون نیاز به اینترنت</p><div className="hero-stats"><span>۶۷ قلم در کاتالوگ اولیه</span><span>۸ نوع پکیج</span></div></div><div className="selector"><h2>چه آسانسوری می‌خواهید؟</h2><label>نوع موتور آسانسور</label><select value={s.motor} onChange={e=>update({motor:e.target.value})}><option value="gearbox">گیربکس</option><option value="gearless">گیرلس</option></select><label>تعداد توقف</label><select value={s.stops} onChange={e=>update({stops:+e.target.value,quantities:{}})}>{Array.from({length:13},(_,i)=><option key={i} value={i+1}>{fmt(i+1)} توقف</option>)}</select><label>ظرفیت نفرات</label><select value={s.capacity} onChange={e=>update({capacity:e.target.value})}><option value="4-6">۴ تا ۶ نفر — موتور ۷٫۵ کیلووات</option><option value="8">۸ نفر — موتور ۱۱ کیلووات</option></select><label>نوع پکیج</label><select value={s.pack} onChange={e=>update({pack:e.target.value,excluded:[]})}>{PACKS.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select><button className="primary full" onClick={()=>{setShow(true);document.getElementById('results')?.scrollIntoView({behavior:'smooth'})}}>نمایش لیست قیمت</button></div></section>
+-  <section id="results" className="sheet"><header className="sheet-head"><div className="brand-mark"><div className="logo-placeholder">B</div><div><strong>Bollourian</strong><small>E L E V A T O R</small></div></div><div className="head-actions"><button className={tab==='quote'?'active-tab':''} onClick={()=>setTab('quote')}>پیش‌فاکتور</button><button className={tab==='prices'?'active-tab':''} onClick={()=>setTab('prices')}>قیمت مادر</button></div></header>
+-   {message&&<div className="alert" role="status">{message}<button onClick={()=>setMessage('')}>×</button></div>}
+-   <div className="meta"><span>نوع موتور: <b>{s.motor==='gearbox'?'گیربکس':'گیرلس'}</b></span><span>توقف: <b>{fmt(s.stops)}</b></span><span>ظرفیت: <b>{s.capacity==='8'?'۸ نفر':'۴ تا ۶ نفر'}</b></span><span>پکیج: <b>{PACKS.find(p=>p[0]===s.pack)?.[1]}</b></span></div>
+-   {tab==='quote'?<><div className="toolbar"><label>نام مشتری <input value={s.customer} onChange={e=>update({customer:e.target.value})} placeholder="نام مشتری / پروژه"/></label><label>شماره پیش‌فاکتور <input value={s.quoteNumber} onChange={e=>update({quoteNumber:e.target.value})} placeholder="اختیاری"/></label><label>درصد تغییر قیمت <input type="number" value={s.rate} onChange={e=>update({rate:number(e.target.value)})}/></label><label>جستجو <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="نام یا کد محصول"/></label></div>
+-    {![5,6,7,8].includes(s.stops)&&<div className="notice">فایل‌های مرجع برای این تعداد توقف، جدول تعداد کامل ندارند. تعداد اقلام باید توسط کاربر وارد و تأیید شود؛ برنامه مقادیر ساختگی تولید نمی‌کند.</div>}
+-    {s.stops===5&&<div className="notice">برای توقف ۵، فقط تعدادی از مقادیر مکانیک از PDF نمونه استخراج شده‌اند. مقادیر دیگر را قبل از صدور PDF تکمیل کن.</div>}
+-    <div className="table-wrap"><table><thead><tr><th>ردیف</th><th>شرح کالا / انتخاب برند</th><th>واحد</th><th>تعداد</th><th>قیمت واحد (تومان)</th><th>مبلغ کل (تومان)</th><th>انتخاب</th></tr></thead><tbody>{rows.map((p,i)=>{const c=compute(p);const isExpanded=expanded.includes(p.id);return <tr key={p.id} className={!c.enabled?'muted':''}><td>{fmt(i+1)}</td><td><div className="item-name"><button className="chevron" onClick={()=>setExpanded(x=>isExpanded?x.filter(v=>v!==p.id):[...x,p.id])}>{isExpanded?'⌃':'⌄'}</button><span>{p.name}</span></div>{isExpanded&&<div className="brand-detail"><small>کد: {p.id} | منبع: {p.source==='excel'?'قیمت مادر Excel':'پیش‌فاکتورهای PDF'}</small><label>برند / مدل <select value={s.brands[p.id]||p.brands[0]||''} onChange={e=>update({brands:{...s.brands,[p.id]:e.target.value}})}><option value="">{p.brands.length?'انتخاب برند':'برند تأیید نشده'}</option>{p.brands.map(b=><option key={b} value={b}>{b}</option>)}</select></label>{p.notes&&<small>{p.notes}</small>}</div>}</td><td>{p.unit}</td><td><input className={!c.qty&&c.qty!==0?'missing':''} aria-label={'تعداد '+p.name} type="number" min="0" value={c.qty??''} placeholder="نامشخص" onChange={e=>changeQty(p.id,number(e.target.value))}/></td><td><input className={c.price===null?'missing':''} aria-label={'قیمت '+p.name} type="number" min="0" value={c.price??''} placeholder="نامشخص" onChange={e=>changePrice(p.id,number(e.target.value))}/></td><td className="money">{c.total===null?'—':fmt(c.total)}</td><td><input type="checkbox" checked={c.enabled} onChange={()=>toggle(p.id)}/></td></tr>})}</tbody></table></div>
+-    <div className="summary"><div><span>اقلام انتخاب‌شده</span><strong>{fmt(priced.length)}</strong></div><div><span>ردیف‌های نیازمند تکمیل</span><strong className={unresolved.length?'danger':''}>{fmt(unresolved.length)}</strong></div><div className="grand"><span>جمع اقلام دارای قیمت (تومان)</span><strong>{fmt(total)}</strong></div></div><div className="footer-actions"><button onClick={exportJSON}>دریافت پشتیبان</button><label className="file-btn">بازیابی پشتیبان<input type="file" accept="application/json" onChange={e=>importJSON(e.target.files?.[0])}/></label><button className="primary" onClick={print} disabled={!!unresolved.length}>خروجی PDF</button></div>
+-   </>:<><p className="info">قیمت‌های اولیه از Sheet «قیمت_مادر» وارد شده‌اند. تغییر قیمت در این صفحه در محاسبات پیش‌فاکتور نیز اعمال می‌شود.</p><div className="table-wrap"><table><thead><tr><th>کد</th><th>محصول</th><th>دسته</th><th>قیمت مادر (تومان)</th><th>قیمت جدید (تومان)</th><th>تغییر</th></tr></thead><tbody>{products.filter(p=>p.id!=='R038').map(p=>{const v=s.prices[p.id]??p.price;return <tr key={p.id}><td>{p.id}</td><td>{p.name}</td><td>{p.group}</td><td>{p.price===null?'نامشخص':fmt(p.price)}</td><td><input type="number" min="0" placeholder="تعیین قیمت" value={v??''} onChange={e=>changePrice(p.id,number(e.target.value))}/></td><td>{p.price&&v!==null?`${((v/p.price-1)*100).toFixed(1)}٪`:'—'}</td></tr>})}</tbody></table></div></>}
+-   <footer className="sheet-bottom"><span>بلوریان | محاسبات و پیش‌فاکتور آسانسور</span><span>{dbPath?'SQLite: '+dbPath:'ذخیره محلی در مرورگر (پیش‌نمایش)'}</span></footer>
+-  </section>
+- </div>
+- <section className="print-document" dir="rtl"><div className="print-title"><div><h1>بلوریان | Bollourian</h1><p>لیست قیمت تجهیزات آسانسور</p></div><div><h2>پیش‌فاکتور</h2><p>تاریخ: {asPersian(new Date())}</p><p>شماره: {s.quoteNumber||'—'}</p></div></div><div className="print-meta"><span>مشتری: {s.customer||'—'}</span><span>موتور: {s.motor==='gearbox'?'گیربکس':'گیرلس'}</span><span>توقف: {fmt(s.stops)}</span><span>ظرفیت: {s.capacity==='8'?'۸ نفر':'۴ تا ۶ نفر'}</span><span>پکیج: {PACKS.find(p=>p[0]===s.pack)?.[1]}</span></div><table><thead><tr><th>ردیف</th><th>شرح کالا</th><th>واحد</th><th>تعداد</th><th>بهای واحد (تومان)</th><th>مبلغ کل (تومان)</th></tr></thead><tbody>{priced.map((p,i)=>{const c=compute(p);return <tr key={p.id}><td>{fmt(i+1)}</td><td>{p.name}{s.brands[p.id]&&` — ${s.brands[p.id]}`}</td><td>{p.unit}</td><td>{fmt(c.qty??0)}</td><td>{fmt(c.price??0)}</td><td>{fmt(c.total??0)}</td></tr>})}</tbody></table><div className="print-total">جمع کل: {fmt(total)} تومان</div><div className="print-sign"><span>مهر و امضای فروشنده</span><span>امضای خریدار</span></div><div className="print-bottom">این پیش‌فاکتور از اطلاعات ثبت‌شده در نرم‌افزار آفلاین بلوریان تولید شده است.</div></section>
+- </main>
++export default function HomePage() {
++  return <PriceManager />;
+ }
+diff --git a/components/price-manager/brand-wordmark.tsx b/components/price-manager/brand-wordmark.tsx
+new file mode 100644
+index 0000000..e83a9e8
+--- /dev/null
++++ b/components/price-manager/brand-wordmark.tsx
+@@ -0,0 +1,21 @@
++interface BrandWordmarkProps {
++  className?: string;
++  showSubtitle?: boolean;
++}
++
++/** Vector outlines traced from the supplied design, not a substitute font. */
++export function BrandWordmark({ className = "", showSubtitle = true }: BrandWordmarkProps) {
++  return (
++    <svg
++      viewBox={showSubtitle ? "15 0 1194 320" : "15 0 1194 190"}
++      fill="currentColor"
++      fillRule="evenodd"
++      aria-hidden="true"
++      focusable="false"
++      className={className}
++    >
++      <path d="M965 133 L967 131 L981 131 L982 132 L1022 132 L1024 134 L1024 143 L1021 146 L967 146 L965 144 Z M962 130 L962 147 L963 148 L1025 148 L1026 147 L1026 130 L1024 129 L1007 129 L1006 130 L1003 130 L1002 129 Z M53 120 L54 119 L137 119 L138 120 L138 144 L137 145 L55 145 L53 143 Z M50 119 L50 146 L51 147 L141 147 L141 118 L140 117 L52 117 Z M513 90 L514 89 L571 89 L572 90 L572 144 L570 146 L515 146 L513 144 Z M228 90 L229 89 L285 89 L287 91 L286 92 L286 145 L285 146 L230 146 L228 144 Z M511 87 L511 147 L512 148 L572 148 L574 147 L574 87 L573 86 L512 86 Z M226 86 L226 147 L227 148 L288 148 L289 147 L289 87 L288 86 Z M53 61 L55 59 L131 59 L133 63 L133 80 L130 83 L129 82 L54 82 L53 81 Z M50 59 L50 83 L51 85 L134 85 L135 84 L135 58 L134 57 L52 57 Z M1077 56 L1078 55 L1179 55 L1182 57 L1185 57 L1191 61 L1198 68 L1203 80 L1203 115 L1204 116 L1203 118 L1203 178 L1202 179 L1176 179 L1175 180 L1172 178 L1172 87 L1171 86 L1109 86 L1108 88 L1108 178 L1106 180 L1079 180 L1077 178 Z M931 56 L932 55 L1033 55 L1045 61 L1046 63 L1052 68 L1057 80 L1057 102 L1058 103 L1058 110 L1057 111 L1057 178 L1056 179 L959 180 L958 179 L951 178 L949 176 L947 176 L944 174 L935 164 L931 154 L931 102 L932 101 L1026 101 L1026 87 L1025 86 L932 86 L931 85 Z M886 55 L914 55 L916 57 L916 177 L914 179 L911 179 L910 180 L907 180 L906 179 L903 180 L886 179 L884 176 L884 57 Z M867 55 L869 57 L869 85 L868 86 L801 86 L800 87 L800 150 L801 151 L800 153 L800 165 L801 166 L800 169 L800 178 L798 180 L796 179 L770 179 L769 178 L769 81 L773 70 L775 69 L782 61 L788 57 L791 57 L794 55 Z M621 57 L623 55 L651 55 L653 57 L653 147 L654 148 L715 148 L717 146 L717 84 L716 83 L717 80 L716 77 L717 58 L716 57 L718 55 L746 55 L748 57 L748 153 L746 157 L746 160 L744 162 L744 164 L742 167 L732 176 L730 176 L728 178 L720 179 L719 180 L699 180 L698 179 L695 180 L690 180 L689 179 L664 179 L662 180 L661 179 L646 179 L634 174 L626 165 L621 152 Z M494 59 L496 59 L498 57 L504 55 L581 55 L587 57 L589 59 L591 59 L592 61 L600 68 L604 74 L604 77 L606 81 L606 153 L602 164 L593 174 L590 176 L588 176 L586 178 L582 178 L578 180 L566 180 L565 179 L553 179 L552 180 L535 180 L534 179 L528 179 L527 180 L508 180 L504 178 L500 178 L498 176 L494 175 L487 169 L481 160 L481 157 L479 152 L479 82 L483 71 Z M204 63 L213 57 L219 55 L296 55 L302 57 L307 61 L309 61 L315 68 L320 78 L320 156 L318 159 L318 161 L316 163 L316 165 L307 174 L300 178 L297 178 L296 179 L282 179 L281 180 L279 179 L218 179 L217 178 L214 178 L212 176 L210 176 L205 172 L197 163 L194 153 L194 83 L195 82 L195 77 L197 74 L197 72 Z M1075 53 L1074 55 L1074 61 L1075 62 L1075 87 L1074 88 L1074 103 L1075 104 L1074 106 L1074 177 L1075 179 L1074 180 L1077 182 L1110 182 L1111 181 L1111 90 L1112 89 L1168 89 L1170 91 L1170 181 L1175 181 L1176 182 L1204 182 L1206 180 L1206 90 L1205 89 L1206 84 L1205 83 L1205 77 L1203 74 L1203 72 L1199 65 L1194 60 L1184 54 L1181 54 L1176 52 L1105 52 L1104 53 L1093 53 L1092 52 L1078 53 L1077 52 Z M930 52 L929 53 L929 88 L930 89 L1022 89 L1024 91 L1024 96 L1020 99 L1010 99 L1009 98 L1008 99 L930 99 L929 100 L929 155 L932 164 L935 169 L944 177 L950 179 L952 181 L959 181 L960 182 L995 182 L996 181 L997 182 L1001 182 L1002 181 L1005 181 L1006 182 L1058 182 L1060 180 L1060 168 L1059 167 L1059 159 L1060 158 L1060 136 L1059 135 L1059 132 L1060 131 L1060 128 L1059 127 L1059 122 L1060 121 L1060 107 L1059 106 L1059 103 L1060 102 L1060 84 L1059 83 L1059 77 L1055 68 L1047 59 L1042 56 L1031 52 Z M883 52 L882 53 L882 181 L883 182 L891 182 L892 181 L901 181 L902 182 L909 181 L910 182 L916 182 L918 181 L918 54 L916 52 Z M870 52 L798 52 L784 56 L774 64 L768 74 L768 78 L767 79 L767 181 L769 182 L799 182 L800 181 L802 182 L803 181 L803 90 L804 89 L871 89 L871 53 Z M621 52 L619 54 L619 152 L620 153 L620 158 L622 161 L622 163 L624 165 L624 167 L634 177 L643 181 L650 181 L651 182 L661 182 L662 181 L683 181 L684 182 L695 182 L696 181 L700 181 L701 182 L704 182 L705 181 L726 181 L729 179 L731 179 L733 177 L735 177 L739 174 L747 164 L750 154 L750 134 L751 133 L750 132 L750 117 L751 116 L750 115 L750 53 L749 52 L715 52 L714 53 L714 144 L712 146 L657 146 L655 144 L655 53 L654 52 L652 53 L646 53 L645 52 Z M489 60 L484 65 L480 71 L480 73 L478 76 L478 81 L477 82 L477 152 L478 153 L478 158 L480 161 L480 163 L482 165 L482 167 L483 167 L490 175 L500 181 L527 181 L528 182 L534 182 L535 181 L552 181 L553 182 L565 182 L566 181 L584 181 L587 179 L589 179 L591 177 L593 177 L605 164 L605 162 L607 159 L607 154 L608 153 L608 81 L605 71 L603 69 L601 64 L591 56 L579 52 L573 52 L572 53 L571 52 L524 52 L523 53 L508 52 L507 53 L499 54 Z M206 58 L198 66 L194 72 L194 75 L192 78 L192 156 L194 162 L200 171 L207 177 L209 177 L215 181 L221 181 L222 182 L292 182 L293 181 L299 181 L302 179 L304 179 L306 177 L308 177 L319 165 L323 153 L323 82 L322 81 L321 74 L315 64 L305 56 L303 56 L301 54 L293 53 L292 52 L221 52 L217 54 L213 54 L211 56 L209 56 Z M19 26 L20 25 L141 25 L145 27 L148 27 L154 31 L162 39 L164 42 L164 44 L166 46 L166 50 L167 51 L167 91 L166 92 L166 97 L170 102 L173 111 L173 153 L170 163 L167 167 L157 176 L145 180 L90 180 L89 179 L30 180 L29 179 L20 179 L19 178 Z M17 23 L16 25 L16 180 L19 182 L31 182 L32 181 L53 181 L54 182 L81 182 L82 181 L151 181 L160 177 L165 173 L170 167 L175 157 L175 108 L171 99 L169 97 L169 87 L170 86 L170 64 L169 63 L169 60 L170 59 L170 56 L169 55 L169 47 L167 45 L167 42 L163 36 L157 30 L151 26 L142 23 Z M886 15 L914 15 L916 17 L916 44 L914 46 L886 46 L884 44 L884 20 L885 19 L884 17 Z M410 14 L437 14 L439 16 L439 147 L440 148 L463 148 L464 149 L464 178 L462 180 L437 180 L436 179 L428 178 L418 172 L409 160 L409 156 L407 151 L407 136 L408 135 L408 130 L407 129 L407 72 L408 71 L408 39 L407 38 L407 32 L408 31 L407 26 L408 24 L407 22 L408 19 L407 17 Z M339 14 L366 14 L368 16 L368 147 L369 148 L392 148 L393 149 L394 153 L393 154 L393 178 L392 179 L366 180 L365 179 L356 178 L354 176 L352 176 L343 168 L339 163 L339 161 L337 158 L337 153 L336 152 L336 17 Z M882 12 L882 48 L883 49 L916 49 L918 47 L918 12 Z M406 12 L406 158 L412 169 L419 175 L420 177 L422 177 L424 179 L426 179 L429 181 L467 181 L467 146 L443 146 L441 143 L441 44 L442 43 L442 13 L441 12 Z M334 12 L334 155 L336 159 L336 162 L344 173 L349 177 L351 177 L353 179 L355 179 L358 181 L394 182 L396 180 L396 171 L395 170 L395 146 L372 146 L370 143 L370 12 Z" />
++      {showSubtitle && <><path d="M1003 285 L1004 284 L1024 284 L1026 285 L1027 287 L1025 289 L1005 289 L1003 287 Z M1001 283 L1001 290 L1003 291 L1028 291 L1029 290 L1029 283 L1028 282 L1003 282 Z M1113 265 L1135 265 L1136 266 L1136 287 L1134 289 L1115 289 L1111 286 L1111 267 Z M868 266 L869 265 L892 265 L893 268 L891 270 L871 270 L868 268 Z M1111 263 L1110 264 L1110 290 L1111 291 L1137 291 L1138 289 L1138 264 L1136 263 Z M866 264 L866 270 L867 271 L894 271 L895 270 L895 265 L892 263 L891 264 L875 264 L874 263 L868 263 Z M1203 249 L1204 250 L1204 262 L1202 264 L1176 264 L1175 263 L1174 264 L1174 303 L1172 305 L1161 305 L1159 303 L1159 259 L1162 254 L1168 249 Z M1100 252 L1105 249 L1143 249 L1150 254 L1152 258 L1152 296 L1145 304 L1142 304 L1141 305 L1107 305 L1106 304 L1103 304 L1099 301 L1095 294 L1095 260 L1097 257 L1097 255 Z M986 251 L988 249 L1034 249 L1042 256 L1044 261 L1044 302 L1042 305 L998 305 L997 304 L994 304 L987 296 L987 292 L986 291 L986 272 L989 269 L1029 269 L1029 264 L1028 263 L1008 263 L1007 264 L988 263 L986 259 Z M911 250 L912 249 L927 249 L930 253 L930 255 L934 261 L936 267 L942 275 L942 277 L946 283 L946 285 L949 285 L949 283 L951 281 L953 275 L957 270 L957 268 L961 263 L961 261 L963 259 L963 257 L968 249 L983 249 L984 251 L978 260 L978 262 L974 267 L974 269 L972 271 L970 277 L968 278 L968 280 L962 289 L962 291 L958 296 L956 302 L953 305 L942 305 L939 302 L935 293 L929 284 L929 282 L925 277 L923 271 L921 269 Z M853 256 L855 255 L858 251 L862 249 L900 249 L906 254 L909 260 L909 264 L910 265 L909 266 L909 269 L910 270 L910 282 L908 284 L867 284 L866 285 L866 290 L868 291 L908 291 L910 293 L909 294 L909 301 L910 302 L907 305 L863 305 L860 304 L853 297 L852 290 L851 289 L852 287 L852 260 L853 259 Z M1205 247 L1171 247 L1170 248 L1167 248 L1160 254 L1158 257 L1158 306 L1159 307 L1174 307 L1175 306 L1175 267 L1177 265 L1206 265 L1206 251 L1207 249 Z M1100 250 L1094 257 L1094 296 L1098 303 L1106 307 L1141 307 L1147 305 L1149 302 L1151 301 L1154 295 L1154 259 L1152 254 L1145 248 L1142 248 L1141 247 L1106 247 Z M850 259 L850 295 L854 302 L862 307 L910 307 L911 306 L911 290 L910 288 L881 288 L880 289 L876 289 L870 287 L877 285 L880 285 L881 286 L910 286 L911 285 L911 259 L909 257 L909 254 L910 253 L912 255 L912 257 L914 258 L916 264 L924 276 L924 278 L936 300 L938 302 L938 304 L941 307 L954 307 L957 304 L959 298 L963 293 L963 291 L969 282 L971 276 L975 271 L982 257 L985 259 L984 260 L985 265 L1026 265 L1027 266 L1026 268 L985 268 L984 269 L985 270 L985 295 L988 301 L991 303 L992 305 L994 305 L997 307 L1045 307 L1045 258 L1043 254 L1039 250 L1033 247 L968 247 L966 248 L964 254 L960 259 L960 261 L956 266 L956 268 L954 270 L952 276 L948 281 L945 280 L945 278 L943 276 L943 274 L941 272 L939 266 L931 254 L929 248 L927 247 L908 247 L908 249 L910 251 L909 254 L902 248 L898 248 L897 247 L863 247 L856 250 L856 251 L852 254 L852 256 Z M748 235 L810 235 L812 237 L812 248 L810 250 L762 250 L762 263 L801 263 L802 264 L802 276 L800 278 L762 278 L762 290 L809 290 L812 292 L812 302 L810 305 L748 305 L747 304 L747 236 Z M746 234 L746 254 L745 255 L745 267 L746 268 L746 284 L745 285 L746 307 L813 307 L813 289 L812 288 L764 288 L763 287 L763 281 L765 279 L803 279 L803 262 L802 261 L765 261 L763 259 L763 253 L766 251 L779 251 L780 252 L809 251 L812 252 L813 251 L813 234 Z M1054 232 L1066 232 L1068 234 L1068 248 L1069 249 L1087 249 L1088 250 L1088 262 L1087 263 L1075 263 L1074 264 L1073 263 L1069 263 L1068 264 L1068 291 L1087 291 L1088 292 L1088 304 L1087 305 L1064 305 L1058 302 L1053 295 L1053 233 Z M821 230 L832 230 L834 232 L834 290 L835 291 L845 291 L846 292 L846 303 L844 305 L831 305 L826 303 L821 298 L819 292 L819 232 Z M1052 230 L1051 232 L1051 287 L1052 288 L1051 293 L1052 294 L1052 297 L1056 303 L1063 307 L1089 307 L1091 305 L1090 303 L1090 292 L1091 291 L1090 289 L1071 289 L1069 287 L1069 266 L1070 265 L1090 265 L1091 264 L1091 260 L1090 259 L1090 251 L1091 249 L1089 247 L1070 247 L1069 246 L1069 230 Z M818 229 L818 296 L824 304 L830 307 L847 307 L847 289 L846 288 L845 289 L839 289 L836 287 L836 230 L834 228 L831 228 L830 229 Z" /><path d="M24 265 H713 V268 H24 Z" opacity="0.5" /></>}
++    </svg>
++  );
++}
+diff --git a/components/price-manager/elevator-filters.tsx b/components/price-manager/elevator-filters.tsx
+new file mode 100644
+index 0000000..d84e6c7
+--- /dev/null
++++ b/components/price-manager/elevator-filters.tsx
+@@ -0,0 +1,65 @@
++import type { FormEvent } from "react";
++import { PACKAGE_OPTIONS } from "@/lib/price-manager/constants";
++import { formatNumber } from "@/lib/price-manager/format";
++import type { Capacity, MotorType, PackageId, QuoteSettings } from "@/lib/price-manager/types";
++import { SelectField } from "@/components/ui/select-field";
++
++interface ElevatorFiltersProps {
++  settings: QuoteSettings;
++  disabled: boolean;
++  onChange: (patch: Partial<QuoteSettings>) => void;
++  onBuildList: () => void;
++}
++
++const stopOptions = Array.from({ length: 13 }, (_, index) => ({
++  value: index + 1,
++  label: `آسانسور ${formatNumber(index + 1)} توقف`,
++}));
++
++export function ElevatorFilters({ settings, disabled, onChange, onBuildList }: ElevatorFiltersProps) {
++  function handleSubmit(event: FormEvent<HTMLFormElement>) {
++    event.preventDefault();
++    onBuildList();
++  }
++
++  return (
++    <form onSubmit={handleSubmit} dir="rtl" aria-label="انتخاب مشخصات آسانسور" className="h-[548px] w-[378px] rounded-[30px] bg-white px-[42px] pt-[28px] pb-[28px] text-brand">
++      <h2 className="mb-[23px] whitespace-nowrap text-[26px] font-black leading-9 tracking-[-0.7px]">چه آسانسوری می‌خواهید؟</h2>
++      <fieldset disabled={disabled} className="min-w-0">
++        <div className="flex flex-col gap-[14px]">
++          <SelectField
++            id="motor-type"
++            label="نوع موتور آسانسور"
++            value={settings.motor}
++            options={[{ value: "gearbox", label: "آسانسور گیربکس" }, { value: "gearless", label: "آسانسور گیرلس" }]}
++            onChange={(motor) => onChange({ motor: motor as MotorType })}
++          />
++          <SelectField
++            id="stop-count"
++            label="تعداد توقف"
++            value={settings.stops}
++            options={stopOptions}
++            onChange={(stops) => onChange({ stops: Number(stops), quantities: {} })}
++          />
++          <SelectField
++            id="passenger-capacity"
++            label="ظرفیت نفرات"
++            value={settings.capacity}
++            options={[{ value: "4-6", label: "۴ تا ۶ نفر" }, { value: "8", label: "۸ نفر" }]}
++            onChange={(capacity) => onChange({ capacity: capacity as Capacity })}
++          />
++          <SelectField
++            id="package-type"
++            label="نوع پکیج"
++            value={settings.pack}
++            options={PACKAGE_OPTIONS}
++            onChange={(pack) => onChange({ pack: pack as PackageId, excluded: [] })}
++          />
++        </div>
++        <button type="submit" className="mt-[36px] h-[43px] w-full cursor-pointer rounded-full bg-linear-to-r from-brand to-brand-end text-[14px] font-bold text-white outline-none transition-shadow hover:shadow-lg hover:shadow-brand/15 focus-visible:ring-4 focus-visible:ring-brand/25 disabled:cursor-wait disabled:opacity-60">
++          ساختن لیست
++        </button>
++      </fieldset>
++    </form>
++  );
++}
+diff --git a/components/price-manager/hero-section.tsx b/components/price-manager/hero-section.tsx
+new file mode 100644
+index 0000000..feed75d
+--- /dev/null
++++ b/components/price-manager/hero-section.tsx
+@@ -0,0 +1,34 @@
++import Image from "next/image";
++import type { QuoteSettings } from "@/lib/price-manager/types";
++import { BrandWordmark } from "./brand-wordmark";
++import { ElevatorFilters } from "./elevator-filters";
++
++interface HeroSectionProps {
++  settings: QuoteSettings;
++  disabled: boolean;
++  onChange: (patch: Partial<QuoteSettings>) => void;
++  onBuildList: () => void;
++}
++
++export function HeroSection(props: HeroSectionProps) {
++  return (
++    <section aria-label="لیست قیمت آسانسور بلوریان" className="relative isolate h-[618px] w-[1110px] overflow-hidden rounded-[30px] bg-brand">
++      <Image src="/hero.png" alt="" fill priority sizes="1110px" className="-z-20 object-cover object-center" />
++      <div className="absolute inset-0 -z-10 bg-linear-to-b from-[#426b8d]/65 via-[#244f77]/70 to-[#04264b]/90" aria-hidden="true" />
++
++      {/* Explicit LTR grid placement keeps the form on the RIGHT, regardless of the document's RTL direction. */}
++      <div dir="ltr" className="grid h-full grid-cols-[596px_378px] gap-12 py-[35px] pr-10 pl-12">
++        <div dir="rtl" className="pt-[22px] text-right text-white">
++          <BrandWordmark className="h-auto w-[596px] text-white" />
++          <h1 className="mt-[28px] text-[30px] font-black leading-[43px]">لیست قیمت آسانسور بلوریان</h1>
++          <p className="mt-[9px] text-[14px] font-light leading-[21px] text-white/95">
++            با انتخاب نوع موتور، تعداد توقف و ظرفیت آسانسور، لیست تجهیزات مورد نیاز را بسازید.
++            قیمت‌ها و تعداد اقلام را بررسی کنید، برند دلخواه را انتخاب کنید و پیش‌فاکتور اختصاصی
++            بلوریان را بدون نیاز به اینترنت دریافت کنید.
++          </p>
++        </div>
++        <ElevatorFilters {...props} />
++      </div>
++    </section>
++  );
++}
+diff --git a/components/price-manager/management-tools.tsx b/components/price-manager/management-tools.tsx
+new file mode 100644
+index 0000000..5e6afe0
+--- /dev/null
++++ b/components/price-manager/management-tools.tsx
+@@ -0,0 +1,69 @@
++"use client";
++
++import { useState } from "react";
++import { SettingsIcon } from "@/components/ui/icons";
++import { NumberInput } from "@/components/ui/number-input";
++import type { QuoteSettings } from "@/lib/price-manager/types";
++import { MasterPricesDialog } from "./master-prices-dialog";
++
++interface ManagementToolsProps {
++  settings: QuoteSettings;
++  disabled: boolean;
++  query: string;
++  databasePath: string;
++  onQueryChange: (query: string) => void;
++  onSettingsChange: (patch: Partial<QuoteSettings>) => void;
++  onPriceChange: (id: string, value: number | null) => void;
++  onExportBackup: () => void;
++  onImportBackup: (file: File | undefined) => void;
++}
++
++const textInput = "mt-2 h-11 w-full rounded-full border border-outline bg-white px-4 text-sm text-brand outline-none focus-visible:ring-2 focus-visible:ring-brand/25";
++const actionButton = "cursor-pointer rounded-full border border-outline bg-white px-6 py-2.5 text-[13px] outline-none hover:bg-lavender/30 focus-visible:ring-2 focus-visible:ring-brand/25 disabled:cursor-wait";
++
++export function ManagementTools({ settings, disabled, query, databasePath, onQueryChange, onSettingsChange, onPriceChange, onExportBackup, onImportBackup }: ManagementToolsProps) {
++  const [pricesOpen, setPricesOpen] = useState(false);
++
++  return (
++    <>
++      <details className="mt-6 rounded-[22px] border border-outline/40 bg-white px-7 py-5">
++        <summary className="cursor-pointer text-[14px] font-medium marker:text-outline">
++          <span className="inline-flex items-center gap-2 align-middle"><SettingsIcon className="size-5" />تنظیمات پیش‌فاکتور، قیمت مادر و پشتیبان‌گیری</span>
++        </summary>
++        <fieldset disabled={disabled} className="min-w-0 pt-6">
++          <div className="grid grid-cols-4 gap-5">
++            <label className="text-[12px] text-caption">نام مشتری / پروژه
++              <input aria-label="نام مشتری / پروژه" value={settings.customer} onChange={(event) => onSettingsChange({ customer: event.target.value })} className={textInput} placeholder="اختیاری" />
++            </label>
++            <label className="text-[12px] text-caption">شماره پیش‌فاکتور
++              <input aria-label="شماره پیش‌فاکتور" value={settings.quoteNumber} onChange={(event) => onSettingsChange({ quoteNumber: event.target.value })} className={textInput} placeholder="اختیاری" />
++            </label>
++            <label className="text-[12px] text-caption">درصد تغییر قیمت
++              <NumberInput value={settings.rate} label="درصد تغییر قیمت" allowNegative onChange={(value) => onSettingsChange({ rate: Math.max(-100, value ?? 0) })} className={textInput} />
++            </label>
++            <label className="text-[12px] text-caption">جستجوی محصول
++              <input aria-label="جستجوی محصول" value={query} onChange={(event) => onQueryChange(event.target.value)} className={textInput} placeholder="نام، برند یا کد" />
++            </label>
++          </div>
++          <p className="mt-3 text-[12px] leading-6 text-caption">جستجو فقط ردیف‌های قابل مشاهده را فیلتر می‌کند؛ جمع و PDF همیشه مربوط به تمام اقلام انتخاب‌شده پکیج هستند. برای حذف یک قلم از محاسبات، گزینه آن را در منوی کنار نام محصول بردارید.</p>
++          <div className="mt-6 flex items-center gap-3">
++            <button type="button" onClick={() => setPricesOpen(true)} className={actionButton}>مدیریت قیمت مادر</button>
++            <button type="button" onClick={onExportBackup} className={actionButton}>دریافت پشتیبان</button>
++            <label className={`${actionButton} relative focus-within:ring-2 focus-within:ring-brand/25`}>
++              بازیابی پشتیبان
++              <input type="file" accept=".json,application/json" aria-label="بازیابی پشتیبان" className="absolute inset-0 w-full cursor-pointer opacity-0" onChange={(event) => {
++                const file = event.target.files?.[0];
++                event.currentTarget.value = "";
++                onImportBackup(file);
++              }} />
++            </label>
++          </div>
++          <p className="mt-5 text-[11px] leading-6 text-caption">
++            {databasePath ? <>مسیر دیتابیس: <bdi className="select-all">{databasePath}</bdi></> : "نسخه مرورگر: ذخیره در همین مرورگر • نسخه دسکتاپ: ذخیره در SQLite"}
++          </p>
++        </fieldset>
++      </details>
++      <MasterPricesDialog open={pricesOpen} settings={settings} onClose={() => setPricesOpen(false)} onPriceChange={onPriceChange} />
++    </>
++  );
++}
+diff --git a/components/price-manager/master-prices-dialog.tsx b/components/price-manager/master-prices-dialog.tsx
+new file mode 100644
+index 0000000..dab4eb8
+--- /dev/null
++++ b/components/price-manager/master-prices-dialog.tsx
+@@ -0,0 +1,46 @@
++import { Dialog } from "@/components/ui/dialog";
++import { NumberInput } from "@/components/ui/number-input";
++import { PRODUCTS } from "@/lib/price-manager/catalog";
++import { GROUP_LABELS, OMITTED_PRODUCT_ID } from "@/lib/price-manager/constants";
++import { formatMoney, formatNumber } from "@/lib/price-manager/format";
++import type { QuoteSettings } from "@/lib/price-manager/types";
++
++interface MasterPricesDialogProps {
++  open: boolean;
++  settings: QuoteSettings;
++  onClose: () => void;
++  onPriceChange: (id: string, value: number | null) => void;
++}
++
++export function MasterPricesDialog({ open, settings, onClose, onPriceChange }: MasterPricesDialogProps) {
++  return (
++    <Dialog open={open} title="مدیریت قیمت مادر" onClose={onClose}>
++      <p className="mb-5 text-sm leading-7 text-caption">قیمت‌ها به تومان هستند. تغییرات این جدول در پیش‌فاکتور اعمال و به‌صورت خودکار ذخیره می‌شوند. پاک‌کردن مقدار و خروج از کادر، قیمت اولیه را برمی‌گرداند.</p>
++      <table className="w-full border-separate border-spacing-y-2 text-right text-[12px]">
++        <thead>
++          <tr>
++            {["کد", "محصول", "دسته", "قیمت اولیه", "قیمت جدید", "تغییر"].map((label) => <th key={label} className="bg-lavender px-3 py-3 font-medium first:rounded-r-full last:rounded-l-full">{label}</th>)}
++          </tr>
++        </thead>
++        <tbody>
++          {PRODUCTS.filter((product) => product.id !== OMITTED_PRODUCT_ID).map((product) => {
++            const price = settings.prices[product.id] ?? product.price;
++            const percentage = product.price && price !== null ? ((price / product.price) - 1) * 100 : null;
++            return (
++              <tr key={product.id}>
++                <td className="px-3 py-2 font-light"><bdi>{product.id}</bdi></td>
++                <td className="max-w-[320px] px-3 py-2">{product.name}</td>
++                <td className="px-3 py-2">{GROUP_LABELS[product.group]}</td>
++                <td className="whitespace-nowrap px-3 py-2 tabular-nums">{formatMoney(product.price)}</td>
++                <td className="w-[160px] px-3 py-2">
++                  <NumberInput value={price} label={`قیمت مادر ${product.name}`} onChange={(value) => onPriceChange(product.id, value)} className="h-10 w-[145px] rounded-full border border-outline px-2" />
++                </td>
++                <td className="whitespace-nowrap px-3 py-2" dir="ltr">{percentage === null ? "—" : `${formatNumber(percentage)}٪`}</td>
++              </tr>
++            );
++          })}
++        </tbody>
++      </table>
++    </Dialog>
++  );
++}
+diff --git a/components/price-manager/price-manager.tsx b/components/price-manager/price-manager.tsx
+new file mode 100644
+index 0000000..dbae02f
+--- /dev/null
++++ b/components/price-manager/price-manager.tsx
+@@ -0,0 +1,59 @@
++"use client";
++
++import { CloseIcon } from "@/components/ui/icons";
++import { usePriceManager } from "@/hooks/use-price-manager";
++import { HeroSection } from "./hero-section";
++import { ManagementTools } from "./management-tools";
++import { ProductTable } from "./product-table";
++import { QuotePrintDocument } from "./quote-print-document";
++import { QuoteSheet } from "./quote-sheet";
++
++export function PriceManager() {
++  const manager = usePriceManager();
++  const disabled = manager.status !== "ready";
++
++  function showResults() {
++    document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
++  }
++
++  return (
++    <>
++      <main className="mx-auto w-[1110px] pt-[14px] pb-8 print:hidden" aria-busy={manager.status === "loading"}>
++        <HeroSection settings={manager.settings} disabled={disabled} onChange={manager.updateSettings} onBuildList={showResults} />
++
++        {manager.message && (
++          <div role="status" className="mt-6 flex items-center justify-between gap-5 rounded-2xl border border-amber-300 bg-amber-50 px-6 py-4 text-sm leading-7 text-amber-900">
++            <p>{manager.message}</p>
++            <button type="button" aria-label="بستن پیام" onClick={() => manager.setMessage("")} className="shrink-0 cursor-pointer rounded-full p-1 outline-none focus-visible:ring-2 focus-visible:ring-brand">
++              <CloseIcon className="size-5" />
++            </button>
++          </div>
++        )}
++
++        <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.printQuote}>
++          <ProductTable
++            rows={manager.visibleRows}
++            disabled={disabled}
++            onPriceChange={manager.updatePrice}
++            onQuantityChange={manager.updateQuantity}
++            onBrandChange={manager.updateBrand}
++            onToggle={manager.toggleProduct}
++          />
++        </QuoteSheet>
++
++        <ManagementTools
++          settings={manager.settings}
++          disabled={disabled}
++          query={manager.query}
++          databasePath={manager.databasePath}
++          onQueryChange={manager.setQuery}
++          onSettingsChange={manager.updateSettings}
++          onPriceChange={manager.updatePrice}
++          onExportBackup={manager.exportBackup}
++          onImportBackup={manager.restoreBackup}
++        />
++      </main>
++      <QuotePrintDocument settings={manager.settings} quote={manager.quote} today={manager.today} />
++    </>
++  );
++}
+\ No newline at end of file
+diff --git a/components/price-manager/product-brand-menu.tsx b/components/price-manager/product-brand-menu.tsx
+new file mode 100644
+index 0000000..ba6a8bf
+--- /dev/null
++++ b/components/price-manager/product-brand-menu.tsx
+@@ -0,0 +1,76 @@
++"use client";
++
++import { useEffect, useRef, useState } from "react";
++import { ChevronIcon } from "@/components/ui/icons";
++import { formatNumber } from "@/lib/price-manager/format";
++import type { QuoteRow } from "@/lib/price-manager/types";
++
++interface ProductBrandMenuProps {
++  row: QuoteRow;
++  rowNumber: number;
++  onBrandChange: (id: string, brand: string) => void;
++  onToggle: (id: string) => void;
++}
++
++export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: ProductBrandMenuProps) {
++  const [open, setOpen] = useState(false);
++  const containerRef = useRef<HTMLDivElement>(null);
++  const buttonRef = useRef<HTMLButtonElement>(null);
++  const { product } = row;
++  const panelId = `product-options-${product.id}`;
++
++  useEffect(() => {
++    if (!open) return;
++    function closeOutside(event: PointerEvent) {
++      if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
++    }
++    document.addEventListener("pointerdown", closeOutside);
++    return () => document.removeEventListener("pointerdown", closeOutside);
++  }, [open]);
++
++  return (
++    <div ref={containerRef} className="relative h-[50px] min-w-0" onKeyDown={(event) => {
++      if (event.key === "Escape") { setOpen(false); buttonRef.current?.focus(); }
++    }}>
++      <button
++        ref={buttonRef}
++        type="button"
++        aria-expanded={open}
++        data-inactive={!row.enabled}
++        aria-controls={panelId}
++        aria-label={`برند و جزئیات ${product.name}`}
++        onClick={() => setOpen((current) => !current)}
++        className="flex h-full w-full cursor-pointer items-center rounded-full border border-outline bg-white text-right outline-none transition-shadow hover:border-brand data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
++        title={product.name}
++      >
++        <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-r from-brand to-brand-end text-[16px] text-white">{formatNumber(rowNumber)}</span>
++        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}</span>
++        <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
++      </button>
++
++      {open && (
++        <div id={panelId} className="absolute top-[58px] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
++          <p className="mb-2 text-[13px] font-bold">{product.name}</p>
++          <p className="mb-3 text-caption">کد: <bdi>{product.id}</bdi> · واحد: {product.unit}</p>
++          <label htmlFor={`brand-${product.id}`} className="mb-1 block font-medium">برند / مدل</label>
++          <select
++            id={`brand-${product.id}`}
++            value={row.brand}
++            disabled={!product.brands.length}
++            onChange={(event) => onBrandChange(product.id, event.target.value)}
++            className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25 disabled:cursor-default disabled:text-caption"
++          >
++            <option value="">{product.brands.length ? "انتخاب برند" : "برند تأییدشده ثبت نشده است"}</option>
++            {row.brand && !product.brands.includes(row.brand) && <option value={row.brand}>{row.brand}</option>}
++            {product.brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
++          </select>
++          {product.notes && <p className="mt-3 text-caption">{product.notes}</p>}
++          <label className="mt-4 flex cursor-pointer items-center gap-2 border-t border-outline/25 pt-3">
++            <input type="checkbox" checked={row.enabled} onChange={() => onToggle(product.id)} className="size-4 accent-brand" />
++            این محصول در پیش‌فاکتور محاسبه شود
++          </label>
++        </div>
++      )}
++    </div>
++  );
++}
+diff --git a/components/price-manager/product-table.tsx b/components/price-manager/product-table.tsx
+new file mode 100644
+index 0000000..1d44f4e
+--- /dev/null
++++ b/components/price-manager/product-table.tsx
+@@ -0,0 +1,52 @@
++import { NumberInput } from "@/components/ui/number-input";
++import { formatMoney } from "@/lib/price-manager/format";
++import type { QuoteRow } from "@/lib/price-manager/types";
++import { ProductBrandMenu } from "./product-brand-menu";
++
++interface ProductTableProps {
++  rows: QuoteRow[];
++  disabled: boolean;
++  onPriceChange: (id: string, value: number | null) => void;
++  onQuantityChange: (id: string, value: number | null) => void;
++  onBrandChange: (id: string, brand: string) => void;
++  onToggle: (id: string) => void;
++}
++
++const columns = "grid grid-cols-[1.85fr_0.43fr_1fr_1fr] gap-[14px]";
++
++export function ProductTable({ rows, disabled, onPriceChange, onQuantityChange, onBrandChange, onToggle }: ProductTableProps) {
++  return (
++    <fieldset disabled={disabled} className="min-w-0">
++      <div role="table" aria-label="جدول تجهیزات و قیمت‌ها" aria-colcount={4} aria-rowcount={rows.length + 1}>
++        <div role="rowgroup">
++          <div role="row" className={`${columns} mb-[14px]`}>
++            {["شرح کالا / انتخاب برند", "تعداد", "قیمت به ازای هر واحد", "قیمت کل"].map((label) => (
++              <div key={label} role="columnheader" className="flex h-[50px] items-center justify-center rounded-full bg-lavender px-2 text-center text-[13px] font-light">
++                {label}
++              </div>
++            ))}
++          </div>
++        </div>
++        <div role="rowgroup" className="flex flex-col gap-[14px]">
++          {rows.map((row, index) => (
++            <div key={row.product.id} role="row" className={`${columns} ${row.enabled ? "" : "[&>div:not(:first-child)]:opacity-45"}`}>
++              <div role="cell" className="min-w-0">
++                <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle} />
++              </div>
++              <div role="cell" className={`flex h-[50px] min-w-0 items-center rounded-full border bg-white ${row.quantity === null && row.enabled ? "border-amber-500/75" : "border-outline"}`} title={`واحد: ${row.product.unit}`}>
++                <NumberInput value={row.quantity} label={`تعداد ${row.product.name}`} onChange={(value) => onQuantityChange(row.product.id, value)} placeholder="—" className="h-full w-full px-1 text-[13px]" />
++              </div>
++              <div role="cell" className={`flex h-[50px] min-w-0 items-center rounded-full border bg-white ${row.unitPrice === null && row.enabled ? "border-amber-500/75" : "border-outline"}`}>
++                <NumberInput value={row.unitPrice} label={`قیمت ${row.product.name} (تومان)`} onChange={(value) => onPriceChange(row.product.id, value)} className="h-full w-full px-2 text-[13px]" />
++              </div>
++              <div role="cell" className="flex h-[50px] min-w-0 items-center justify-center rounded-full border border-outline bg-white px-2 text-[13px] font-light tabular-nums" title="مبلغ به تومان">
++                {formatMoney(row.total)}
++              </div>
++            </div>
++          ))}
++          {!rows.length && <p className="py-10 text-center text-sm text-caption">محصولی برای این جستجو پیدا نشد.</p>}
++        </div>
++      </div>
++    </fieldset>
++  );
++}
+\ No newline at end of file
+diff --git a/components/price-manager/quote-metadata.tsx b/components/price-manager/quote-metadata.tsx
+new file mode 100644
+index 0000000..6d8b62c
+--- /dev/null
++++ b/components/price-manager/quote-metadata.tsx
+@@ -0,0 +1,29 @@
++import { MetaIcon } from "@/components/ui/icons";
++import { getPackageLabel } from "@/lib/price-manager/constants";
++import { formatNumber } from "@/lib/price-manager/format";
++import type { QuoteSettings } from "@/lib/price-manager/types";
++
++export function QuoteMetadata({ settings, compact = false }: { settings: QuoteSettings; compact?: boolean }) {
++  const items = [
++    { kind: "motor" as const, label: "نوع موتور:", value: settings.motor === "gearbox" ? "موتور گیربکس" : "موتور گیرلس" },
++    { kind: "package" as const, label: "نوع پکیج:", value: getPackageLabel(settings.pack) },
++    { kind: "stops" as const, label: "تعداد توقف:", value: `آسانسور ${formatNumber(settings.stops)} توقف` },
++    { kind: "capacity" as const, label: "ظرفیت نفرات:", value: settings.capacity === "8" ? "۸ نفر" : "۴ تا ۶ نفر" },
++  ];
++
++  return (
++    <dl className={`grid grid-cols-[0.83fr_1.17fr] ${compact ? "gap-x-2 gap-y-2" : "gap-x-[14px] gap-y-[14px]"}`}>
++      {items.map((item) => (
++        <div key={item.kind} className={`flex min-w-0 items-center overflow-hidden rounded-full border border-outline ${compact ? "h-8 text-[10px]" : "h-[50px] text-[13px]"}`}>
++          <dt className={`flex h-full shrink-0 items-center justify-center gap-2 rounded-full bg-linear-to-r from-brand to-brand-end font-medium text-white ${compact ? "w-[97px] px-2" : "w-[166px] px-4"}`}>
++            <MetaIcon kind={item.kind} className={compact ? "size-3" : "size-4"} />
++            {item.label}
++          </dt>
++          <dd className={`min-w-0 flex-1 truncate px-3 text-center font-light ${item.kind === "package" && !compact ? "text-[12px]" : ""}`} title={item.value}>
++            {item.value}
++          </dd>
++        </div>
++      ))}
++    </dl>
++  );
++}
+diff --git a/components/price-manager/quote-print-document.tsx b/components/price-manager/quote-print-document.tsx
+new file mode 100644
+index 0000000..918eff0
+--- /dev/null
++++ b/components/price-manager/quote-print-document.tsx
+@@ -0,0 +1,61 @@
++import Image from "next/image";
++import { formatMoney, formatNumber } from "@/lib/price-manager/format";
++import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
++import { BrandWordmark } from "./brand-wordmark";
++import { QuoteMetadata } from "./quote-metadata";
++
++interface QuotePrintDocumentProps {
++  settings: QuoteSettings;
++  quote: QuoteSummary;
++  today: string;
++}
++
++/** A real paginated table: no hero, controls, screenshots, or clipped long lists. */
++export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumentProps) {
++  return (
++    <section dir="rtl" aria-label="نسخه چاپی پیش‌فاکتور" className="hidden text-brand print:block">
++      <header className="mb-5 break-inside-avoid">
++        <Image src="/logo.png" alt="Bollourian Elevator" width={240} height={83} className="mx-auto mb-5 h-[83px] w-[240px] object-contain" />
++        <QuoteMetadata settings={settings} compact />
++        <div className="mt-3 flex justify-between text-[10px]">
++          <span>مشتری: {settings.customer || "—"}</span>
++          <span>شماره: {settings.quoteNumber || "—"}</span>
++          <span>تاریخ: {today}</span>
++        </div>
++      </header>
++      <table className="w-full table-fixed border-separate [border-spacing:5px_7px] text-[9px]">
++        <colgroup><col className="w-[42%]" /><col className="w-[10%]" /><col className="w-[24%]" /><col className="w-[24%]" /></colgroup>
++        <thead className="[display:table-header-group]">
++          <tr>
++            {["شرح کالا / برند", "تعداد", "قیمت واحد (تومان)", "مبلغ کل (تومان)"].map((label) => (
++              <th key={label} className="rounded-full bg-lavender px-2 py-2.5 text-center font-medium">{label}</th>
++            ))}
++          </tr>
++        </thead>
++        <tbody>
++          {quote.enabledRows.map((row, index) => (
++            <tr key={row.product.id} className="break-inside-avoid [page-break-inside:avoid]">
++              <td className="rounded-[18px] border border-outline px-2 py-2">
++                <div className="flex items-center gap-2">
++                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand text-white">{formatNumber(index + 1)}</span>
++                  <span className="break-words leading-5">{row.product.name}{row.brand && !row.product.name.includes(row.brand) ? ` — ${row.brand}` : ""}</span>
++                </div>
++              </td>
++              <td className="rounded-[18px] border border-outline px-1 py-2 text-center leading-5">{row.quantity === null ? "—" : formatNumber(row.quantity)}<span className="block text-[8px] text-caption">{row.product.unit}</span></td>
++              <td className="rounded-[18px] border border-outline px-1 py-2 text-center tabular-nums">{formatMoney(row.unitPrice)}</td>
++              <td className="rounded-[18px] border border-outline px-1 py-2 text-center tabular-nums">{formatMoney(row.total)}</td>
++            </tr>
++          ))}
++        </tbody>
++      </table>
++      <footer className="mt-4 break-inside-avoid">
++        <div className="flex justify-between border-t border-outline/40 pt-4 text-[11px]">
++          <span>درصد تغییر قیمت: {formatNumber(settings.rate)}٪</span>
++          <strong>جمع کل: {formatMoney(quote.total)} تومان</strong>
++        </div>
++        <div className="mt-10 flex justify-around text-[10px]"><span>مهر و امضای فروشنده</span><span>امضای خریدار</span></div>
++        <div aria-hidden="true" className="mt-10 h-[55px] overflow-hidden border-t border-outline/30 pt-5"><BrandWordmark showSubtitle={false} className="mx-auto w-[480px]" /></div>
++      </footer>
++    </section>
++  );
++}
+diff --git a/components/price-manager/quote-sheet.tsx b/components/price-manager/quote-sheet.tsx
+new file mode 100644
+index 0000000..38e64fe
+--- /dev/null
++++ b/components/price-manager/quote-sheet.tsx
+@@ -0,0 +1,57 @@
++import Image from "next/image";
++import type { ReactNode } from "react";
++import { formatMoney, formatNumber } from "@/lib/price-manager/format";
++import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
++import { BrandWordmark } from "./brand-wordmark";
++import { QuoteMetadata } from "./quote-metadata";
++
++interface QuoteSheetProps {
++  settings: QuoteSettings;
++  quote: QuoteSummary;
++  disabled: boolean;
++  isPrinting: boolean;
++  onPrint: () => void;
++  children: ReactNode;
++}
++
++export function QuoteSheet({ settings, quote, disabled, isPrinting, onPrint, children }: QuoteSheetProps) {
++  const canPrint = !disabled && !isPrinting && quote.enabledRows.length > 0 && quote.incompleteRows.length === 0;
++
++  return (
++    <section id="results" aria-label="پیش‌فاکتور بلوریان" className="mt-[48px] scroll-mt-5 rounded-[28px] border border-outline bg-white">
++      <div className="px-[82px] pt-[40px]">
++        <header className="mb-[42px] flex justify-center">
++          <Image src="/logo.png" alt="Bollourian Elevator — آسانسور بلوریان" width={350} height={120} className="h-[120px] w-[350px] object-contain" />
++        </header>
++        <QuoteMetadata settings={settings} />
++        <div className="mt-[40px]">{children}</div>
++
++        <div className="mt-[38px] flex items-center justify-between gap-6">
++          <button
++            type="button"
++            onClick={onPrint}
++            disabled={!canPrint}
++            title={quote.incompleteRows.length ? "ابتدا قیمت و تعداد ردیف‌های ناقص را کامل کنید" : "چاپ / ذخیره به صورت PDF"}
++            className="h-[43px] w-[166px] shrink-0 cursor-pointer rounded-full bg-linear-to-r from-brand to-brand-end text-[13px] text-white outline-none transition-shadow hover:shadow-lg hover:shadow-brand/15 focus-visible:ring-4 focus-visible:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
++          >
++            {isPrinting ? "آماده‌سازی…" : "خروجی PDF"}
++          </button>
++          <p className="text-[13px] font-light">
++            {quote.incompleteRows.length ? "جمع اقلام تکمیل‌شده:" : "جمع کل:"}
++            <strong className="mr-3 text-[17px] font-medium tabular-nums">{formatMoney(quote.total)}</strong>
++            <span className="mr-1 text-[12px]">تومان</span>
++          </p>
++        </div>
++        {quote.incompleteRows.length > 0 && (
++          <p className="mt-4 text-[12px] leading-6 text-amber-800" role="status">
++            قیمت یا تعداد {formatNumber(quote.incompleteRows.length)} ردیف نیاز به تکمیل دارد. کادرهای نارنجی را بررسی کنید؛ مبلغی برای آن‌ها حدس زده نشده است.
++          </p>
++        )}
++      </div>
++      <footer aria-hidden="true" className="mt-[42px] h-[128px] overflow-hidden rounded-b-[28px] px-[132px] pt-0">
++        <div className="mx-auto mb-8 h-px w-[530px] bg-linear-to-r from-transparent via-outline to-transparent" />
++        <BrandWordmark showSubtitle={false} className="mx-auto h-auto w-[810px] text-brand" />
++      </footer>
++    </section>
++  );
++}
+diff --git a/components/ui/dialog.tsx b/components/ui/dialog.tsx
+new file mode 100644
+index 0000000..0a2bfbf
+--- /dev/null
++++ b/components/ui/dialog.tsx
+@@ -0,0 +1,42 @@
++"use client";
++
++import { useEffect, useRef } from "react";
++import type { ReactNode } from "react";
++import { CloseIcon } from "./icons";
++
++interface DialogProps {
++  open: boolean;
++  title: string;
++  onClose: () => void;
++  children: ReactNode;
++}
++
++export function Dialog({ open, title, onClose, children }: DialogProps) {
++  const dialogRef = useRef<HTMLDialogElement>(null);
++
++  useEffect(() => {
++    const dialog = dialogRef.current;
++    if (!dialog) return;
++    if (open && !dialog.open) dialog.showModal();
++    if (!open && dialog.open) dialog.close();
++  }, [open]);
++
++  return (
++    <dialog
++      ref={dialogRef}
++      onCancel={onClose}
++      onClose={onClose}
++      onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
++      aria-label={title}
++      className="fixed inset-0 m-auto max-h-[86vh] w-[1040px] max-w-none overflow-hidden rounded-[24px] border border-outline bg-white p-0 text-brand shadow-2xl backdrop:bg-brand/40 print:hidden"
++    >
++      <header className="flex items-center justify-between border-b border-outline/30 px-7 py-5">
++        <h2 className="text-xl font-bold">{title}</h2>
++        <button type="button" onClick={onClose} aria-label="بستن پنجره" className="cursor-pointer rounded-full p-2 outline-none hover:bg-lavender/50 focus-visible:ring-2 focus-visible:ring-brand">
++          <CloseIcon className="size-5" />
++        </button>
++      </header>
++      <div className="max-h-[calc(86vh-85px)] overflow-auto p-7">{children}</div>
++    </dialog>
++  );
++}
+\ No newline at end of file
+diff --git a/components/ui/icons.tsx b/components/ui/icons.tsx
+new file mode 100644
+index 0000000..a0a5f5c
+--- /dev/null
++++ b/components/ui/icons.tsx
+@@ -0,0 +1,48 @@
++import type { SVGProps } from "react";
++
++type IconProps = SVGProps<SVGSVGElement>;
++
++export function ChevronIcon(props: IconProps) {
++  return (
++    <svg viewBox="0 0 12 8" fill="currentColor" aria-hidden="true" {...props}>
++      <path d="M1 1h10L6 7z" />
++    </svg>
++  );
++}
++
++export function SettingsIcon(props: IconProps) {
++  return (
++    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" {...props}>
++      <path d="M4 7h16M4 17h16" />
++      <circle cx="9" cy="7" r="2.5" fill="white" />
++      <circle cx="15" cy="17" r="2.5" fill="white" />
++    </svg>
++  );
++}
++
++export function CloseIcon(props: IconProps) {
++  return (
++    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" {...props}>
++      <path d="m6 6 12 12M18 6 6 18" />
++    </svg>
++  );
++}
++
++export function DownloadIcon(props: IconProps) {
++  return (
++    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
++      <path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5" />
++    </svg>
++  );
++}
++
++export function MetaIcon({ kind, ...props }: IconProps & { kind: "motor" | "package" | "stops" | "capacity" }) {
++  return (
++    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
++      {kind === "motor" && <><rect x="5" y="7" width="14" height="10" rx="2" /><path d="M8 7V4h8v3M2 10v4m20-4v4M8 10v4m4-4v4m4-4v4" /></>}
++      {kind === "package" && <><path d="m4 7 8-4 8 4v10l-8 4-8-4V7Zm0 0 8 4 8-4M12 11v10M8 5l8 4" /></>}
++      {kind === "stops" && <><path d="M4 6h3m3 0h10M4 12h3m3 0h10M4 18h3m3 0h10" /></>}
++      {kind === "capacity" && <><circle cx="9" cy="7" r="3" /><path d="M3 20v-3a6 6 0 0 1 12 0v3M17 4a3 3 0 0 1 0 6m1 3a5 5 0 0 1 3 5v2" /></>}
++    </svg>
++  );
++}
+diff --git a/components/ui/number-input.tsx b/components/ui/number-input.tsx
+new file mode 100644
+index 0000000..042af7c
+--- /dev/null
++++ b/components/ui/number-input.tsx
+@@ -0,0 +1,50 @@
++"use client";
++
++import { useState } from "react";
++import { formatNumber, normalizeDigits, parseNumericInput } from "@/lib/price-manager/format";
++
++interface NumberInputProps {
++  value: number | null;
++  label: string;
++  onChange: (value: number | null) => void;
++  placeholder?: string;
++  allowNegative?: boolean;
++  className?: string;
++}
++
++/** Format on blur, not on every keystroke, so decimals and Persian digits stay editable. */
++export function NumberInput({ value, label, onChange, placeholder = "نامشخص", allowNegative = false, className = "" }: NumberInputProps) {
++  const [isEditing, setIsEditing] = useState(false);
++  const [draft, setDraft] = useState("");
++
++  function changeValue(text: string) {
++    const normalized = normalizeDigits(text);
++    const pattern = allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
++    if (!pattern.test(normalized)) return;
++    setDraft(text);
++    if (normalized === "-" || normalized === "." || normalized === "-.") return;
++    onChange(parseNumericInput(text));
++  }
++
++  return (
++    <input
++      aria-label={label}
++      inputMode="decimal"
++      type="text"
++      dir="ltr"
++      autoComplete="off"
++      value={isEditing ? draft : value === null ? "" : formatNumber(value)}
++      placeholder={placeholder}
++      onFocus={(event) => {
++        // Keep the displayed value unchanged on focus so text selection does not jump.
++        setDraft(value === null ? "" : formatNumber(value));
++        setIsEditing(true);
++        event.currentTarget.select();
++      }}
++      onChange={(event) => changeValue(event.target.value)}
++      onBlur={() => setIsEditing(false)}
++      onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
++      className={`min-w-0 bg-transparent text-center tabular-nums outline-none placeholder:text-caption focus-visible:rounded-full focus-visible:ring-2 focus-visible:ring-brand/25 ${className}`}
++    />
++  );
++}
+diff --git a/components/ui/select-field.tsx b/components/ui/select-field.tsx
+new file mode 100644
+index 0000000..93fbe12
+--- /dev/null
++++ b/components/ui/select-field.tsx
+@@ -0,0 +1,28 @@
++import { ChevronIcon } from "./icons";
++
++interface SelectFieldProps {
++  id: string;
++  label: string;
++  value: string | number;
++  options: { value: string | number; label: string }[];
++  onChange: (value: string) => void;
++}
++
++export function SelectField({ id, label, value, options, onChange }: SelectFieldProps) {
++  return (
++    <label htmlFor={id} className="block text-right">
++      <span className="mb-2 block px-2 text-[13px] font-medium leading-5 text-caption">{label}</span>
++      <span className="relative block">
++        <select
++          id={id}
++          value={value}
++          onChange={(event) => onChange(event.target.value)}
++          className="h-[50px] w-full cursor-pointer appearance-none rounded-full border border-brand bg-white pr-[16px] pl-10 text-[13px] font-light text-brand outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-brand/25 disabled:cursor-wait"
++        >
++          {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
++        </select>
++        <ChevronIcon className="pointer-events-none absolute top-1/2 left-[27px] h-2 w-3 -translate-y-1/2" />
++      </span>
++    </label>
++  );
++}
+diff --git a/docs/UI-REFACTOR.md b/docs/UI-REFACTOR.md
+new file mode 100644
+index 0000000..b6616e2
+--- /dev/null
++++ b/docs/UI-REFACTOR.md
+@@ -0,0 +1,103 @@
++# بازطراحی رابط دسکتاپ بلوریان
++
++این تغییرات برای شاخه `main` مخزن `aminmansuri1377/bollurian` در commit زیر تهیه شده‌اند:
++
++```text
++0173c6fb8786f94114fd46043f62a32a06bcc1f1
++```
++
++## نصب تغییرات
++
++ابتدا تغییرات شخصی پروژه را commit یا stash کنید. سپس از ریشه مخزن:
++
++```powershell
++git apply --check .\bollurian-desktop-tailwind.patch
++git apply .\bollurian-desktop-tailwind.patch
++npm install
++npm run test
++npm run typecheck
++npm run build
++npm run desktop:dev
++```
++
++برای پیش‌نمایش مرورگر از `npm run dev` و برای ساخت نصب‌کننده ویندوز از `npm run desktop:build` استفاده کنید. `npm install` ضروری است، چون Tailwind و افزونه PostCSS جدید هستند. فایل `package-lock.json` موجود را با همین دستور به‌روز و همراه پروژه commit کنید؛ پیش از این مرحله از `npm ci` استفاده نکنید.
++
++## فایل‌های گرافیکی
++
++دارایی‌های موجود مخزن بدون تغییر استفاده می‌شوند:
++
++- `public/hero.png`
++- `public/logo.png`
++- `public/font/Peyda-Regular.ttf`
++- `public/font/peyda-light.ttf`
++- `public/font/Peyda-Medium.ttf`
++- `public/font/Peyda-Bold.ttf`
++- `public/font/Peyda-Black.ttf`
++
++هیچ فایل فونتی همراه patch ارسال نشده است. حروف خطی انگلیسیِ طرح در `BrandWordmark` به صورت مسیر SVG قرار دارند؛ برای آن‌ها فونت آنلاین یا فونت جایگزین لازم نیست. فونت فارسی با `next/font/local` از فایل‌های خود پروژه بارگذاری می‌شود.
++
++## ساختار قابل ویرایش
++
++```text
++app/
++  page.tsx                          فقط ورودی صفحه
++  layout.tsx                        تنظیم فونت محلی و metadata
++  globals.css                       ورودی Tailwind، رنگ‌ها و هندسه کاغذ چاپ
++components/
++  price-manager/
++    price-manager.tsx               کنار هم قرار دادن بخش‌ها
++    hero-section.tsx                عکس و محتوای هیرو
++    elevator-filters.tsx            فرم انتخاب آسانسور
++    brand-wordmark.tsx              نوشته خطی برند
++    quote-sheet.tsx                 قاب گزارش و جمع قیمت
++    quote-metadata.tsx              چهار کادر مشخصات
++    product-table.tsx               جدول و ورودی‌های قیمت / تعداد
++    product-brand-menu.tsx          انتخاب برند و فعال / غیرفعال کردن قلم
++    quote-print-document.tsx        قالب مستقل چاپ چندصفحه‌ای
++    management-tools.tsx           مشتری، جستجو، درصد قیمت و پشتیبان
++    master-prices-dialog.tsx        پنجره قیمت مادر
++  ui/
++    select-field.tsx                انتخاب‌گر مشترک
++    number-input.tsx                ورودی اعداد فارسی و انگلیسی
++    dialog.tsx                     پنجره بومی HTML با Escape و focus trap
++    icons.tsx                      آیکن‌های SVG محلی
++hooks/
++  use-price-manager.ts              state و عملیات صفحه
++lib/price-manager/
++  types.ts                         مدل‌های TypeScript
++  constants.ts                     گزینه‌ها و پکیج‌ها
++  catalog.ts                       اتصال کاتالوگ موجود
++  calculations.ts                  فیلتر و محاسبات مستقل از React
++  persistence.ts                   SQLite / مرورگر / پشتیبان
++  format.ts                        قالب اعداد
++scripts/
++  test-pricing.cjs                  تست‌های رگرسیون محاسبات
++```
++
++## تصمیم‌های طراحی
++
++عرض محتوای دسکتاپ ۱۱۱۰ پیکسل و ارتفاع هیرو ۶۱۸ پیکسل است. چیدمان هیرو عمداً `dir="ltr"` و متن هر ستون `dir="rtl"` دارد؛ بنابراین فرم همیشه در سمت راست قرار می‌گیرد. نسخه موبایل یا breakpoint واکنش‌گرا اضافه نشده است؛ در پنجره کوچک، صفحه اسکرول افقی خواهد داشت. حداقل عرض پنجره Tauri برابر ۱۱۷۰ پیکسل تنظیم شده است.
++
++`app/page.css` حذف شده است. هیچ CSS Module، style JSX یا فایل استایل مخصوص کامپوننت وجود ندارد. تنها `globals.css` شامل import مربوط به Tailwind، توکن‌های رنگ و فونت و `@page` برای اندازه A4 است. استایل تمام عناصر و حالت‌های چاپ در `className` نوشته شده‌اند.
++
++تعداد ردیف‌ها واقعی است و به ۱۱ ردیفِ نمونه طراحی محدود نشده است. ابزارهای مدیریتی در بخش بازشونده زیر گزارش قرار گرفته‌اند تا طراحی اصلی خلوت بماند. قیمت‌ها همچنان بر حسب تومان هستند. برای حذف یک قلم از محاسبات، منوی کنار نام آن را باز کنید.
++
++## داده‌ها و محاسبات
++
++کاتالوگ، قیمت‌های پایه، قواعد پکیج، محدودیت موتور ۷٫۵ / ۱۱ کیلووات و فرمول قبلی تغییر نکرده‌اند:
++
++```typescript
++Math.round(quantity * unitPrice * (1 + settings.rate / 100))
++```
++
++انتخاب نوع موتور هنوز همان رفتاری را دارد که در نسخه قبلی مخزن پیاده‌سازی شده بود؛ این patch هیچ قانون تجاری یا برندِ فاقد داده به برنامه اضافه نمی‌کند. موارد فاقد تعداد یا قیمت همچنان مشخص و مانع صدور PDF هستند. محدودیت‌های کاتالوگ قبلی با بازطراحی UI برطرف نشده‌اند.
++
++جستجو فقط نمایش جدول را فیلتر می‌کند؛ برخلاف نسخه قبلی، باعث تغییر جمع کل یا حذف ناخواسته اقلام PDF نمی‌شود. مقدار صفر معتبر است. پاک‌کردن ورودی عددی، override را حذف می‌کند و مقدار مرجع را برمی‌گرداند؛ مقدار نامشخص به صفر تبدیل نمی‌شود.
++
++ساختار دیتابیس، شناسه برنامه، نام commandهای Tauri و کلید ذخیره مرورگر تغییر نکرده‌اند. داده‌ها و نسخه‌های پشتیبان قبلی سازگار می‌مانند. ذخیره‌سازی‌های SQLite به ترتیب اجرا می‌شوند و خطای بارگذاری باعث بازنویسی اطلاعات قبلی نمی‌شود.
++
++## چاپ و آزمون
++
++قالب چاپ مستقل است: هیرو و دکمه‌ها چاپ نمی‌شوند، عنوان ستون‌ها در صفحات بعد تکرار می‌شود و متن طولانی کالا در سطر خودش می‌شکند. خروجی همچنان از پنجره Print / Save as PDF سیستم تهیه می‌شود؛ انتخاب نام و مسیر فایل در همان پنجره انجام می‌شود.
++
++`npm test` فرمول‌ها، فیلترها، داده‌های ناقص، صفر، درصد تغییر، اعداد فارسی و سازگاری state قبلی را آزمایش می‌کند. `npm run typecheck` و `npm run build` باید با وابستگی‌های نصب‌شده پروژه اجرا شوند. برای تحویل نهایی، نسخه Release ویندوز و چاپ چندصفحه‌ای را در WebView2 سیستم مقصد نیز بررسی کنید.
+\ No newline at end of file
+diff --git a/docs/UI-VALIDATION.md b/docs/UI-VALIDATION.md
+new file mode 100644
+index 0000000..2eedea5
+--- /dev/null
++++ b/docs/UI-VALIDATION.md
+@@ -0,0 +1,31 @@
++# گزارش بررسی patch رابط کاربری
++
++## مبنا
++
++کدهای تغییرکرده با نسخه `0173c6fb8786f94114fd46043f62a32a06bcc1f1` از شاخه `main` تطبیق داده شده‌اند. محتوای فایل‌های موجود با hash فایل‌های مخزن بررسی شده است. patch به مسیرهای نسبی ریشه پروژه اعمال می‌شود.
++
++## بررسی‌های انجام‌شده
++
++- ۴۳۰ assertion موفق برای محاسبات، شامل همه ۲۰۸ ترکیب پکیج / توقف / ظرفیت.
++- بررسی syntax و transpile فایل‌های TypeScript / TSX با TypeScript 5.8.3؛ بدون خطای syntax.
++- تولید موفق utilityهای CSS با Tailwind 4.1.10.
++- ۲۲ بررسی موفق در مرورگر Chromium با یک محیط آزمایشی مستقل React 18.2: چیدمان ۱۱۱۰ × ۶۱۸، موقعیت فرم در سمت راست، گزینه‌های فیلتر، انتخاب برند، غیرفعال / فعال کردن قلم، کلید Escape، فیلتر موتور ۷٫۵ / ۱۱، ورود اعداد فارسی، جستجو بدون تغییر جمع، پنجره قیمت مادر و مسیر فراخوانی چاپ.
++- بررسی `git diff --check` و اعمال patch روی baseline تمیز.
++- کاتالوگ و کد Rust مربوط به SQLite دست‌نخورده مانده‌اند.
++
++## محدودیت‌های این بررسی
++
++محیط آزمایشی مرورگر جای Build واقعی Next.js نیست. در آن، لایه `next/image` شبیه‌سازی شده و از تصویر ساده آزمایشی برای هیرو، برش لوگوی طرح و فونت سیستم استفاده شده است؛ این تصاویر جزو patch نیستند. کد نهایی به عکس‌ها و فونت‌های موجود در `public` خود مخزن اشاره می‌کند. بنابراین تطابق پیکسلی رنگ عکس و رندر فونت واقعی در این محیط تأیید نشده است.
++
++دسترسی شبکه لازم برای نصب وابستگی‌های npm در محیط بررسی فراهم نبود؛ `npm install --offline` به دلیل نبودن بسته‌ها در cache متوقف شد. Build واقعی Next.js، typecheck کامل با typeهای وابستگی‌ها و Build نصب‌کننده ویندوز در این محیط تأیید نشده‌اند. اجرای این موارد روی سیستم توسعه لازم است:
++
++```powershell
++npm install
++npm run test
++npm run typecheck
++npm run build
++npm run desktop:dev
++npm run desktop:build
++```
++
++بررسی چاپ شامل نمایش قالب چاپ و فراخوانی تابع چاپ بوده است، نه ساخت و تأیید فایل PDF در WebView2 ویندوز. چاپ چندصفحه‌ای و انتخاب Save as PDF باید روی نسخه ویندوز نیز آزمایش شوند.
+\ No newline at end of file
+diff --git a/hooks/use-price-manager.ts b/hooks/use-price-manager.ts
+new file mode 100644
+index 0000000..a0daf2a
+--- /dev/null
++++ b/hooks/use-price-manager.ts
+@@ -0,0 +1,140 @@
++"use client";
++
++import { useCallback, useEffect, useMemo, useState } from "react";
++import { PRODUCTS } from "@/lib/price-manager/catalog";
++import { buildQuote, searchQuoteRows } from "@/lib/price-manager/calculations";
++import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
++import {
++  downloadBackup,
++  getDatabasePath,
++  loadSettings,
++  readBackup,
++  saveQuote,
++  saveSettings,
++} from "@/lib/price-manager/persistence";
++import type { LoadStatus, QuoteSettings } from "@/lib/price-manager/types";
++
++export function usePriceManager() {
++  const [settings, setSettings] = useState<QuoteSettings>(INITIAL_SETTINGS);
++  const [status, setStatus] = useState<LoadStatus>("loading");
++  const [query, setQuery] = useState("");
++  const [message, setMessage] = useState("");
++  const [databasePath, setDatabasePath] = useState("");
++  const [isPrinting, setIsPrinting] = useState(false);
++  const [today, setToday] = useState("");
++
++  useEffect(() => {
++    let cancelled = false;
++    setToday(new Date().toLocaleDateString("fa-IR"));
++
++    async function initialize() {
++      try {
++        const saved = await loadSettings();
++        if (cancelled) return;
++        setSettings(saved);
++        setStatus("ready");
++        try {
++          const path = await getDatabasePath();
++          if (!cancelled) setDatabasePath(path);
++        } catch {
++          // A failed path label must not prevent the app from using loaded data.
++        }
++      } catch (error) {
++        console.error("Loading saved settings failed", error);
++        if (!cancelled) {
++          setStatus("error");
++          setMessage("بارگذاری اطلاعات ناموفق بود. برای جلوگیری از بازنویسی داده‌ها، برنامه را ببندید و دوباره باز کنید.");
++        }
++      }
++    }
++
++    void initialize();
++    return () => { cancelled = true; };
++  }, []);
++
++  useEffect(() => {
++    if (status !== "ready") return;
++    void saveSettings(settings).catch((error: unknown) => {
++      console.error("Saving settings failed", error);
++      setMessage("ذخیره اطلاعات ناموفق بود. پیش از خروج، یک نسخه پشتیبان دریافت کنید.");
++    });
++  }, [settings, status]);
++
++  const quote = useMemo(() => buildQuote(PRODUCTS, settings), [settings]);
++  const visibleRows = useMemo(() => searchQuoteRows(quote.rows, query), [quote.rows, query]);
++
++  const updateSettings = useCallback((patch: Partial<QuoteSettings>) => {
++    setSettings((current) => ({ ...current, ...patch }));
++  }, []);
++
++  const updateNumber = useCallback((field: "prices" | "quantities", id: string, value: number | null) => {
++    setSettings((current) => {
++      const values = { ...current[field] };
++      if (value === null) delete values[id];
++      else if (Number.isFinite(value) && value >= 0) values[id] = value;
++      return { ...current, [field]: values };
++    });
++  }, []);
++
++  const updatePrice = useCallback((id: string, value: number | null) => {
++    updateNumber("prices", id, value);
++  }, [updateNumber]);
++
++  const updateQuantity = useCallback((id: string, value: number | null) => {
++    updateNumber("quantities", id, value);
++  }, [updateNumber]);
++
++  const updateBrand = useCallback((id: string, brand: string) => {
++    setSettings((current) => ({ ...current, brands: { ...current.brands, [id]: brand } }));
++  }, []);
++
++  const toggleProduct = useCallback((id: string) => {
++    setSettings((current) => ({
++      ...current,
++      excluded: current.excluded.includes(id)
++        ? current.excluded.filter((productId) => productId !== id)
++        : [...current.excluded, id],
++    }));
++  }, []);
++
++  async function restoreBackup(file: File | undefined) {
++    if (!file) return;
++    try {
++      setSettings(await readBackup(file));
++      setMessage("نسخه پشتیبان با موفقیت بازیابی شد.");
++    } catch {
++      setMessage("فایل انتخاب‌شده یک نسخه پشتیبان معتبر بلوریان نیست.");
++    }
++  }
++
++  async function printQuote() {
++    if (status !== "ready" || isPrinting) return;
++    if (quote.incompleteRows.length) {
++      setMessage(`قیمت یا تعداد ${quote.incompleteRows.length} ردیف کامل نیست. پیش از صدور PDF آن‌ها را تکمیل کنید.`);
++      return;
++    }
++    if (!quote.enabledRows.length) {
++      setMessage("حداقل یک محصول برای صدور پیش‌فاکتور انتخاب کنید.");
++      return;
++    }
++    setIsPrinting(true);
++    try {
++      await saveQuote(settings, quote);
++      await document.fonts.ready;
++      window.print();
++    } catch (error) {
++      console.error("Exporting quote failed", error);
++      setMessage("ذخیره پیش‌فاکتور ناموفق بود؛ لطفاً دوباره تلاش کنید.");
++    } finally {
++      setIsPrinting(false);
++    }
++  }
++
++  return {
++    settings, status, quote, visibleRows, query, setQuery, message, setMessage,
++    databasePath, today, isPrinting,
++    updateSettings, updatePrice, updateQuantity, updateBrand, toggleProduct,
++    restoreBackup, printQuote,
++    exportBackup: () => downloadBackup(settings),
++  };
++}
+diff --git a/lib/price-manager/calculations.ts b/lib/price-manager/calculations.ts
+new file mode 100644
+index 0000000..ec6850c
+--- /dev/null
++++ b/lib/price-manager/calculations.ts
+@@ -0,0 +1,57 @@
++import { OMITTED_PRODUCT_ID, PACKAGE_GROUPS } from "./constants";
++import type { Capacity, Product, QuoteRow, QuoteSettings, QuoteSummary } from "./types";
++
++export function matchesCapacity(product: Product, capacity: Capacity): boolean {
++  if (["P-MOTOR-7.5", "P-CONTROL-7.5"].includes(product.id)) return capacity === "4-6";
++  if (["P-MOTOR-11", "P-CONTROL-11"].includes(product.id)) return capacity === "8";
++  return true;
++}
++
++export function selectProducts(products: Product[], settings: QuoteSettings): Product[] {
++  return products.filter(
++    (product) =>
++      product.id !== OMITTED_PRODUCT_ID &&
++      PACKAGE_GROUPS[settings.pack].includes(product.group) &&
++      matchesCapacity(product, settings.capacity),
++  );
++}
++
++export function calculateRow(product: Product, settings: QuoteSettings): QuoteRow {
++  const quantity = settings.quantities[product.id] ?? product.quantities[String(settings.stops)] ?? null;
++  const unitPrice = settings.prices[product.id] ?? product.price;
++  const enabled = !settings.excluded.includes(product.id);
++
++  // Original pricing formula, including its existing rounding behavior.
++  const total = enabled && quantity !== null && unitPrice !== null
++    ? Math.round(quantity * unitPrice * (1 + settings.rate / 100))
++    : null;
++
++  return {
++    product,
++    quantity,
++    unitPrice,
++    total,
++    enabled,
++    brand: settings.brands[product.id] ?? product.brands[0] ?? "",
++  };
++}
++
++export function buildQuote(products: Product[], settings: QuoteSettings): QuoteSummary {
++  const rows = selectProducts(products, settings).map((product) => calculateRow(product, settings));
++  const enabledRows = rows.filter((row) => row.enabled);
++  return {
++    rows,
++    enabledRows,
++    incompleteRows: enabledRows.filter((row) => row.total === null),
++    total: enabledRows.reduce((sum, row) => sum + (row.total ?? 0), 0),
++  };
++}
++
++/** Search changes the visible list, never the quote total or exported items. */
++export function searchQuoteRows(rows: QuoteRow[], query: string): QuoteRow[] {
++  const normalized = query.trim().toLocaleLowerCase();
++  if (!normalized) return rows;
++  return rows.filter((row) =>
++    `${row.product.id} ${row.product.name} ${row.brand}`.toLocaleLowerCase().includes(normalized),
++  );
++}
+diff --git a/lib/price-manager/catalog.ts b/lib/price-manager/catalog.ts
+new file mode 100644
+index 0000000..cdaeb44
+--- /dev/null
++++ b/lib/price-manager/catalog.ts
+@@ -0,0 +1,4 @@
++import catalog from "@/data/catalog.json";
++import type { Product } from "./types";
++
++export const PRODUCTS = catalog as Product[];
+diff --git a/lib/price-manager/constants.ts b/lib/price-manager/constants.ts
+new file mode 100644
+index 0000000..139f27d
+--- /dev/null
++++ b/lib/price-manager/constants.ts
+@@ -0,0 +1,54 @@
++import type { PackageId, ProductGroup, QuoteSettings } from "./types";
++
++export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
++  { value: "rail", label: "ریل" },
++  { value: "mechanic", label: "مکانیک" },
++  { value: "auto", label: "راه‌اندازی تمام اتومات" },
++  { value: "semi", label: "راه‌اندازی نیمه اتومات" },
++  { value: "mech-auto", label: "مکانیک و راه‌اندازی تمام اتومات" },
++  { value: "mech-semi", label: "مکانیک و راه‌اندازی نیمه اتومات" },
++  { value: "full-auto", label: "ریل، مکانیک و راه‌اندازی تمام اتومات" },
++  { value: "full-semi", label: "ریل، مکانیک و راه‌اندازی نیمه اتومات" },
++];
++
++// Preserve the existing package rules; this patch changes presentation, not the catalog.
++export const PACKAGE_GROUPS: Record<PackageId, ProductGroup[]> = {
++  rail: ["rail"],
++  mechanic: ["mechanic", "motor"],
++  auto: ["startup", "auto", "motor"],
++  semi: ["startup", "semi", "motor"],
++  "mech-auto": ["mechanic", "motor", "startup", "auto"],
++  "mech-semi": ["mechanic", "motor", "startup", "semi"],
++  "full-auto": ["rail", "mechanic", "motor", "startup", "auto"],
++  "full-semi": ["rail", "mechanic", "motor", "startup", "semi"],
++};
++
++export const GROUP_LABELS: Record<ProductGroup, string> = {
++  rail: "ریل",
++  mechanic: "مکانیک",
++  motor: "موتور",
++  startup: "راه‌اندازی",
++  auto: "تمام اتومات",
++  semi: "نیمه اتومات",
++};
++
++export const INITIAL_SETTINGS: QuoteSettings = {
++  motor: "gearbox",
++  stops: 5,
++  capacity: "4-6",
++  pack: "full-auto",
++  prices: {},
++  quantities: {},
++  brands: {},
++  excluded: [],
++  customer: "",
++  rate: 0,
++  quoteNumber: "",
++};
++
++export const STORAGE_KEY = "bollourian-state";
++export const OMITTED_PRODUCT_ID = "R038";
++
++export function getPackageLabel(packageId: PackageId): string {
++  return PACKAGE_OPTIONS.find((option) => option.value === packageId)?.label ?? packageId;
++}
+diff --git a/lib/price-manager/format.ts b/lib/price-manager/format.ts
+new file mode 100644
+index 0000000..f936176
+--- /dev/null
++++ b/lib/price-manager/format.ts
+@@ -0,0 +1,26 @@
++const integerFormatter = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
++const decimalFormatter = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 3 });
++
++export function formatMoney(value: number | null): string {
++  return value === null ? "—" : integerFormatter.format(value);
++}
++
++export function formatNumber(value: number): string {
++  return decimalFormatter.format(value);
++}
++
++export function normalizeDigits(value: string): string {
++  return value
++    .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 1776))
++    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 1632))
++    .replace(/[٬,\s]/g, "")
++    .replace(/٫/g, ".")
++    .replace(/−/g, "-");
++}
++
++export function parseNumericInput(value: string): number | null {
++  const normalized = normalizeDigits(value);
++  if (!normalized.trim()) return null;
++  const number = Number(normalized);
++  return Number.isFinite(number) ? number : null;
++}
+diff --git a/lib/price-manager/persistence.ts b/lib/price-manager/persistence.ts
+new file mode 100644
+index 0000000..3bbad3e
+--- /dev/null
++++ b/lib/price-manager/persistence.ts
+@@ -0,0 +1,111 @@
++import { INITIAL_SETTINGS, PACKAGE_OPTIONS, STORAGE_KEY } from "./constants";
++import type { QuoteSettings, QuoteSummary } from "./types";
++
++export function isDesktopApp(): boolean {
++  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
++}
++
++function isRecord(value: unknown): value is Record<string, unknown> {
++  return typeof value === "object" && value !== null && !Array.isArray(value);
++}
++
++function readNumberMap(value: unknown): Record<string, number> {
++  if (!isRecord(value)) return {};
++  return Object.fromEntries(
++    Object.entries(value).filter((entry): entry is [string, number] =>
++      typeof entry[1] === "number" && Number.isFinite(entry[1]) && entry[1] >= 0,
++    ),
++  );
++}
++
++export function parseSettings(value: unknown): QuoteSettings {
++  if (!isRecord(value) || !PACKAGE_OPTIONS.some((option) => option.value === value.pack)) {
++    throw new Error("Invalid saved settings");
++  }
++  const stops = Number(value.stops);
++  const rate = Number(value.rate);
++  return {
++    ...INITIAL_SETTINGS,
++    pack: value.pack as QuoteSettings["pack"],
++    motor: value.motor === "gearless" ? "gearless" : "gearbox",
++    capacity: value.capacity === "8" ? "8" : "4-6",
++    stops: Number.isInteger(stops) && stops >= 1 && stops <= 13 ? stops : INITIAL_SETTINGS.stops,
++    rate: Number.isFinite(rate) && rate >= -100 ? rate : 0,
++    customer: typeof value.customer === "string" ? value.customer : "",
++    quoteNumber: typeof value.quoteNumber === "string" ? value.quoteNumber : "",
++    prices: readNumberMap(value.prices),
++    quantities: readNumberMap(value.quantities),
++    brands: isRecord(value.brands)
++      ? Object.fromEntries(Object.entries(value.brands).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
++      : {},
++    excluded: Array.isArray(value.excluded)
++      ? value.excluded.filter((id): id is string => typeof id === "string")
++      : [],
++  };
++}
++
++export async function loadSettings(): Promise<QuoteSettings> {
++  const raw = isDesktopApp()
++    ? await (await import("@tauri-apps/api/core")).invoke<string | null>("load_state")
++    : localStorage.getItem(STORAGE_KEY);
++  return raw ? parseSettings(JSON.parse(raw)) : { ...INITIAL_SETTINGS };
++}
++
++// Serialize native writes so an earlier render cannot overwrite a later edit.
++let saveQueue: Promise<void> = Promise.resolve();
++
++export function saveSettings(settings: QuoteSettings): Promise<void> {
++  const payload = JSON.stringify(settings);
++  const operation = saveQueue.catch(() => undefined).then(async () => {
++    if (isDesktopApp()) {
++      const { invoke } = await import("@tauri-apps/api/core");
++      await invoke("save_state", { payload });
++    } else {
++      localStorage.setItem(STORAGE_KEY, payload);
++    }
++  });
++  saveQueue = operation;
++  return operation;
++}
++
++export async function getDatabasePath(): Promise<string> {
++  if (!isDesktopApp()) return "";
++  return (await import("@tauri-apps/api/core")).invoke<string>("database_path");
++}
++
++export async function saveQuote(settings: QuoteSettings, quote: QuoteSummary): Promise<void> {
++  if (!isDesktopApp()) return;
++  const { invoke } = await import("@tauri-apps/api/core");
++  await saveQueue;
++  await invoke("save_quote", {
++    payload: JSON.stringify({
++      settings,
++      rows: quote.enabledRows.map((row) => ({
++        ...row.product,
++        qty: row.quantity,
++        price: row.unitPrice,
++        total: row.total,
++        enabled: row.enabled,
++      })),
++      total: quote.total,
++    }),
++  });
++}
++
++export function downloadBackup(settings: QuoteSettings): void {
++  const payload = { version: 1, createdAt: new Date().toISOString(), state: settings };
++  const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
++  const anchor = document.createElement("a");
++  anchor.href = url;
++  anchor.download = "bollourian-backup.json";
++  document.body.appendChild(anchor);
++  anchor.click();
++  anchor.remove();
++  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
++}
++
++export async function readBackup(file: File): Promise<QuoteSettings> {
++  const backup: unknown = JSON.parse(await file.text());
++  if (!isRecord(backup) || backup.version !== 1) throw new Error("Unsupported backup version");
++  return parseSettings(backup.state);
++}
+\ No newline at end of file
+diff --git a/lib/price-manager/types.ts b/lib/price-manager/types.ts
+new file mode 100644
+index 0000000..9546cd1
+--- /dev/null
++++ b/lib/price-manager/types.ts
+@@ -0,0 +1,59 @@
++export type MotorType = "gearbox" | "gearless";
++export type Capacity = "4-6" | "8";
++export type PackageId =
++  | "rail"
++  | "mechanic"
++  | "auto"
++  | "semi"
++  | "mech-auto"
++  | "mech-semi"
++  | "full-auto"
++  | "full-semi";
++
++export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi";
++
++export interface Product {
++  id: string;
++  name: string;
++  group: ProductGroup;
++  unit: string;
++  price: number | null;
++  previous: number | null;
++  quantities: Record<string, number | null>;
++  brands: string[];
++  source: string;
++  notes: string;
++}
++
++/** Field names are kept compatible with the existing SQLite / JSON backups. */
++export interface QuoteSettings {
++  motor: MotorType;
++  stops: number;
++  capacity: Capacity;
++  pack: PackageId;
++  prices: Record<string, number>;
++  quantities: Record<string, number>;
++  brands: Record<string, string>;
++  excluded: string[];
++  customer: string;
++  rate: number;
++  quoteNumber: string;
++}
++
++export interface QuoteRow {
++  product: Product;
++  quantity: number | null;
++  unitPrice: number | null;
++  total: number | null;
++  enabled: boolean;
++  brand: string;
++}
++
++export interface QuoteSummary {
++  rows: QuoteRow[];
++  enabledRows: QuoteRow[];
++  incompleteRows: QuoteRow[];
++  total: number;
++}
++
++export type LoadStatus = "loading" | "ready" | "error";
+diff --git a/package.json b/package.json
+index 3074a6f..5cbcd14 100644
+--- a/package.json
++++ b/package.json
+@@ -7,7 +7,9 @@
+     "build": "next build",
+     "tauri": "tauri",
+     "desktop:dev": "tauri dev",
+-    "desktop:build": "tauri build"
++    "desktop:build": "tauri build",
++    "typecheck": "tsc --noEmit",
++    "test": "node scripts/test-pricing.cjs"
+   },
+   "dependencies": {
+     "@tauri-apps/api": "^2.8.0",
+@@ -20,6 +22,9 @@
+     "@types/node": "^24.0.0",
+     "@types/react": "^19.2.0",
+     "@types/react-dom": "^19.2.0",
+-    "typescript": "^5.9.0"
++    "typescript": "^5.9.0",
++    "@tailwindcss/postcss": "4.1.10",
++    "tailwindcss": "4.1.10",
++    "postcss": "^8.5.6"
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/postcss.config.mjs b/postcss.config.mjs
+new file mode 100644
+index 0000000..c2ddf74
+--- /dev/null
++++ b/postcss.config.mjs
+@@ -0,0 +1,5 @@
++export default {
++  plugins: {
++    "@tailwindcss/postcss": {},
++  },
++};
+diff --git a/scripts/test-pricing.cjs b/scripts/test-pricing.cjs
+new file mode 100644
+index 0000000..5efec36
+--- /dev/null
++++ b/scripts/test-pricing.cjs
+@@ -0,0 +1,76 @@
++/* Domain regression tests: no browser, Tauri runtime, or extra test dependency. */
++const assert = require("node:assert/strict");
++const fs = require("node:fs");
++const os = require("node:os");
++const path = require("node:path");
++const ts = require("typescript");
++
++const root = path.resolve(__dirname, "..");
++const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "bollurian-tests-"));
++let assertions = 0;
++
++function equal(actual, expected, label) {
++  assert.deepEqual(actual, expected, label);
++  assertions += 1;
++}
++
++try {
++  for (const name of ["types", "constants", "calculations", "format", "persistence"]) {
++    const fileName = path.join(root, "lib", "price-manager", `${name}.ts`);
++    const compiled = ts.transpileModule(fs.readFileSync(fileName, "utf8"), {
++      fileName,
++      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
++    });
++    fs.writeFileSync(path.join(temporaryDirectory, `${name}.js`), compiled.outputText);
++  }
++
++  const { INITIAL_SETTINGS, PACKAGE_GROUPS } = require(path.join(temporaryDirectory, "constants.js"));
++  const { buildQuote, calculateRow, selectProducts, searchQuoteRows } = require(path.join(temporaryDirectory, "calculations.js"));
++  const { parseNumericInput } = require(path.join(temporaryDirectory, "format.js"));
++  const { parseSettings } = require(path.join(temporaryDirectory, "persistence.js"));
++  const products = JSON.parse(fs.readFileSync(path.join(root, "data/catalog.json"), "utf8"));
++
++  for (const pack of Object.keys(PACKAGE_GROUPS)) {
++    for (let stops = 1; stops <= 13; stops += 1) {
++      for (const capacity of ["4-6", "8"]) {
++        const settings = { ...INITIAL_SETTINGS, pack, stops, capacity };
++        const baseline = products.filter((product) => {
++          if (!PACKAGE_GROUPS[pack].includes(product.group) || product.id === "R038") return false;
++          if (["P-MOTOR-7.5", "P-CONTROL-7.5"].includes(product.id)) return capacity === "4-6";
++          if (["P-MOTOR-11", "P-CONTROL-11"].includes(product.id)) return capacity === "8";
++          return true;
++        });
++        equal(selectProducts(products, settings).map((product) => product.id), baseline.map((product) => product.id), "Package and capacity filtering changed");
++        const expectedTotal = baseline.reduce((sum, product) => {
++          const quantity = product.quantities[String(stops)] ?? null;
++          return sum + (quantity !== null && product.price !== null ? Math.round(quantity * product.price) : 0);
++        }, 0);
++        equal(buildQuote(products, settings).total, expectedTotal, "Original total changed");
++      }
++    }
++  }
++
++  const product = products.find((item) => item.id === "M001");
++  const customized = { ...INITIAL_SETTINGS, prices: { M001: 1000 }, quantities: { M001: 3 }, rate: 7.5 };
++  equal(calculateRow(product, customized).total, 3225, "Rate formula");
++  equal(calculateRow(product, { ...customized, prices: { M001: 0 } }).total, 0, "Zero price is not missing");
++  equal(calculateRow(product, { ...customized, quantities: { M001: 0 } }).total, 0, "Zero quantity is not missing");
++  equal(calculateRow(product, { ...customized, excluded: ["M001"] }).total, null, "Exclusion");
++  equal(calculateRow({ ...product, quantities: {}, price: null }, INITIAL_SETTINGS).total, null, "Unknown inputs must not become zero");
++  equal(calculateRow(product, { ...customized, rate: -100 }).total, 0, "Full discount");
++
++  const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack: "mechanic", stops: 6 });
++  const originalTotal = quote.total;
++  equal(searchQuoteRows(quote.rows, "no-such-product").length, 0, "Empty search");
++  equal(quote.total, originalTotal, "Search must not change exported totals");
++  equal(parseNumericInput("۱۲۳٬۴۵۶٫۵"), 123456.5, "Persian digits");
++  equal(parseNumericInput("١٢٣"), 123, "Arabic digits");
++  equal(parseNumericInput(""), null, "Empty numeric input");
++  equal(parseNumericInput("invalid"), null, "Invalid numeric input");
++  equal(parseSettings(JSON.parse(JSON.stringify(customized))), customized, "Legacy stored state compatibility");
++  assert.throws(() => parseSettings({ pack: "not-a-package" }));
++  assertions += 1;
++  console.log(`PASS: ${assertions} assertions, including all 208 package/stop/capacity combinations.`);
++} finally {
++  fs.rmSync(temporaryDirectory, { recursive: true, force: true });
++}
+diff --git a/src-tauri/tauri.conf.json b/src-tauri/tauri.conf.json
+index ee22eef..d879d91 100644
+--- a/src-tauri/tauri.conf.json
++++ b/src-tauri/tauri.conf.json
+@@ -15,7 +15,7 @@
+         "title": "Bollourian | Elevator Price Manager",
+         "width": 1240,
+         "height": 850,
+-        "minWidth": 900,
++        "minWidth": 1170,
+         "minHeight": 650,
+         "resizable": true
+       }

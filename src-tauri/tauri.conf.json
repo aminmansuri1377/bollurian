@@ -15,7 +15,7 @@
         "title": "Bollourian | Elevator Price Manager",
         "width": 1240,
         "height": 850,
-        "minWidth": 900,
+        "minWidth": 1170,
         "minHeight": 650,
         "resizable": true
       }
