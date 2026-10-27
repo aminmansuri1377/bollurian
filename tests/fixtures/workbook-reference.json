@@ -1,0 +1,2443 @@
+{
+  "workbook": "سیستم_اتوماتیک_لیست_قیمت_بلوریان(1).xlsx",
+  "sha256": "72644c9e37c00d4a9e7e2d96457279f3fa3b1485f0f8b4169f9f83b5bf804c2d",
+  "supportedStops": [
+    6,
+    7,
+    8
+  ],
+  "stopHeaders": [
+    "6 توقف",
+    "7 توقف",
+    "8 توقف"
+  ],
+  "selectedStop": 8.0,
+  "formulaCount": 248,
+  "records": [
+    {
+      "id": "M001",
+      "category": "مکانیک",
+      "name": "سیم بکسل 10 چین نواردار طلایی | خرده",
+      "unit": "متر",
+      "currentPrice": 193000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 96.0,
+        "7": 108.0,
+        "8": 120.0
+      },
+      "masterRow": 2,
+      "quantityCells": {
+        "6": "C2",
+        "7": "D2",
+        "8": "E2"
+      }
+    },
+    {
+      "id": "M002",
+      "category": "مکانیک",
+      "name": "سیم بکسل 6 خودرنگ چین | خرده",
+      "unit": "متر",
+      "currentPrice": 73000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 48.0,
+        "7": 54.0,
+        "8": 60.0
+      },
+      "masterRow": 3,
+      "quantityCells": {
+        "6": "C3",
+        "7": "D3",
+        "8": "E3"
+      }
+    },
+    {
+      "id": "M003",
+      "category": "مکانیک",
+      "name": "لاستیک تخت مرغوب | المپیک",
+      "unit": "عدد",
+      "currentPrice": 80000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 4.0,
+        "7": 4.0,
+        "8": 4.0
+      },
+      "masterRow": 4,
+      "quantityCells": {
+        "6": "C4",
+        "7": "D4",
+        "8": "E4"
+      }
+    },
+    {
+      "id": "M004",
+      "category": "مکانیک",
+      "name": "پیچ موتور 16 (موتور) | 7.5 سانت متر",
+      "unit": "عدد",
+      "currentPrice": 80000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 4.0,
+        "7": 4.0,
+        "8": 4.0
+      },
+      "masterRow": 5,
+      "quantityCells": {
+        "6": "C5",
+        "7": "D5",
+        "8": "E5"
+      }
+    },
+    {
+      "id": "M005",
+      "category": "مکانیک",
+      "name": "کرپی 6 فولادی | طلایی",
+      "unit": "عدد",
+      "currentPrice": 27000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 6.0,
+        "7": 6.0,
+        "8": 6.0
+      },
+      "masterRow": 6,
+      "quantityCells": {
+        "6": "C6",
+        "7": "D6",
+        "8": "E6"
+      }
+    },
+    {
+      "id": "M006",
+      "category": "مکانیک",
+      "name": "کرپی 10 فولادی | طلایی",
+      "unit": "عدد",
+      "currentPrice": 35000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 24.0,
+        "7": 24.0,
+        "8": 24.0
+      },
+      "masterRow": 7,
+      "quantityCells": {
+        "6": "C7",
+        "7": "D7",
+        "8": "E7"
+      }
+    },
+    {
+      "id": "M007",
+      "category": "مکانیک",
+      "name": "گاورنر آسانبر بیهق + وزنه",
+      "unit": "عدد",
+      "currentPrice": 10000000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 8,
+      "quantityCells": {
+        "6": "C8",
+        "7": "D8",
+        "8": "E8"
+      }
+    },
+    {
+      "id": "M008",
+      "category": "مکانیک",
+      "name": "فلکه هرزگرد 4 شیار آریا + شفت",
+      "unit": "عدد",
+      "currentPrice": 5900000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 9,
+      "quantityCells": {
+        "6": "C9",
+        "7": "D9",
+        "8": "E9"
+      }
+    },
+    {
+      "id": "M009",
+      "category": "مکانیک",
+      "name": "سربکسل 10 پرشیا",
+      "unit": "عدد",
+      "currentPrice": 490000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 8.0,
+        "7": 8.0,
+        "8": 8.0
+      },
+      "masterRow": 10,
+      "quantityCells": {
+        "6": "C10",
+        "7": "D10",
+        "8": "E10"
+      }
+    },
+    {
+      "id": "M010",
+      "category": "مکانیک",
+      "name": "اشکی بکسل گاورنر",
+      "unit": "عدد",
+      "currentPrice": 35000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 2.0,
+        "7": 2.0,
+        "8": 2.0
+      },
+      "masterRow": 11,
+      "quantityCells": {
+        "6": "C11",
+        "7": "D11",
+        "8": "E11"
+      }
+    },
+    {
+      "id": "M011",
+      "category": "مکانیک",
+      "name": "وزنه گالوانیزه آسانسور 77",
+      "unit": "قالب",
+      "currentPrice": 880000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 14.0,
+        "7": 14.0,
+        "8": 14.0
+      },
+      "masterRow": 12,
+      "quantityCells": {
+        "6": "C12",
+        "7": "D12",
+        "8": "E12"
+      }
+    },
+    {
+      "id": "R001",
+      "category": "راه‌اندازی",
+      "name": "استپ قارچی + جعبه | ماهان الکتریک",
+      "unit": "عدد",
+      "currentPrice": 275000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 3.0,
+        "7": 3.0,
+        "8": 3.0
+      },
+      "masterRow": 13,
+      "quantityCells": {
+        "6": "C13",
+        "7": "D13",
+        "8": "E13"
+      }
+    },
+    {
+      "id": "R002",
+      "category": "راه‌اندازی",
+      "name": "اورلود دیجیتال - ناسیس",
+      "unit": "عدد",
+      "currentPrice": 4600000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 14,
+      "quantityCells": {
+        "6": "C14",
+        "7": "D14",
+        "8": "E14"
+      }
+    },
+    {
+      "id": "R003",
+      "category": "راه‌اندازی",
+      "name": "بافر آلسن - 1500 kg",
+      "unit": "عدد",
+      "currentPrice": 850000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 2.0,
+        "7": 2.0,
+        "8": 2.0
+      },
+      "masterRow": 15,
+      "quantityCells": {
+        "6": "C15",
+        "7": "D15",
+        "8": "E15"
+      }
+    },
+    {
+      "id": "R004",
+      "category": "راه‌اندازی",
+      "name": "بست کمربندی 20 سانتی",
+      "unit": "بسته",
+      "currentPrice": 155000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 16,
+      "quantityCells": {
+        "6": "C16",
+        "7": "D16",
+        "8": "E16"
+      }
+    },
+    {
+      "id": "R005",
+      "category": "راه‌اندازی",
+      "name": "بست تراول کابل - یاشار لیفت",
+      "unit": "عدد",
+      "currentPrice": 60000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 4.0,
+        "7": 4.0,
+        "8": 4.0
+      },
+      "masterRow": 17,
+      "quantityCells": {
+        "6": "C17",
+        "7": "D17",
+        "8": "E17"
+      }
+    },
+    {
+      "id": "R006",
+      "category": "راه‌اندازی",
+      "name": "پریز بارانی روکار - پارت الکتریک",
+      "unit": "عدد",
+      "currentPrice": 180000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 18,
+      "quantityCells": {
+        "6": "C18",
+        "7": "D18",
+        "8": "E18"
+      }
+    },
+    {
+      "id": "R007",
+      "category": "راه‌اندازی",
+      "name": "پیچ و مهره 12 جهت نصب پایه لیمیت",
+      "unit": "عدد",
+      "currentPrice": 17000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 8.0,
+        "7": 8.0,
+        "8": 8.0
+      },
+      "masterRow": 19,
+      "quantityCells": {
+        "6": "C19",
+        "7": "D19",
+        "8": "E19"
+      }
+    },
+    {
+      "id": "R008",
+      "category": "راه‌اندازی",
+      "name": "پیچ و رولپلاک - 50 تایی",
+      "unit": "بسته",
+      "currentPrice": 100000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 2.0,
+        "7": 2.0,
+        "8": 2.0
+      },
+      "masterRow": 20,
+      "quantityCells": {
+        "6": "C20",
+        "7": "D20",
+        "8": "E20"
+      }
+    },
+    {
+      "id": "R009",
+      "category": "راه‌اندازی",
+      "name": "داکت 3 پلاستیکی - دودمان",
+      "unit": "شاخه",
+      "currentPrice": 250000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 15.0,
+        "7": 17.0,
+        "8": 19.0
+      },
+      "masterRow": 21,
+      "quantityCells": {
+        "6": "C21",
+        "7": "D21",
+        "8": "E21"
+      }
+    },
+    {
+      "id": "R010",
+      "category": "راه‌اندازی",
+      "name": "داکت 9 پلاستیکی - سفید - دودمان",
+      "unit": "شاخه",
+      "currentPrice": 690000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 2.0,
+        "7": 2.0,
+        "8": 2.0
+      },
+      "masterRow": 22,
+      "quantityCells": {
+        "6": "C22",
+        "7": "D22",
+        "8": "E22"
+      }
+    },
+    {
+      "id": "R011",
+      "category": "راه‌اندازی",
+      "name": "داکت 10 فلزی",
+      "unit": "شاخه",
+      "currentPrice": 750000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 23,
+      "quantityCells": {
+        "6": "C23",
+        "7": "D23",
+        "8": "E23"
+      }
+    },
+    {
+      "id": "R012",
+      "category": "راه‌اندازی",
+      "name": "خرطومی فلزی",
+      "unit": "متر",
+      "currentPrice": 80000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 3.0,
+        "7": 3.0,
+        "8": 3.0
+      },
+      "masterRow": 24,
+      "quantityCells": {
+        "6": "C24",
+        "7": "D24",
+        "8": "E24"
+      }
+    },
+    {
+      "id": "R013",
+      "category": "راه‌اندازی",
+      "name": "خرطومی پلاستیکی",
+      "unit": "حلقه",
+      "currentPrice": 115000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 25,
+      "quantityCells": {
+        "6": "C25",
+        "7": "D25",
+        "8": "E25"
+      }
+    },
+    {
+      "id": "R014",
+      "category": "راه‌اندازی",
+      "name": "روغن گیر ریل",
+      "unit": "عدد",
+      "currentPrice": 125000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 4.0,
+        "7": 4.0,
+        "8": 4.0
+      },
+      "masterRow": 26,
+      "quantityCells": {
+        "6": "C26",
+        "7": "D26",
+        "8": "E26"
+      }
+    },
+    {
+      "id": "R015",
+      "category": "راه‌اندازی",
+      "name": "روغندان طرح ترک ENP",
+      "unit": "عدد",
+      "currentPrice": 250000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 4.0,
+        "7": 4.0,
+        "8": 4.0
+      },
+      "masterRow": 27,
+      "quantityCells": {
+        "6": "C27",
+        "7": "D27",
+        "8": "E27"
+      }
+    },
+    {
+      "id": "R016",
+      "category": "راه‌اندازی",
+      "name": "سنسور پیشرو پلاستیکی + آهنربا 40 عدد",
+      "unit": "عدد",
+      "currentPrice": 2000000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 28,
+      "quantityCells": {
+        "6": "C28",
+        "7": "D28",
+        "8": "E28"
+      }
+    },
+    {
+      "id": "R017",
+      "category": "راه‌اندازی",
+      "name": "لیمیت سوئیچ یاشار",
+      "unit": "بسته",
+      "currentPrice": 1100000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 29,
+      "quantityCells": {
+        "6": "C29",
+        "7": "D29",
+        "8": "E29"
+      }
+    },
+    {
+      "id": "R018",
+      "category": "راه‌اندازی",
+      "name": "کلید 3 گوش - لیزری",
+      "unit": "عدد",
+      "currentPrice": 200000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 30,
+      "quantityCells": {
+        "6": "C30",
+        "7": "D30",
+        "8": "E30"
+      }
+    },
+    {
+      "id": "R019",
+      "category": "راه‌اندازی",
+      "name": "کلید تک پل تبدیل - پارت الکتریک",
+      "unit": "عدد",
+      "currentPrice": 180000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 2.0,
+        "7": 2.0,
+        "8": 2.0
+      },
+      "masterRow": 31,
+      "quantityCells": {
+        "6": "C31",
+        "7": "D31",
+        "8": "E31"
+      }
+    },
+    {
+      "id": "R020",
+      "category": "راه‌اندازی",
+      "name": "درب تلسکوپی روانکار کابین فول 80 دولته",
+      "unit": "دستگاه",
+      "currentPrice": 62300000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 32,
+      "quantityCells": {
+        "6": "C32",
+        "7": "D32",
+        "8": "E32"
+      }
+    },
+    {
+      "id": "R021",
+      "category": "راه‌اندازی",
+      "name": "فن کامپیوتری",
+      "unit": "عدد",
+      "currentPrice": 800000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 33,
+      "quantityCells": {
+        "6": "C33",
+        "7": "D33",
+        "8": "E33"
+      }
+    },
+    {
+      "id": "R022",
+      "category": "راه‌اندازی",
+      "name": "شاسی کابین 1 متری - RLift",
+      "unit": "عدد",
+      "currentPrice": 10500000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 34,
+      "quantityCells": {
+        "6": "C34",
+        "7": "D34",
+        "8": "E34"
+      }
+    },
+    {
+      "id": "R023",
+      "category": "راه‌اندازی",
+      "name": "شاسی طبقه روکار - RLift",
+      "unit": "عدد",
+      "currentPrice": 1500000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 6.0,
+        "7": 7.0,
+        "8": 8.0
+      },
+      "masterRow": 35,
+      "quantityCells": {
+        "6": "C35",
+        "7": "D35",
+        "8": "E35"
+      }
+    },
+    {
+      "id": "R024",
+      "category": "راه‌اندازی",
+      "name": "چراغ تونلی W 16 LED | راینو",
+      "unit": "عدد",
+      "currentPrice": 220000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 8.0,
+        "7": 9.0,
+        "8": 10.0
+      },
+      "masterRow": 36,
+      "quantityCells": {
+        "6": "C36",
+        "7": "D36",
+        "8": "E36"
+      }
+    },
+    {
+      "id": "R025",
+      "category": "راه‌اندازی",
+      "name": "جعبه 3 فاز",
+      "unit": "عدد",
+      "currentPrice": 3500000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 37,
+      "quantityCells": {
+        "6": "C37",
+        "7": "D37",
+        "8": "E37"
+      }
+    },
+    {
+      "id": "R026",
+      "category": "راه‌اندازی",
+      "name": "آهنربا اضافه",
+      "unit": "عدد",
+      "currentPrice": 15000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 10.0,
+        "7": 20.0,
+        "8": 30.0
+      },
+      "masterRow": 38,
+      "quantityCells": {
+        "6": "C38",
+        "7": "D38",
+        "8": "E38"
+      }
+    },
+    {
+      "id": "R027",
+      "category": "راه‌اندازی",
+      "name": "فتوسل اکو ناسیس (چشمی پلاستیکی)",
+      "unit": "عدد",
+      "currentPrice": 3600000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 39,
+      "quantityCells": {
+        "6": "C39",
+        "7": "D39",
+        "8": "E39"
+      }
+    },
+    {
+      "id": "R028",
+      "category": "راه‌اندازی",
+      "name": "چسب برق دیاموند",
+      "unit": "حلقه",
+      "currentPrice": 35000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 8.0,
+        "7": 10.0,
+        "8": 12.0
+      },
+      "masterRow": 40,
+      "quantityCells": {
+        "6": "C40",
+        "7": "D40",
+        "8": "E40"
+      }
+    },
+    {
+      "id": "R029",
+      "category": "راه‌اندازی",
+      "name": "تراول کابل 24 رشته روکش مس بکسلدار - 3G - آسمان وایلر",
+      "unit": "متر",
+      "currentPrice": 750000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 31.0,
+        "7": 34.0,
+        "8": 38.0
+      },
+      "masterRow": 41,
+      "quantityCells": {
+        "6": "C41",
+        "7": "D41",
+        "8": "E41"
+      }
+    },
+    {
+      "id": "R030",
+      "category": "راه‌اندازی",
+      "name": "سیم 6 زوج",
+      "unit": "متر",
+      "currentPrice": 30000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 36.0,
+        "7": 40.0,
+        "8": 45.0
+      },
+      "masterRow": 42,
+      "quantityCells": {
+        "6": "C42",
+        "7": "D42",
+        "8": "E42"
+      }
+    },
+    {
+      "id": "R031",
+      "category": "راه‌اندازی",
+      "name": "سیم 75 - CC",
+      "unit": "حلقه",
+      "currentPrice": 700000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 5.0,
+        "7": 6.0,
+        "8": 8.0
+      },
+      "masterRow": 43,
+      "quantityCells": {
+        "6": "C43",
+        "7": "D43",
+        "8": "E43"
+      }
+    },
+    {
+      "id": "R032",
+      "category": "راه‌اندازی",
+      "name": "کابل 1*4 (جهت سیم کشی)",
+      "unit": "متر",
+      "currentPrice": 80000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 25.0,
+        "7": 28.0,
+        "8": 34.0
+      },
+      "masterRow": 44,
+      "quantityCells": {
+        "6": "C44",
+        "7": "D44",
+        "8": "E44"
+      }
+    },
+    {
+      "id": "R033",
+      "category": "راه‌اندازی",
+      "name": "سیم 4 - CC",
+      "unit": "حلقه",
+      "currentPrice": 2800000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 45,
+      "quantityCells": {
+        "6": "C45",
+        "7": "D45",
+        "8": "E45"
+      }
+    },
+    {
+      "id": "R034",
+      "category": "راه‌اندازی",
+      "name": "علائم استاندارد",
+      "unit": "بسته",
+      "currentPrice": 220000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 46,
+      "quantityCells": {
+        "6": "C46",
+        "7": "D46",
+        "8": "E46"
+      }
+    },
+    {
+      "id": "R035",
+      "category": "راه‌اندازی",
+      "name": "تلفن دیواری - pashaophone",
+      "unit": "عدد",
+      "currentPrice": 850000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 3.0,
+        "7": 3.0,
+        "8": 3.0
+      },
+      "masterRow": 47,
+      "quantityCells": {
+        "6": "C47",
+        "7": "D47",
+        "8": "E47"
+      }
+    },
+    {
+      "id": "R036",
+      "category": "راه‌اندازی",
+      "name": "پک حفاظ | موتور + هرزگرد + گاورنر | مهتا",
+      "unit": "بسته",
+      "currentPrice": 3200000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 48,
+      "quantityCells": {
+        "6": "C48",
+        "7": "D48",
+        "8": "E48"
+      }
+    },
+    {
+      "id": "R037",
+      "category": "راه‌اندازی",
+      "name": "حفاظ کادر وزنه 84 - مهتا",
+      "unit": "عدد",
+      "currentPrice": 5800000.0,
+      "previousPrice": null,
+      "quantities": {
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0
+      },
+      "masterRow": 49,
+      "quantityCells": {
+        "6": "C49",
+        "7": "D49",
+        "8": "E49"
+      }
+    },
+    {
+      "id": "R038",
+      "category": "راه‌اندازی",
+      "name": "بدون قیمت",
+      "unit": "---",
+      "currentPrice": null,
+      "previousPrice": null,
+      "quantities": {
+        "6": null,
+        "7": null,
+        "8": null
+      },
+      "masterRow": 50,
+      "quantityCells": {
+        "6": "C50",
+        "7": "D50",
+        "8": "E50"
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G2",
+      "formula": "=IF(OR(E2=\"\",F2=\"\"),\"\",E2/F2-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H2",
+      "formula": "=IF(OR(E2=\"\",F2=\"\"),\"بدون مقایسه\",IF(E2>F2,\"افزایش\",IF(E2<F2,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G3",
+      "formula": "=IF(OR(E3=\"\",F3=\"\"),\"\",E3/F3-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H3",
+      "formula": "=IF(OR(E3=\"\",F3=\"\"),\"بدون مقایسه\",IF(E3>F3,\"افزایش\",IF(E3<F3,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G4",
+      "formula": "=IF(OR(E4=\"\",F4=\"\"),\"\",E4/F4-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H4",
+      "formula": "=IF(OR(E4=\"\",F4=\"\"),\"بدون مقایسه\",IF(E4>F4,\"افزایش\",IF(E4<F4,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G5",
+      "formula": "=IF(OR(E5=\"\",F5=\"\"),\"\",E5/F5-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H5",
+      "formula": "=IF(OR(E5=\"\",F5=\"\"),\"بدون مقایسه\",IF(E5>F5,\"افزایش\",IF(E5<F5,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G6",
+      "formula": "=IF(OR(E6=\"\",F6=\"\"),\"\",E6/F6-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H6",
+      "formula": "=IF(OR(E6=\"\",F6=\"\"),\"بدون مقایسه\",IF(E6>F6,\"افزایش\",IF(E6<F6,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G7",
+      "formula": "=IF(OR(E7=\"\",F7=\"\"),\"\",E7/F7-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H7",
+      "formula": "=IF(OR(E7=\"\",F7=\"\"),\"بدون مقایسه\",IF(E7>F7,\"افزایش\",IF(E7<F7,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G8",
+      "formula": "=IF(OR(E8=\"\",F8=\"\"),\"\",E8/F8-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H8",
+      "formula": "=IF(OR(E8=\"\",F8=\"\"),\"بدون مقایسه\",IF(E8>F8,\"افزایش\",IF(E8<F8,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G9",
+      "formula": "=IF(OR(E9=\"\",F9=\"\"),\"\",E9/F9-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H9",
+      "formula": "=IF(OR(E9=\"\",F9=\"\"),\"بدون مقایسه\",IF(E9>F9,\"افزایش\",IF(E9<F9,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G10",
+      "formula": "=IF(OR(E10=\"\",F10=\"\"),\"\",E10/F10-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H10",
+      "formula": "=IF(OR(E10=\"\",F10=\"\"),\"بدون مقایسه\",IF(E10>F10,\"افزایش\",IF(E10<F10,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G11",
+      "formula": "=IF(OR(E11=\"\",F11=\"\"),\"\",E11/F11-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H11",
+      "formula": "=IF(OR(E11=\"\",F11=\"\"),\"بدون مقایسه\",IF(E11>F11,\"افزایش\",IF(E11<F11,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G12",
+      "formula": "=IF(OR(E12=\"\",F12=\"\"),\"\",E12/F12-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H12",
+      "formula": "=IF(OR(E12=\"\",F12=\"\"),\"بدون مقایسه\",IF(E12>F12,\"افزایش\",IF(E12<F12,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G13",
+      "formula": "=IF(OR(E13=\"\",F13=\"\"),\"\",E13/F13-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H13",
+      "formula": "=IF(OR(E13=\"\",F13=\"\"),\"بدون مقایسه\",IF(E13>F13,\"افزایش\",IF(E13<F13,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G14",
+      "formula": "=IF(OR(E14=\"\",F14=\"\"),\"\",E14/F14-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H14",
+      "formula": "=IF(OR(E14=\"\",F14=\"\"),\"بدون مقایسه\",IF(E14>F14,\"افزایش\",IF(E14<F14,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G15",
+      "formula": "=IF(OR(E15=\"\",F15=\"\"),\"\",E15/F15-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H15",
+      "formula": "=IF(OR(E15=\"\",F15=\"\"),\"بدون مقایسه\",IF(E15>F15,\"افزایش\",IF(E15<F15,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G16",
+      "formula": "=IF(OR(E16=\"\",F16=\"\"),\"\",E16/F16-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H16",
+      "formula": "=IF(OR(E16=\"\",F16=\"\"),\"بدون مقایسه\",IF(E16>F16,\"افزایش\",IF(E16<F16,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G17",
+      "formula": "=IF(OR(E17=\"\",F17=\"\"),\"\",E17/F17-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H17",
+      "formula": "=IF(OR(E17=\"\",F17=\"\"),\"بدون مقایسه\",IF(E17>F17,\"افزایش\",IF(E17<F17,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G18",
+      "formula": "=IF(OR(E18=\"\",F18=\"\"),\"\",E18/F18-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H18",
+      "formula": "=IF(OR(E18=\"\",F18=\"\"),\"بدون مقایسه\",IF(E18>F18,\"افزایش\",IF(E18<F18,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G19",
+      "formula": "=IF(OR(E19=\"\",F19=\"\"),\"\",E19/F19-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H19",
+      "formula": "=IF(OR(E19=\"\",F19=\"\"),\"بدون مقایسه\",IF(E19>F19,\"افزایش\",IF(E19<F19,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G20",
+      "formula": "=IF(OR(E20=\"\",F20=\"\"),\"\",E20/F20-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H20",
+      "formula": "=IF(OR(E20=\"\",F20=\"\"),\"بدون مقایسه\",IF(E20>F20,\"افزایش\",IF(E20<F20,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G21",
+      "formula": "=IF(OR(E21=\"\",F21=\"\"),\"\",E21/F21-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H21",
+      "formula": "=IF(OR(E21=\"\",F21=\"\"),\"بدون مقایسه\",IF(E21>F21,\"افزایش\",IF(E21<F21,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G22",
+      "formula": "=IF(OR(E22=\"\",F22=\"\"),\"\",E22/F22-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H22",
+      "formula": "=IF(OR(E22=\"\",F22=\"\"),\"بدون مقایسه\",IF(E22>F22,\"افزایش\",IF(E22<F22,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G23",
+      "formula": "=IF(OR(E23=\"\",F23=\"\"),\"\",E23/F23-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H23",
+      "formula": "=IF(OR(E23=\"\",F23=\"\"),\"بدون مقایسه\",IF(E23>F23,\"افزایش\",IF(E23<F23,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G24",
+      "formula": "=IF(OR(E24=\"\",F24=\"\"),\"\",E24/F24-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H24",
+      "formula": "=IF(OR(E24=\"\",F24=\"\"),\"بدون مقایسه\",IF(E24>F24,\"افزایش\",IF(E24<F24,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G25",
+      "formula": "=IF(OR(E25=\"\",F25=\"\"),\"\",E25/F25-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H25",
+      "formula": "=IF(OR(E25=\"\",F25=\"\"),\"بدون مقایسه\",IF(E25>F25,\"افزایش\",IF(E25<F25,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G26",
+      "formula": "=IF(OR(E26=\"\",F26=\"\"),\"\",E26/F26-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H26",
+      "formula": "=IF(OR(E26=\"\",F26=\"\"),\"بدون مقایسه\",IF(E26>F26,\"افزایش\",IF(E26<F26,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G27",
+      "formula": "=IF(OR(E27=\"\",F27=\"\"),\"\",E27/F27-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H27",
+      "formula": "=IF(OR(E27=\"\",F27=\"\"),\"بدون مقایسه\",IF(E27>F27,\"افزایش\",IF(E27<F27,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G28",
+      "formula": "=IF(OR(E28=\"\",F28=\"\"),\"\",E28/F28-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H28",
+      "formula": "=IF(OR(E28=\"\",F28=\"\"),\"بدون مقایسه\",IF(E28>F28,\"افزایش\",IF(E28<F28,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G29",
+      "formula": "=IF(OR(E29=\"\",F29=\"\"),\"\",E29/F29-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H29",
+      "formula": "=IF(OR(E29=\"\",F29=\"\"),\"بدون مقایسه\",IF(E29>F29,\"افزایش\",IF(E29<F29,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G30",
+      "formula": "=IF(OR(E30=\"\",F30=\"\"),\"\",E30/F30-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H30",
+      "formula": "=IF(OR(E30=\"\",F30=\"\"),\"بدون مقایسه\",IF(E30>F30,\"افزایش\",IF(E30<F30,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G31",
+      "formula": "=IF(OR(E31=\"\",F31=\"\"),\"\",E31/F31-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H31",
+      "formula": "=IF(OR(E31=\"\",F31=\"\"),\"بدون مقایسه\",IF(E31>F31,\"افزایش\",IF(E31<F31,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G32",
+      "formula": "=IF(OR(E32=\"\",F32=\"\"),\"\",E32/F32-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H32",
+      "formula": "=IF(OR(E32=\"\",F32=\"\"),\"بدون مقایسه\",IF(E32>F32,\"افزایش\",IF(E32<F32,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G33",
+      "formula": "=IF(OR(E33=\"\",F33=\"\"),\"\",E33/F33-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H33",
+      "formula": "=IF(OR(E33=\"\",F33=\"\"),\"بدون مقایسه\",IF(E33>F33,\"افزایش\",IF(E33<F33,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G34",
+      "formula": "=IF(OR(E34=\"\",F34=\"\"),\"\",E34/F34-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H34",
+      "formula": "=IF(OR(E34=\"\",F34=\"\"),\"بدون مقایسه\",IF(E34>F34,\"افزایش\",IF(E34<F34,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G35",
+      "formula": "=IF(OR(E35=\"\",F35=\"\"),\"\",E35/F35-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H35",
+      "formula": "=IF(OR(E35=\"\",F35=\"\"),\"بدون مقایسه\",IF(E35>F35,\"افزایش\",IF(E35<F35,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G36",
+      "formula": "=IF(OR(E36=\"\",F36=\"\"),\"\",E36/F36-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H36",
+      "formula": "=IF(OR(E36=\"\",F36=\"\"),\"بدون مقایسه\",IF(E36>F36,\"افزایش\",IF(E36<F36,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G37",
+      "formula": "=IF(OR(E37=\"\",F37=\"\"),\"\",E37/F37-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H37",
+      "formula": "=IF(OR(E37=\"\",F37=\"\"),\"بدون مقایسه\",IF(E37>F37,\"افزایش\",IF(E37<F37,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G38",
+      "formula": "=IF(OR(E38=\"\",F38=\"\"),\"\",E38/F38-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H38",
+      "formula": "=IF(OR(E38=\"\",F38=\"\"),\"بدون مقایسه\",IF(E38>F38,\"افزایش\",IF(E38<F38,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G39",
+      "formula": "=IF(OR(E39=\"\",F39=\"\"),\"\",E39/F39-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H39",
+      "formula": "=IF(OR(E39=\"\",F39=\"\"),\"بدون مقایسه\",IF(E39>F39,\"افزایش\",IF(E39<F39,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G40",
+      "formula": "=IF(OR(E40=\"\",F40=\"\"),\"\",E40/F40-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H40",
+      "formula": "=IF(OR(E40=\"\",F40=\"\"),\"بدون مقایسه\",IF(E40>F40,\"افزایش\",IF(E40<F40,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G41",
+      "formula": "=IF(OR(E41=\"\",F41=\"\"),\"\",E41/F41-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H41",
+      "formula": "=IF(OR(E41=\"\",F41=\"\"),\"بدون مقایسه\",IF(E41>F41,\"افزایش\",IF(E41<F41,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G42",
+      "formula": "=IF(OR(E42=\"\",F42=\"\"),\"\",E42/F42-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H42",
+      "formula": "=IF(OR(E42=\"\",F42=\"\"),\"بدون مقایسه\",IF(E42>F42,\"افزایش\",IF(E42<F42,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G43",
+      "formula": "=IF(OR(E43=\"\",F43=\"\"),\"\",E43/F43-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H43",
+      "formula": "=IF(OR(E43=\"\",F43=\"\"),\"بدون مقایسه\",IF(E43>F43,\"افزایش\",IF(E43<F43,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G44",
+      "formula": "=IF(OR(E44=\"\",F44=\"\"),\"\",E44/F44-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H44",
+      "formula": "=IF(OR(E44=\"\",F44=\"\"),\"بدون مقایسه\",IF(E44>F44,\"افزایش\",IF(E44<F44,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G45",
+      "formula": "=IF(OR(E45=\"\",F45=\"\"),\"\",E45/F45-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H45",
+      "formula": "=IF(OR(E45=\"\",F45=\"\"),\"بدون مقایسه\",IF(E45>F45,\"افزایش\",IF(E45<F45,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G46",
+      "formula": "=IF(OR(E46=\"\",F46=\"\"),\"\",E46/F46-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H46",
+      "formula": "=IF(OR(E46=\"\",F46=\"\"),\"بدون مقایسه\",IF(E46>F46,\"افزایش\",IF(E46<F46,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G47",
+      "formula": "=IF(OR(E47=\"\",F47=\"\"),\"\",E47/F47-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H47",
+      "formula": "=IF(OR(E47=\"\",F47=\"\"),\"بدون مقایسه\",IF(E47>F47,\"افزایش\",IF(E47<F47,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G48",
+      "formula": "=IF(OR(E48=\"\",F48=\"\"),\"\",E48/F48-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H48",
+      "formula": "=IF(OR(E48=\"\",F48=\"\"),\"بدون مقایسه\",IF(E48>F48,\"افزایش\",IF(E48<F48,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G49",
+      "formula": "=IF(OR(E49=\"\",F49=\"\"),\"\",E49/F49-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H49",
+      "formula": "=IF(OR(E49=\"\",F49=\"\"),\"بدون مقایسه\",IF(E49>F49,\"افزایش\",IF(E49<F49,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "G50",
+      "formula": "=IF(OR(E50=\"\",F50=\"\"),\"\",E50/F50-1)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "قیمت_مادر",
+      "cell": "H50",
+      "formula": "=IF(OR(E50=\"\",F50=\"\"),\"بدون مقایسه\",IF(E50>F50,\"افزایش\",IF(E50<F50,\"کاهش\",\"بدون تغییر\")))",
+      "cachedValue": "بدون مقایسه"
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E6",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B6,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G6",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B6,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 193000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H6",
+      "formula": "=IF(OR(E6=\"\",G6=\"\"),\"\",E6*G6)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E7",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B7,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G7",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B7,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 73000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H7",
+      "formula": "=IF(OR(E7=\"\",G7=\"\"),\"\",E7*G7)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E8",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B8,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G8",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B8,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 80000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H8",
+      "formula": "=IF(OR(E8=\"\",G8=\"\"),\"\",E8*G8)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E9",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B9,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G9",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B9,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 80000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H9",
+      "formula": "=IF(OR(E9=\"\",G9=\"\"),\"\",E9*G9)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E10",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B10,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G10",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B10,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 27000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H10",
+      "formula": "=IF(OR(E10=\"\",G10=\"\"),\"\",E10*G10)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E11",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B11,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G11",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B11,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 35000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H11",
+      "formula": "=IF(OR(E11=\"\",G11=\"\"),\"\",E11*G11)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E12",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B12,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G12",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B12,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 10000000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H12",
+      "formula": "=IF(OR(E12=\"\",G12=\"\"),\"\",E12*G12)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E13",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B13,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G13",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B13,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 5900000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H13",
+      "formula": "=IF(OR(E13=\"\",G13=\"\"),\"\",E13*G13)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E14",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B14,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G14",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B14,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 490000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H14",
+      "formula": "=IF(OR(E14=\"\",G14=\"\"),\"\",E14*G14)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E15",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B15,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G15",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B15,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 35000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H15",
+      "formula": "=IF(OR(E15=\"\",G15=\"\"),\"\",E15*G15)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E16",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B16,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G16",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B16,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 880000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H16",
+      "formula": "=IF(OR(E16=\"\",G16=\"\"),\"\",E16*G16)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E17",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B17,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G17",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B17,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 275000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H17",
+      "formula": "=IF(OR(E17=\"\",G17=\"\"),\"\",E17*G17)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E18",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B18,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G18",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B18,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 4600000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H18",
+      "formula": "=IF(OR(E18=\"\",G18=\"\"),\"\",E18*G18)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E19",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B19,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G19",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B19,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 850000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H19",
+      "formula": "=IF(OR(E19=\"\",G19=\"\"),\"\",E19*G19)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E20",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B20,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G20",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B20,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 155000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H20",
+      "formula": "=IF(OR(E20=\"\",G20=\"\"),\"\",E20*G20)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E21",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B21,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G21",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B21,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 60000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H21",
+      "formula": "=IF(OR(E21=\"\",G21=\"\"),\"\",E21*G21)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E22",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B22,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G22",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B22,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 180000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H22",
+      "formula": "=IF(OR(E22=\"\",G22=\"\"),\"\",E22*G22)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E23",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B23,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G23",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B23,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 17000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H23",
+      "formula": "=IF(OR(E23=\"\",G23=\"\"),\"\",E23*G23)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E24",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B24,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G24",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B24,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 100000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H24",
+      "formula": "=IF(OR(E24=\"\",G24=\"\"),\"\",E24*G24)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E25",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B25,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G25",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B25,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 250000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H25",
+      "formula": "=IF(OR(E25=\"\",G25=\"\"),\"\",E25*G25)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E26",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B26,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G26",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B26,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 690000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H26",
+      "formula": "=IF(OR(E26=\"\",G26=\"\"),\"\",E26*G26)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E27",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B27,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G27",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B27,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 750000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H27",
+      "formula": "=IF(OR(E27=\"\",G27=\"\"),\"\",E27*G27)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E28",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B28,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G28",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B28,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 80000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H28",
+      "formula": "=IF(OR(E28=\"\",G28=\"\"),\"\",E28*G28)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E29",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B29,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G29",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B29,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 115000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H29",
+      "formula": "=IF(OR(E29=\"\",G29=\"\"),\"\",E29*G29)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E30",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B30,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G30",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B30,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 125000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H30",
+      "formula": "=IF(OR(E30=\"\",G30=\"\"),\"\",E30*G30)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E31",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B31,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G31",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B31,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 250000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H31",
+      "formula": "=IF(OR(E31=\"\",G31=\"\"),\"\",E31*G31)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E32",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B32,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G32",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B32,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 2000000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H32",
+      "formula": "=IF(OR(E32=\"\",G32=\"\"),\"\",E32*G32)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E33",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B33,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G33",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B33,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 1100000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H33",
+      "formula": "=IF(OR(E33=\"\",G33=\"\"),\"\",E33*G33)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E34",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B34,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G34",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B34,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 200000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H34",
+      "formula": "=IF(OR(E34=\"\",G34=\"\"),\"\",E34*G34)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E35",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B35,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G35",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B35,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 180000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H35",
+      "formula": "=IF(OR(E35=\"\",G35=\"\"),\"\",E35*G35)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E36",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B36,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G36",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B36,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 62300000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H36",
+      "formula": "=IF(OR(E36=\"\",G36=\"\"),\"\",E36*G36)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E37",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B37,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G37",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B37,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 800000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H37",
+      "formula": "=IF(OR(E37=\"\",G37=\"\"),\"\",E37*G37)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E38",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B38,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G38",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B38,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 10500000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H38",
+      "formula": "=IF(OR(E38=\"\",G38=\"\"),\"\",E38*G38)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E39",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B39,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G39",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B39,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 1500000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H39",
+      "formula": "=IF(OR(E39=\"\",G39=\"\"),\"\",E39*G39)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E40",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B40,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G40",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B40,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 220000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H40",
+      "formula": "=IF(OR(E40=\"\",G40=\"\"),\"\",E40*G40)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E41",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B41,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G41",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B41,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 3500000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H41",
+      "formula": "=IF(OR(E41=\"\",G41=\"\"),\"\",E41*G41)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E42",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B42,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G42",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B42,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 15000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H42",
+      "formula": "=IF(OR(E42=\"\",G42=\"\"),\"\",E42*G42)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E43",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B43,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G43",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B43,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 3600000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H43",
+      "formula": "=IF(OR(E43=\"\",G43=\"\"),\"\",E43*G43)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E44",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B44,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G44",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B44,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 35000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H44",
+      "formula": "=IF(OR(E44=\"\",G44=\"\"),\"\",E44*G44)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E45",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B45,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G45",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B45,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 750000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H45",
+      "formula": "=IF(OR(E45=\"\",G45=\"\"),\"\",E45*G45)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E46",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B46,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G46",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B46,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 30000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H46",
+      "formula": "=IF(OR(E46=\"\",G46=\"\"),\"\",E46*G46)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E47",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B47,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G47",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B47,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 700000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H47",
+      "formula": "=IF(OR(E47=\"\",G47=\"\"),\"\",E47*G47)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E48",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B48,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G48",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B48,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 80000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H48",
+      "formula": "=IF(OR(E48=\"\",G48=\"\"),\"\",E48*G48)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E49",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B49,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G49",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B49,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 2800000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H49",
+      "formula": "=IF(OR(E49=\"\",G49=\"\"),\"\",E49*G49)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E50",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B50,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G50",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B50,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 220000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H50",
+      "formula": "=IF(OR(E50=\"\",G50=\"\"),\"\",E50*G50)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E51",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B51,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G51",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B51,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 850000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H51",
+      "formula": "=IF(OR(E51=\"\",G51=\"\"),\"\",E51*G51)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E52",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B52,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G52",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B52,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 3200000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H52",
+      "formula": "=IF(OR(E52=\"\",G52=\"\"),\"\",E52*G52)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E53",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B53,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G53",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B53,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": 5800000
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H53",
+      "formula": "=IF(OR(E53=\"\",G53=\"\"),\"\",E53*G53)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "E54",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B54,'تعداد_توقف'!$A:$A,INDEX('تعداد_توقف'!$C:$E,0,MATCH($B$2,'تعداد_توقف'!$C$1:$E$1,0)),\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "G54",
+      "formula": "=IFERROR(_xlfn.XLOOKUP(B54,'قیمت_مادر'!$A:$A,'قیمت_مادر'!$E:$E,\"\"),\"\")",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H54",
+      "formula": "=IF(OR(E54=\"\",G54=\"\"),\"\",E54*G54)",
+      "cachedValue": null
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H56",
+      "formula": "=SUMIF(C6:C54,\"مکانیک\",H6:H54)",
+      "cachedValue": 0
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H57",
+      "formula": "=SUMIF(C6:C54,\"راه‌اندازی\",H6:H54)",
+      "cachedValue": 0
+    },
+    {
+      "sheet": "لیست_خروجی",
+      "cell": "H59",
+      "formula": "=SUM(H6:H54)",
+      "cachedValue": 0
+    }
+  ],
+  "notes": [
+    "Original MATCH uses numeric B2 against text stop headers; IFERROR hides the mismatch. App normalizes header keys instead of copying that defect.",
+    "Workbook has no capacity, motor-type, rail or semi-automatic BOM dimension. PDF examples are five-stop snapshots, not formulas for six/seven/eight stops."
+  ]
+}

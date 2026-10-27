@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronIcon } from "@/components/ui/icons";
-import { formatNumber } from "@/lib/price-manager/format";
+import { formatNumber, formatMoney } from "@/lib/price-manager/format";
 import type { QuoteRow } from "@/lib/price-manager/types";
 
 interface ProductBrandMenuProps {
@@ -41,10 +41,10 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
         aria-label={`برند و جزئیات ${product.name}`}
         onClick={() => setOpen((current) => !current)}
         className="flex h-full w-full cursor-pointer items-center rounded-full border border-outline bg-white text-right outline-none transition-shadow hover:border-brand data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
-        title={product.name}
+        title={`${product.name}${row.brand ? ` - ${row.brand}` : ""}`}
       >
         <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-r from-brand to-brand-end text-[16px] text-white">{formatNumber(rowNumber)}</span>
-        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}</span>
+        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}{row.brand && !product.name.includes(row.brand) ? ` - ${row.brand}` : ""}</span>
         <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -64,6 +64,13 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
             {row.brand && !product.brands.includes(row.brand) && <option value={row.brand}>{row.brand}</option>}
             {product.brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
           </select>
+
+          <div className="mt-3 rounded-xl bg-lavender/25 p-3 text-[11px] leading-6">
+            <p>{row.quantitySource === "manual" ? "تعداد دستی" : row.quantitySource === "workbook" ? "تعداد اکسل" : "تعداد نامشخص"}: <bdi>{row.quantityReference}</bdi></p>
+            <p>فرمول مبنا: تعداد × قیمت مادر</p>
+            <p dir="ltr" className="text-center tabular-nums">{row.quantity === null ? "—" : formatNumber(row.quantity)} × {formatMoney(row.unitPrice)} = {formatMoney(row.baseTotal)}</p>
+            {row.total !== row.baseTotal && row.enabled && <p>مبلغ با تعدیل اختیاری: {formatMoney(row.total)} تومان</p>}
+          </div>
           {product.notes && <p className="mt-3 text-caption">{product.notes}</p>}
           <label className="mt-4 flex cursor-pointer items-center gap-2 border-t border-outline/25 pt-3">
             <input type="checkbox" checked={row.enabled} onChange={() => onToggle(product.id)} className="size-4 accent-brand" />

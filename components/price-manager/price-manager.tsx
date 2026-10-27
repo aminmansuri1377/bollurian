@@ -49,6 +49,8 @@ export function PriceManager() {
           onQueryChange={manager.setQuery}
           onSettingsChange={manager.updateSettings}
           onPriceChange={manager.updatePrice}
+          onPreviousPriceChange={manager.updatePreviousPrice}
+          onResetDemo={manager.resetDemo}
           onExportBackup={manager.exportBackup}
           onImportBackup={manager.restoreBackup}
         />

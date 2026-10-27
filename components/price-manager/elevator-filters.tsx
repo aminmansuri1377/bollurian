@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { PACKAGE_OPTIONS } from "@/lib/price-manager/constants";
+import { PACKAGE_OPTIONS, SUPPORTED_STOPS, isSupportedStop } from "@/lib/price-manager/constants";
 import { formatNumber } from "@/lib/price-manager/format";
 import type { Capacity, MotorType, PackageId, QuoteSettings } from "@/lib/price-manager/types";
 import { SelectField } from "@/components/ui/select-field";
@@ -11,9 +11,9 @@ interface ElevatorFiltersProps {
   onBuildList: () => void;
 }
 
-const stopOptions = Array.from({ length: 13 }, (_, index) => ({
-  value: index + 1,
-  label: `آسانسور ${formatNumber(index + 1)} توقف`,
+const stopOptions = SUPPORTED_STOPS.map((stop) => ({
+  value: stop,
+  label: `آسانسور ${formatNumber(stop)} توقف`,
 }));
 
 export function ElevatorFilters({ settings, disabled, onChange, onBuildList }: ElevatorFiltersProps) {
@@ -39,7 +39,10 @@ export function ElevatorFilters({ settings, disabled, onChange, onBuildList }: E
             label="تعداد توقف"
             value={settings.stops}
             options={stopOptions}
-            onChange={(stops) => onChange({ stops: Number(stops), quantities: {} })}
+            onChange={(value) => {
+              const stops = Number(value);
+              if (isSupportedStop(stops)) onChange({ stops });
+            }}
           />
           <SelectField
             id="passenger-capacity"

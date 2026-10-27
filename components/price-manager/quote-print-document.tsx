@@ -3,6 +3,7 @@ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
 import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
 import { BrandWordmark } from "./brand-wordmark";
 import { QuoteMetadata } from "./quote-metadata";
+import { PricingSourceNotice } from "./pricing-source-notice";
 
 interface QuotePrintDocumentProps {
   settings: QuoteSettings;
@@ -17,6 +18,7 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
       <header className="mb-5 break-inside-avoid">
         <Image src="/logo.png" alt="Bollourian Elevator" width={240} height={83} className="mx-auto mb-5 h-[83px] w-[240px] object-contain" />
         <QuoteMetadata settings={settings} compact />
+        <PricingSourceNotice settings={settings} />
         <div className="mt-3 flex justify-between text-[10px]">
           <span>مشتری: {settings.customer || "—"}</span>
           <span>شماره: {settings.quoteNumber || "—"}</span>
@@ -50,7 +52,7 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
       </table>
       <footer className="mt-4 break-inside-avoid">
         <div className="flex justify-between border-t border-outline/40 pt-4 text-[11px]">
-          <span>درصد تغییر قیمت: {formatNumber(settings.rate)}٪</span>
+          <span>تعدیل اختیاری (خارج از اکسل): {formatNumber(settings.rate)}٪</span>
           <strong>جمع کل: {formatMoney(quote.total)} تومان</strong>
         </div>
         <div className="mt-10 flex justify-around text-[10px]"><span>مهر و امضای فروشنده</span><span>امضای خریدار</span></div>

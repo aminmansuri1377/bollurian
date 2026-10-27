@@ -1,0 +1,81 @@
+{
+  "mechanic": [
+    "M001",
+    "M002",
+    "M008",
+    "M009",
+    "M010",
+    "M006",
+    "M005",
+    "M004",
+    "M007",
+    "M003",
+    "M011"
+  ],
+  "startupCommon": [
+    "R029",
+    "P-EARTH-WIRE",
+    "R031",
+    "R032",
+    "R030",
+    "R011",
+    "R009",
+    "R010",
+    "R002",
+    "R016",
+    "R001",
+    "R017",
+    "R003",
+    "R025",
+    "R022",
+    "R023",
+    "R028",
+    "R034",
+    "R005",
+    "R004",
+    "R013",
+    "R012",
+    "R015",
+    "R008",
+    "R019",
+    "R006",
+    "R035",
+    "R024",
+    "R037",
+    "R036",
+    "R007",
+    "P-STARTUP-BOLT10",
+    "P-STARTUP-BOLT8"
+  ],
+  "autoOnly": [
+    "R020",
+    "P-LANDING-DOOR"
+  ],
+  "semiOnly": [
+    "P-SEMI-CABIN-DOOR",
+    "P-SEMI-CAM",
+    "P-SEMI-DOOR",
+    "P-SEMI-DICTATOR",
+    "P-SEMI-LOCK",
+    "P-SEMI-SPRING"
+  ],
+  "rail": [
+    "P-RAIL-T5",
+    "P-RAIL-T9",
+    "P-BRACKET-T5",
+    "P-BRACKET-T9",
+    "P-CLIP-T5",
+    "P-CLIP-T9",
+    "P-RAIL-BOLT12",
+    "P-RAIL-BOLT10",
+    "P-RAIL-BOLT8"
+  ],
+  "workbookOnly": [
+    "R014",
+    "R018",
+    "R021",
+    "R026",
+    "R027",
+    "R033"
+  ]
+}

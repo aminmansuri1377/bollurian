@@ -1,4 +1,4 @@
-import catalog from "@/data/catalog.json";
+import catalog from "../../data/catalog.json";
 import type { Product } from "./types";
 
-export const PRODUCTS = catalog as Product[];
+export const PRODUCTS: Product[] = catalog as Product[];

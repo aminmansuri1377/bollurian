@@ -1,4 +1,4 @@
-import type { PackageId, ProductGroup, QuoteSettings } from "./types";
+import type { PackageId, ProductGroup, QuoteSettings, SupportedStop } from "./types";
 
 export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
   { value: "rail", label: "ریل" },
@@ -11,18 +11,6 @@ export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
   { value: "full-semi", label: "ریل، مکانیک و راه‌اندازی نیمه اتومات" },
 ];
 
-// Preserve the existing package rules; this patch changes presentation, not the catalog.
-export const PACKAGE_GROUPS: Record<PackageId, ProductGroup[]> = {
-  rail: ["rail"],
-  mechanic: ["mechanic", "motor"],
-  auto: ["startup", "auto", "motor"],
-  semi: ["startup", "semi", "motor"],
-  "mech-auto": ["mechanic", "motor", "startup", "auto"],
-  "mech-semi": ["mechanic", "motor", "startup", "semi"],
-  "full-auto": ["rail", "mechanic", "motor", "startup", "auto"],
-  "full-semi": ["rail", "mechanic", "motor", "startup", "semi"],
-};
-
 export const GROUP_LABELS: Record<ProductGroup, string> = {
   rail: "ریل",
   mechanic: "مکانیک",
@@ -32,12 +20,21 @@ export const GROUP_LABELS: Record<ProductGroup, string> = {
   semi: "نیمه اتومات",
 };
 
+export const SUPPORTED_STOPS: readonly SupportedStop[] = [6, 7, 8];
+export const DEMO_BASE_PRICE = 1000;
+
+export function isSupportedStop(value: number): value is SupportedStop {
+  return SUPPORTED_STOPS.some((stop) => stop === value);
+}
+
 export const INITIAL_SETTINGS: QuoteSettings = {
+  schemaVersion: 2,
   motor: "gearbox",
-  stops: 5,
+  stops: 6,
   capacity: "4-6",
   pack: "full-auto",
   prices: {},
+  previousPrices: {},
   quantities: {},
   brands: {},
   excluded: [],

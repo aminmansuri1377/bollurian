@@ -4,6 +4,7 @@ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
 import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
 import { BrandWordmark } from "./brand-wordmark";
 import { QuoteMetadata } from "./quote-metadata";
+import { PricingSourceNotice } from "./pricing-source-notice";
 
 interface QuoteSheetProps {
   settings: QuoteSettings;
@@ -24,6 +25,7 @@ export function QuoteSheet({ settings, quote, disabled, isPrinting, onPrint, chi
           <Image src="/logo.png" alt="Bollourian Elevator — آسانسور بلوریان" width={350} height={120} className="h-[120px] w-[350px] object-contain" />
         </header>
         <QuoteMetadata settings={settings} />
+        <PricingSourceNotice settings={settings} />
         <div className="mt-[40px]">{children}</div>
 
         <div className="mt-[38px] flex items-center justify-between gap-6">

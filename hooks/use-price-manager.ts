@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PRODUCTS } from "@/lib/price-manager/catalog";
 import { buildQuote, searchQuoteRows } from "@/lib/price-manager/calculations";
 import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
+import { createDemoSettings, updateNumericSetting } from "@/lib/price-manager/settings";
 import {
   downloadBackup,
   getDatabasePath,
@@ -67,22 +68,31 @@ export function usePriceManager() {
     setSettings((current) => ({ ...current, ...patch }));
   }, []);
 
-  const updateNumber = useCallback((field: "prices" | "quantities", id: string, value: number | null) => {
-    setSettings((current) => {
-      const values = { ...current[field] };
-      if (value === null) delete values[id];
-      else if (Number.isFinite(value) && value >= 0) values[id] = value;
-      return { ...current, [field]: values };
-    });
+  const updatePrice = useCallback((id: string, value: number | null) => {
+    setSettings((current) => updateNumericSetting(current, "prices", id, value));
   }, []);
 
-  const updatePrice = useCallback((id: string, value: number | null) => {
-    updateNumber("prices", id, value);
-  }, [updateNumber]);
+  const updatePreviousPrice = useCallback((id: string, value: number | null) => {
+    setSettings((current) => updateNumericSetting(current, "previousPrices", id, value));
+  }, []);
 
   const updateQuantity = useCallback((id: string, value: number | null) => {
-    updateNumber("quantities", id, value);
-  }, [updateNumber]);
+    setSettings((current) => updateNumericSetting(current, "quantities", id, value));
+  }, []);
+
+  function resetDemo() {
+    if (status !== "ready") return;
+    const confirmed = window.confirm("قیمت‌ها به ۱۰۰۰ تومان برگردند و تعدادهای دستی و درصد تغییر پاک شوند؟ قبل از بازنشانی، فایل پشتیبان دریافت می‌شود.");
+    if (!confirmed) return;
+    try {
+      downloadBackup(settings);
+      setSettings(createDemoSettings(settings));
+      setMessage("نمونه ۱۰۰۰ تومانی بارگذاری شد. تعدادها از اکسل خوانده می‌شوند؛ مقادیر نامشخص همچنان خالی هستند.");
+    } catch (error) {
+      console.error("Demo reset backup failed", error);
+      setMessage("تهیه پشتیبان ناموفق بود؛ اطلاعات بازنشانی نشد.");
+    }
+  }
 
   const updateBrand = useCallback((id: string, brand: string) => {
     setSettings((current) => ({ ...current, brands: { ...current.brands, [id]: brand } }));
@@ -133,7 +143,7 @@ export function usePriceManager() {
   return {
     settings, status, quote, visibleRows, query, setQuery, message, setMessage,
     databasePath, today, isPrinting,
-    updateSettings, updatePrice, updateQuantity, updateBrand, toggleProduct,
+    updateSettings, updatePrice, updatePreviousPrice, updateQuantity, updateBrand, toggleProduct, resetDemo,
     restoreBackup, printQuote,
     exportBackup: () => downloadBackup(settings),
   };
