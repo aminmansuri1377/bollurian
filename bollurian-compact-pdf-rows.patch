@@ -1,0 +1,186 @@
+diff --git a/components/price-manager/quote-print-document.tsx b/components/price-manager/quote-print-document.tsx
+index f01be4ddbca1e62de3bf4552113e10eeacfd06f1..18fe794084bb59d1ef0483c04eb8c8fe3ac082f8 100644
+--- a/components/price-manager/quote-print-document.tsx
++++ b/components/price-manager/quote-print-document.tsx
+@@ -2,7 +2,7 @@ import Image from "next/image";
+ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+ import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
+ import { BrandWordmark } from "./brand-wordmark";
+-import { RowNumberBadge } from "./row-number-badge";
++import { QuotePrintRow } from "./quote-print-row";
+ import { QuoteMetadata } from "./quote-metadata";
+ import { PricingSourceNotice } from "./pricing-source-notice";
+ 
+@@ -26,28 +26,18 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
+           <span>تاریخ: {today}</span>
+         </div>
+       </header>
+-      <table className="w-full table-fixed border-separate [border-spacing:5px_7px] text-[9px]">
+-        <colgroup><col className="w-[42%]" /><col className="w-[10%]" /><col className="w-[24%]" /><col className="w-[24%]" /></colgroup>
++      <table className="w-full table-fixed border-separate [border-spacing:5px_6px] text-[9px] leading-[14px]">
++        <colgroup><col className="w-[42%]" /><col className="w-[14%]" /><col className="w-[22%]" /><col className="w-[22%]" /></colgroup>
+         <thead className="[display:table-header-group]">
+           <tr>
+             {["شرح کالا / برند", "تعداد", "قیمت واحد (تومان)", "مبلغ کل (تومان)"].map((label) => (
+-              <th key={label} className="rounded-full bg-lavender px-2 py-2.5 text-center font-medium">{label}</th>
++              <th key={label} className="h-7 rounded-full bg-lavender px-2 py-1 align-middle text-center font-medium leading-[14px]">{label}</th>
+             ))}
+           </tr>
+         </thead>
+         <tbody>
+           {quote.enabledRows.map((row, index) => (
+-            <tr key={row.product.id} className="break-inside-avoid [page-break-inside:avoid]">
+-              <td className="rounded-[14px] border border-brand p-0 align-top">
+-                <div className="relative min-h-[26px] py-[3px] pr-[34px] pl-2">
+-                  <RowNumberBadge value={index + 1} size="print" className="absolute -top-px -right-px" />
+-                  <span className="block break-words leading-5">{row.product.name}{row.brand && !row.product.name.includes(row.brand) ? ` — ${row.brand}` : ""}</span>
+-                </div>
+-              </td>
+-              <td className="rounded-[18px] border border-outline px-1 py-2 text-center leading-5">{row.quantity === null ? "—" : formatNumber(row.quantity)}<span className="block text-[8px] text-caption">{row.product.unit}</span></td>
+-              <td className="rounded-[18px] border border-outline px-1 py-2 text-center tabular-nums">{formatMoney(row.unitPrice)}</td>
+-              <td className="rounded-[18px] border border-outline px-1 py-2 text-center tabular-nums">{formatMoney(row.total)}</td>
+-            </tr>
++            <QuotePrintRow key={row.product.id} row={row} rowNumber={index + 1} />
+           ))}
+         </tbody>
+       </table>
+diff --git a/components/price-manager/quote-print-row.tsx b/components/price-manager/quote-print-row.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..3a8bbb840fb6da5a938f824e4c039485f76a8363
+--- /dev/null
++++ b/components/price-manager/quote-print-row.tsx
+@@ -0,0 +1,39 @@
++import { formatMoney, formatNumber } from "@/lib/price-manager/format";
++import type { QuoteRow } from "@/lib/price-manager/types";
++import { RowNumberBadge } from "./row-number-badge";
++
++interface QuotePrintRowProps {
++  row: QuoteRow;
++  rowNumber: number;
++}
++
++const numberCellClasses =
++  "rounded-[14px] border border-outline px-1 py-1 align-middle text-center leading-[14px] tabular-nums";
++
++/** Compact print rows; only genuinely long product names may add a line. */
++export function QuotePrintRow({ row, rowNumber }: QuotePrintRowProps) {
++  const { product, brand, quantity, unitPrice, total } = row;
++  const brandSuffix = brand && !product.name.includes(brand) ? ` \u2014 ${brand}` : "";
++
++  return (
++    <tr data-quote-row={product.id} className="break-inside-avoid [page-break-inside:avoid]">
++      <td className="rounded-[14px] border border-brand p-0 align-middle">
++        <div className="relative flex min-h-[26px] items-center py-[3px] pr-[34px] pl-2">
++          <RowNumberBadge value={rowNumber} size="print" className="absolute -top-px -right-px" />
++          <span className="min-w-0 break-words leading-[14px]">
++            {product.name}{brandSuffix}
++          </span>
++        </div>
++      </td>
++      <td className={numberCellClasses}>
++        {/* Keep the unit, but never make it a second line below the quantity. */}
++        <span className="inline-flex items-baseline justify-center gap-1 whitespace-nowrap leading-[14px]">
++          <bdi>{quantity === null ? "\u2014" : formatNumber(quantity)}</bdi>
++          {product.unit && <span className="text-[8px] text-brand/65">{product.unit}</span>}
++        </span>
++      </td>
++      <td className={`${numberCellClasses} whitespace-nowrap`}>{formatMoney(unitPrice)}</td>
++      <td className={`${numberCellClasses} whitespace-nowrap`}>{formatMoney(total)}</td>
++    </tr>
++  );
++}
+diff --git a/docs/COMPACT-PDF-ROWS.md b/docs/COMPACT-PDF-ROWS.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..7a1c75ac8280f11a86eebbc74c473f2c538e9a35
+--- /dev/null
++++ b/docs/COMPACT-PDF-ROWS.md
+@@ -0,0 +1,55 @@
++# Compact PDF rows
++
++Base: `aminmansuri1377/bollurian`, commit `cfa8c6d2851b6460cef210641b9e9a6e309f12e6`.
++
++## Cause
++
++The previous quantity cell printed a quantity and a block-level unit with a
++20px line height and 16px vertical padding. That cell made every ordinary
++row 58px tall. The description cell was also top-aligned.
++
++## Changes
++
++- Extract the print-only row into `QuotePrintRow`.
++- Keep quantity and unit together on one line; no information is removed.
++- Use 14px line height and small, consistent vertical padding.
++- Middle-align cell contents and retain the shared 28px print number badge.
++- Allocate 14% of the table to quantity/unit and 22% to each money column.
++- Ordinary rows use a 26px minimum content height, not a clipping fixed height.
++  Long product descriptions can wrap and grow naturally.
++- Preserve the repeating table header and avoid breaking an ordinary row
++  between pages. Screen UI, prices, state, SQLite, and icon generation are unchanged.
++- All component styling remains Tailwind. No new dependency or stylesheet.
++
++## Validation
++
++- Matched both modified existing files to their GitHub blob hashes before editing.
++- Isolated TSX print output, compiled with Tailwind 4.1.10 and printed in Chromium:
++  11 mechanic rows at 8 stops went from 58px to 28px each; two A4 pages became one.
++  The same corrected fixture also fits one Letter page.
++- A 70-row fixture produced three pages; all 70 unique markers occur exactly once
++  in extracted PDF text, with the column header repeated. Rendered pages inspected.
++- Long descriptions, a seven-digit quantity, a large money value, zero, and missing
++  values checked. Long descriptions expand rather than being truncated.
++- Existing pricing suite: 6,084 assertions passed.
++- Updated branding/layout suite: 15 tests passed.
++- `git diff --check` and patch application against a clean baseline passed.
++
++Scope: this is isolated component/Chromium validation, NOT a full Next.js or
++native Windows build. The renderer used system fallback fonts because the
++repository's Peyda font files were unavailable in the test environment. The test
++logo was cropped from the supplied sample PDF. Neither fonts nor images are in
++this patch; the real application continues using its existing local assets.
++
++## Apply
++
++```powershell
++git apply --check .\bollurian-compact-pdf-rows.patch
++git apply .\bollurian-compact-pdf-rows.patch
++npm test
++npm run test:branding
++npm run desktop:dev
++```
++
++There is no need to reset data, regenerate a database, or install new packages.
++Rebuild the installer to update an already-installed application.
+diff --git a/scripts/test-branding.cjs b/scripts/test-branding.cjs
+index 93d0503a4ce41b6e47c586fd02342d36b8e39db7..6cf24fb1c680ab9cdb13f0433154fbb4277049d8 100644
+--- a/scripts/test-branding.cjs
++++ b/scripts/test-branding.cjs
+@@ -111,11 +111,28 @@ test("Tauri development and release builds both regenerate icons", () => {
+ });
+ test("screen and print share the same three-round-corner badge", () => {
+   const root = path.resolve(__dirname, "../components/price-manager");
+-  for (const file of ["product-brand-menu.tsx", "quote-print-document.tsx"]) {
++  for (const file of ["product-brand-menu.tsx", "quote-print-row.tsx"]) {
+     assert.match(fs.readFileSync(path.join(root, file), "utf8"), /<RowNumberBadge /);
+   }
++  const document = fs.readFileSync(path.join(root, "quote-print-document.tsx"), "utf8");
++  assert.match(document, /<QuotePrintRow /);
+   const badge = fs.readFileSync(path.join(root, "row-number-badge.tsx"), "utf8");
+   assert.ok(badge.includes("rounded-[50%_50%_50%_0]"));
+   assert.ok(badge.includes('dir="ltr"'));
+   assert.ok(badge.includes("{String(value)}"));
+ });
++
++
++test("print rows keep units inline without clipping long product names", () => {
++  const root = path.resolve(__dirname, "../components/price-manager");
++  const row = fs.readFileSync(path.join(root, "quote-print-row.tsx"), "utf8");
++  const document = fs.readFileSync(path.join(root, "quote-print-document.tsx"), "utf8");
++  assert.match(row, /inline-flex items-baseline justify-center gap-1 whitespace-nowrap/);
++  assert.match(row, /min-h-\[26px\]/);
++  assert.match(row, /align-middle/);
++  assert.match(row, /break-words leading-\[14px\]/);
++  assert.doesNotMatch(row, /overflow-hidden|truncate|line-clamp|py-2|leading-5/);
++  assert.ok(document.includes("[display:table-header-group]"));
++  assert.ok(row.includes("[page-break-inside:avoid]"));
++  assert.ok(row.includes("{product.unit}"), "Keep units as meaningful data");
++});

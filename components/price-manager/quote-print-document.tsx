@@ -2,7 +2,7 @@ import Image from "next/image";
 import { formatMoney, formatNumber } from "@/lib/price-manager/format";
 import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
 import { BrandWordmark } from "./brand-wordmark";
-import { RowNumberBadge } from "./row-number-badge";
+import { QuotePrintRow } from "./quote-print-row";
 import { QuoteMetadata } from "./quote-metadata";
 import { PricingSourceNotice } from "./pricing-source-notice";
 
@@ -26,28 +26,18 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
           <span>تاریخ: {today}</span>
         </div>
       </header>
-      <table className="w-full table-fixed border-separate [border-spacing:5px_7px] text-[9px]">
-        <colgroup><col className="w-[42%]" /><col className="w-[10%]" /><col className="w-[24%]" /><col className="w-[24%]" /></colgroup>
+      <table className="w-full table-fixed border-separate [border-spacing:5px_6px] text-[9px] leading-[14px]">
+        <colgroup><col className="w-[42%]" /><col className="w-[14%]" /><col className="w-[22%]" /><col className="w-[22%]" /></colgroup>
         <thead className="[display:table-header-group]">
           <tr>
             {["شرح کالا / برند", "تعداد", "قیمت واحد (تومان)", "مبلغ کل (تومان)"].map((label) => (
-              <th key={label} className="rounded-full bg-lavender px-2 py-2.5 text-center font-medium">{label}</th>
+              <th key={label} className="h-7 rounded-full bg-lavender px-2 py-1 align-middle text-center font-medium leading-[14px]">{label}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {quote.enabledRows.map((row, index) => (
-            <tr key={row.product.id} className="break-inside-avoid [page-break-inside:avoid]">
-              <td className="rounded-[14px] border border-brand p-0 align-top">
-                <div className="relative min-h-[26px] py-[3px] pr-[34px] pl-2">
-                  <RowNumberBadge value={index + 1} size="print" className="absolute -top-px -right-px" />
-                  <span className="block break-words leading-5">{row.product.name}{row.brand && !row.product.name.includes(row.brand) ? ` — ${row.brand}` : ""}</span>
-                </div>
-              </td>
-              <td className="rounded-[18px] border border-outline px-1 py-2 text-center leading-5">{row.quantity === null ? "—" : formatNumber(row.quantity)}<span className="block text-[8px] text-caption">{row.product.unit}</span></td>
-              <td className="rounded-[18px] border border-outline px-1 py-2 text-center tabular-nums">{formatMoney(row.unitPrice)}</td>
-              <td className="rounded-[18px] border border-outline px-1 py-2 text-center tabular-nums">{formatMoney(row.total)}</td>
-            </tr>
+            <QuotePrintRow key={row.product.id} row={row} rowNumber={index + 1} />
           ))}
         </tbody>
       </table>

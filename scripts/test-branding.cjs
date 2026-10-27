@@ -111,11 +111,28 @@ test("Tauri development and release builds both regenerate icons", () => {
 });
 test("screen and print share the same three-round-corner badge", () => {
   const root = path.resolve(__dirname, "../components/price-manager");
-  for (const file of ["product-brand-menu.tsx", "quote-print-document.tsx"]) {
+  for (const file of ["product-brand-menu.tsx", "quote-print-row.tsx"]) {
     assert.match(fs.readFileSync(path.join(root, file), "utf8"), /<RowNumberBadge /);
   }
+  const document = fs.readFileSync(path.join(root, "quote-print-document.tsx"), "utf8");
+  assert.match(document, /<QuotePrintRow /);
   const badge = fs.readFileSync(path.join(root, "row-number-badge.tsx"), "utf8");
   assert.ok(badge.includes("rounded-[50%_50%_50%_0]"));
   assert.ok(badge.includes('dir="ltr"'));
   assert.ok(badge.includes("{String(value)}"));
+});
+
+
+test("print rows keep units inline without clipping long product names", () => {
+  const root = path.resolve(__dirname, "../components/price-manager");
+  const row = fs.readFileSync(path.join(root, "quote-print-row.tsx"), "utf8");
+  const document = fs.readFileSync(path.join(root, "quote-print-document.tsx"), "utf8");
+  assert.match(row, /inline-flex items-baseline justify-center gap-1 whitespace-nowrap/);
+  assert.match(row, /min-h-\[26px\]/);
+  assert.match(row, /align-middle/);
+  assert.match(row, /break-words leading-\[14px\]/);
+  assert.doesNotMatch(row, /overflow-hidden|truncate|line-clamp|py-2|leading-5/);
+  assert.ok(document.includes("[display:table-header-group]"));
+  assert.ok(row.includes("[page-break-inside:avoid]"));
+  assert.ok(row.includes("{product.unit}"), "Keep units as meaningful data");
 });
