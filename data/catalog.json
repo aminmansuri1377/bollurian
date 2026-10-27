@@ -1,0 +1,1058 @@
+[
+  {
+    "id": "M001",
+    "name": "سیم بکسل 10 چین نواردار طلایی | خرده",
+    "group": "mechanic",
+    "unit": "متر",
+    "price": 193000.0,
+    "previous": null,
+    "quantities": {
+      "6": 96.0,
+      "7": 108.0,
+      "8": 120.0,
+      "5": 84
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M002",
+    "name": "سیم بکسل 6 خودرنگ چین | خرده",
+    "group": "mechanic",
+    "unit": "متر",
+    "price": 73000.0,
+    "previous": null,
+    "quantities": {
+      "6": 48.0,
+      "7": 54.0,
+      "8": 60.0,
+      "5": 45
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M003",
+    "name": "لاستیک تخت مرغوب | المپیک",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 80000.0,
+    "previous": null,
+    "quantities": {
+      "6": 4.0,
+      "7": 4.0,
+      "8": 4.0,
+      "5": 4
+    },
+    "brands": [
+      "المپیک"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M004",
+    "name": "پیچ موتور 16 (موتور) | 7.5 سانت متر",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 80000.0,
+    "previous": null,
+    "quantities": {
+      "6": 4.0,
+      "7": 4.0,
+      "8": 4.0,
+      "5": 4
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M005",
+    "name": "کرپی 6 فولادی | طلایی",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 27000.0,
+    "previous": null,
+    "quantities": {
+      "6": 6.0,
+      "7": 6.0,
+      "8": 6.0,
+      "5": 6
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M006",
+    "name": "کرپی 10 فولادی | طلایی",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 35000.0,
+    "previous": null,
+    "quantities": {
+      "6": 24.0,
+      "7": 24.0,
+      "8": 24.0,
+      "5": 24
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M007",
+    "name": "گاورنر آسانبر بیهق + وزنه",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 10000000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0,
+      "5": 1
+    },
+    "brands": [
+      "آسانبر بیهق"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M008",
+    "name": "فلکه هرزگرد 4 شیار آریا + شفت",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 5900000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0,
+      "5": 1
+    },
+    "brands": [
+      "آریا"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M009",
+    "name": "سربکسل 10 پرشیا",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 490000.0,
+    "previous": null,
+    "quantities": {
+      "6": 8.0,
+      "7": 8.0,
+      "8": 8.0,
+      "5": 8
+    },
+    "brands": [
+      "پرشیا"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M010",
+    "name": "اشکی بکسل گاورنر",
+    "group": "mechanic",
+    "unit": "عدد",
+    "price": 35000.0,
+    "previous": null,
+    "quantities": {
+      "6": 2.0,
+      "7": 2.0,
+      "8": 2.0,
+      "5": 2
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "M011",
+    "name": "وزنه گالوانیزه آسانسور 77",
+    "group": "mechanic",
+    "unit": "قالب",
+    "price": 880000.0,
+    "previous": null,
+    "quantities": {
+      "6": 14.0,
+      "7": 14.0,
+      "8": 14.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R001",
+    "name": "استپ قارچی + جعبه | ماهان الکتریک",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 275000.0,
+    "previous": null,
+    "quantities": {
+      "6": 3.0,
+      "7": 3.0,
+      "8": 3.0
+    },
+    "brands": [
+      "ماهان الکتریک"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R002",
+    "name": "اورلود دیجیتال - ناسیس",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 4600000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "ناسیس"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R003",
+    "name": "بافر آلسن - 1500 kg",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 850000.0,
+    "previous": null,
+    "quantities": {
+      "6": 2.0,
+      "7": 2.0,
+      "8": 2.0
+    },
+    "brands": [
+      "آلسن"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R004",
+    "name": "بست کمربندی 20 سانتی",
+    "group": "startup",
+    "unit": "بسته",
+    "price": 155000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R005",
+    "name": "بست تراول کابل - یاشار لیفت",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 60000.0,
+    "previous": null,
+    "quantities": {
+      "6": 4.0,
+      "7": 4.0,
+      "8": 4.0
+    },
+    "brands": [
+      "یاشار"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R006",
+    "name": "پریز بارانی روکار - پارت الکتریک",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 180000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "پارت الکتریک"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R007",
+    "name": "پیچ و مهره 12 جهت نصب پایه لیمیت",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 17000.0,
+    "previous": null,
+    "quantities": {
+      "6": 8.0,
+      "7": 8.0,
+      "8": 8.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R008",
+    "name": "پیچ و رولپلاک - 50 تایی",
+    "group": "startup",
+    "unit": "بسته",
+    "price": 100000.0,
+    "previous": null,
+    "quantities": {
+      "6": 2.0,
+      "7": 2.0,
+      "8": 2.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R009",
+    "name": "داکت 3 پلاستیکی - دودمان",
+    "group": "startup",
+    "unit": "شاخه",
+    "price": 250000.0,
+    "previous": null,
+    "quantities": {
+      "6": 15.0,
+      "7": 17.0,
+      "8": 19.0
+    },
+    "brands": [
+      "دودمان"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R010",
+    "name": "داکت 9 پلاستیکی - سفید - دودمان",
+    "group": "startup",
+    "unit": "شاخه",
+    "price": 690000.0,
+    "previous": null,
+    "quantities": {
+      "6": 2.0,
+      "7": 2.0,
+      "8": 2.0
+    },
+    "brands": [
+      "دودمان"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R011",
+    "name": "داکت 10 فلزی",
+    "group": "startup",
+    "unit": "شاخه",
+    "price": 750000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R012",
+    "name": "خرطومی فلزی",
+    "group": "startup",
+    "unit": "متر",
+    "price": 80000.0,
+    "previous": null,
+    "quantities": {
+      "6": 3.0,
+      "7": 3.0,
+      "8": 3.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R013",
+    "name": "خرطومی پلاستیکی",
+    "group": "startup",
+    "unit": "حلقه",
+    "price": 115000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R014",
+    "name": "روغن گیر ریل",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 125000.0,
+    "previous": null,
+    "quantities": {
+      "6": 4.0,
+      "7": 4.0,
+      "8": 4.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R015",
+    "name": "روغندان طرح ترک ENP",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 250000.0,
+    "previous": null,
+    "quantities": {
+      "6": 4.0,
+      "7": 4.0,
+      "8": 4.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R016",
+    "name": "سنسور پیشرو پلاستیکی + آهنربا 40 عدد",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 2000000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R017",
+    "name": "لیمیت سوئیچ یاشار",
+    "group": "startup",
+    "unit": "بسته",
+    "price": 1100000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "یاشار"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R018",
+    "name": "کلید 3 گوش - لیزری",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 200000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "لیزری"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R019",
+    "name": "کلید تک پل تبدیل - پارت الکتریک",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 180000.0,
+    "previous": null,
+    "quantities": {
+      "6": 2.0,
+      "7": 2.0,
+      "8": 2.0
+    },
+    "brands": [
+      "پارت الکتریک"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R020",
+    "name": "درب تلسکوپی روانکار کابین فول 80 دولته",
+    "group": "startup",
+    "unit": "دستگاه",
+    "price": 62300000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "روانکار"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R021",
+    "name": "فن کامپیوتری",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 800000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R022",
+    "name": "شاسی کابین 1 متری - RLift",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 10500000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "RLift"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R023",
+    "name": "شاسی طبقه روکار - RLift",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 1500000.0,
+    "previous": null,
+    "quantities": {
+      "6": 6.0,
+      "7": 7.0,
+      "8": 8.0
+    },
+    "brands": [
+      "RLift"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R024",
+    "name": "چراغ تونلی W 16 LED | راینو",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 220000.0,
+    "previous": null,
+    "quantities": {
+      "6": 8.0,
+      "7": 9.0,
+      "8": 10.0
+    },
+    "brands": [
+      "راینو"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R025",
+    "name": "جعبه 3 فاز",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 3500000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R026",
+    "name": "آهنربا اضافه",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 15000.0,
+    "previous": null,
+    "quantities": {
+      "6": 10.0,
+      "7": 20.0,
+      "8": 30.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R027",
+    "name": "فتوسل اکو ناسیس (چشمی پلاستیکی)",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 3600000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "ناسیس"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R028",
+    "name": "چسب برق دیاموند",
+    "group": "startup",
+    "unit": "حلقه",
+    "price": 35000.0,
+    "previous": null,
+    "quantities": {
+      "6": 8.0,
+      "7": 10.0,
+      "8": 12.0
+    },
+    "brands": [
+      "دیاموند"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R029",
+    "name": "تراول کابل 24 رشته روکش مس بکسلدار - 3G - آسمان وایلر",
+    "group": "startup",
+    "unit": "متر",
+    "price": 750000.0,
+    "previous": null,
+    "quantities": {
+      "6": 31.0,
+      "7": 34.0,
+      "8": 38.0
+    },
+    "brands": [
+      "آسمان وایلر"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R030",
+    "name": "سیم 6 زوج",
+    "group": "startup",
+    "unit": "متر",
+    "price": 30000.0,
+    "previous": null,
+    "quantities": {
+      "6": 36.0,
+      "7": 40.0,
+      "8": 45.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R031",
+    "name": "سیم 75 - CC",
+    "group": "startup",
+    "unit": "حلقه",
+    "price": 700000.0,
+    "previous": null,
+    "quantities": {
+      "6": 5.0,
+      "7": 6.0,
+      "8": 8.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R032",
+    "name": "کابل 1*4 (جهت سیم کشی)",
+    "group": "startup",
+    "unit": "متر",
+    "price": 80000.0,
+    "previous": null,
+    "quantities": {
+      "6": 25.0,
+      "7": 28.0,
+      "8": 34.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R033",
+    "name": "سیم 4 - CC",
+    "group": "startup",
+    "unit": "حلقه",
+    "price": 2800000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R034",
+    "name": "علائم استاندارد",
+    "group": "startup",
+    "unit": "بسته",
+    "price": 220000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R035",
+    "name": "تلفن دیواری - pashaophone",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 850000.0,
+    "previous": null,
+    "quantities": {
+      "6": 3.0,
+      "7": 3.0,
+      "8": 3.0
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R036",
+    "name": "پک حفاظ | موتور + هرزگرد + گاورنر | مهتا",
+    "group": "startup",
+    "unit": "بسته",
+    "price": 3200000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "مهتا"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R037",
+    "name": "حفاظ کادر وزنه 84 - مهتا",
+    "group": "startup",
+    "unit": "عدد",
+    "price": 5800000.0,
+    "previous": null,
+    "quantities": {
+      "6": 1.0,
+      "7": 1.0,
+      "8": 1.0
+    },
+    "brands": [
+      "مهتا"
+    ],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "R038",
+    "name": "بدون قیمت",
+    "group": "startup",
+    "unit": "---",
+    "price": null,
+    "previous": null,
+    "quantities": {
+      "6": null,
+      "7": null,
+      "8": null
+    },
+    "brands": [],
+    "source": "excel",
+    "notes": ""
+  },
+  {
+    "id": "P-RAIL-T5",
+    "name": "ریل چین سرد T5 درجه یک",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-RAIL-T9",
+    "name": "ریل چین سرد T9 درجه یک",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-BRACKET-T5",
+    "name": "براکت T5",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-BRACKET-T9",
+    "name": "براکت T9",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-CLIP-T5",
+    "name": "لقمه T5",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-CLIP-T9",
+    "name": "لقمه T9",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-RAIL-BOLT12",
+    "name": "پیچ و مهره ۱۲ ریل",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-RAIL-BOLT10",
+    "name": "پیچ و مهره ۱۰ ریل",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-RAIL-BOLT8",
+    "name": "پیچ و مهره ۸ ریل",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-MOTOR-7.5",
+    "name": "موتور آسانسور ۷٫۵ کیلووات",
+    "group": "motor",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-MOTOR-11",
+    "name": "موتور آسانسور ۱۱ کیلووات",
+    "group": "motor",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-CONTROL-7.5",
+    "name": "تابلو فرمان ۷٫۵ کیلووات",
+    "group": "startup",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-CONTROL-11",
+    "name": "تابلو فرمان ۱۱ کیلووات",
+    "group": "startup",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-DOOR-MOTOR",
+    "name": "موتور درب اتوماتیک",
+    "group": "auto",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-LANDING-DOOR",
+    "name": "درب طبقات اتوماتیک",
+    "group": "auto",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-CABIN-DOOR",
+    "name": "درب کابین اتوماتیک",
+    "group": "auto",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-SEMI-DOOR",
+    "name": "درب طبقات نیمه اتوماتیک",
+    "group": "semi",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  },
+  {
+    "id": "P-RAIL-FASTEN",
+    "name": "متعلقات نصب ریل",
+    "group": "rail",
+    "unit": "عدد",
+    "price": null,
+    "previous": null,
+    "quantities": {},
+    "brands": [],
+    "source": "pdf",
+    "notes": "قیمت یا تعداد این ردیف در شیت قیمت مادر موجود نیست؛ قبل از صدور پیش‌فاکتور تکمیل شود."
+  }
+]
