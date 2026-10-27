@@ -9,7 +9,9 @@
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build",
     "typecheck": "tsc --noEmit",
-    "test": "node scripts/test-pricing.cjs"
+    "test": "node scripts/test-pricing.cjs",
+    "icons:generate": "node scripts/generate-app-icons.cjs",
+    "test:branding": "node --test scripts/test-branding.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",

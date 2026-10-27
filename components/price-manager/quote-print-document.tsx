@@ -2,6 +2,7 @@ import Image from "next/image";
 import { formatMoney, formatNumber } from "@/lib/price-manager/format";
 import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
 import { BrandWordmark } from "./brand-wordmark";
+import { RowNumberBadge } from "./row-number-badge";
 import { QuoteMetadata } from "./quote-metadata";
 import { PricingSourceNotice } from "./pricing-source-notice";
 
@@ -37,10 +38,10 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
         <tbody>
           {quote.enabledRows.map((row, index) => (
             <tr key={row.product.id} className="break-inside-avoid [page-break-inside:avoid]">
-              <td className="rounded-[18px] border border-outline px-2 py-2">
-                <div className="flex items-center gap-2">
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand text-white">{formatNumber(index + 1)}</span>
-                  <span className="break-words leading-5">{row.product.name}{row.brand && !row.product.name.includes(row.brand) ? ` — ${row.brand}` : ""}</span>
+              <td className="rounded-[14px] border border-brand p-0 align-top">
+                <div className="relative min-h-[26px] py-[3px] pr-[34px] pl-2">
+                  <RowNumberBadge value={index + 1} size="print" className="absolute -top-px -right-px" />
+                  <span className="block break-words leading-5">{row.product.name}{row.brand && !row.product.name.includes(row.brand) ? ` — ${row.brand}` : ""}</span>
                 </div>
               </td>
               <td className="rounded-[18px] border border-outline px-1 py-2 text-center leading-5">{row.quantity === null ? "—" : formatNumber(row.quantity)}<span className="block text-[8px] text-caption">{row.product.unit}</span></td>

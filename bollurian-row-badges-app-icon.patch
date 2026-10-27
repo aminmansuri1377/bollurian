@@ -1,0 +1,477 @@
+diff --git a/components/price-manager/product-brand-menu.tsx b/components/price-manager/product-brand-menu.tsx
+index 9c6e7e5613dfdf9649650fd7d4e27751a0eb48f1..474b28248d299853522173ffb77842a7cbe62795 100644
+--- a/components/price-manager/product-brand-menu.tsx
++++ b/components/price-manager/product-brand-menu.tsx
+@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
+ import { ChevronIcon } from "@/components/ui/icons";
+ import { formatNumber, formatMoney } from "@/lib/price-manager/format";
+ import type { QuoteRow } from "@/lib/price-manager/types";
++import { RowNumberBadge } from "./row-number-badge";
+ 
+ interface ProductBrandMenuProps {
+   row: QuoteRow;
+@@ -40,10 +41,10 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
+         aria-controls={panelId}
+         aria-label={`برند و جزئیات ${product.name}`}
+         onClick={() => setOpen((current) => !current)}
+-        className="flex h-full w-full cursor-pointer items-center rounded-full border border-outline bg-white text-right outline-none transition-shadow hover:border-brand data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
++        className="relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white pr-[50px] text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
+         title={`${product.name}${row.brand ? ` - ${row.brand}` : ""}`}
+       >
+-        <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-r from-brand to-brand-end text-[16px] text-white">{formatNumber(rowNumber)}</span>
++        <RowNumberBadge value={rowNumber} className="absolute -top-px -right-px" />
+         <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}{row.brand && !product.name.includes(row.brand) ? ` - ${row.brand}` : ""}</span>
+         <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+       </button>
+diff --git a/components/price-manager/quote-print-document.tsx b/components/price-manager/quote-print-document.tsx
+index 218b68daf1991edac349717d742da273e35c9b4c..f01be4ddbca1e62de3bf4552113e10eeacfd06f1 100644
+--- a/components/price-manager/quote-print-document.tsx
++++ b/components/price-manager/quote-print-document.tsx
+@@ -2,6 +2,7 @@ import Image from "next/image";
+ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+ import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
+ import { BrandWordmark } from "./brand-wordmark";
++import { RowNumberBadge } from "./row-number-badge";
+ import { QuoteMetadata } from "./quote-metadata";
+ import { PricingSourceNotice } from "./pricing-source-notice";
+ 
+@@ -37,10 +38,10 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
+         <tbody>
+           {quote.enabledRows.map((row, index) => (
+             <tr key={row.product.id} className="break-inside-avoid [page-break-inside:avoid]">
+-              <td className="rounded-[18px] border border-outline px-2 py-2">
+-                <div className="flex items-center gap-2">
+-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand text-white">{formatNumber(index + 1)}</span>
+-                  <span className="break-words leading-5">{row.product.name}{row.brand && !row.product.name.includes(row.brand) ? ` — ${row.brand}` : ""}</span>
++              <td className="rounded-[14px] border border-brand p-0 align-top">
++                <div className="relative min-h-[26px] py-[3px] pr-[34px] pl-2">
++                  <RowNumberBadge value={index + 1} size="print" className="absolute -top-px -right-px" />
++                  <span className="block break-words leading-5">{row.product.name}{row.brand && !row.product.name.includes(row.brand) ? ` — ${row.brand}` : ""}</span>
+                 </div>
+               </td>
+               <td className="rounded-[18px] border border-outline px-1 py-2 text-center leading-5">{row.quantity === null ? "—" : formatNumber(row.quantity)}<span className="block text-[8px] text-caption">{row.product.unit}</span></td>
+diff --git a/components/price-manager/row-number-badge.tsx b/components/price-manager/row-number-badge.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..e098bcfbf265a8526f29d525de17ca22231b9351
+--- /dev/null
++++ b/components/price-manager/row-number-badge.tsx
+@@ -0,0 +1,22 @@
++interface RowNumberBadgeProps {
++  value: number;
++  size?: "screen" | "print";
++  className?: string;
++}
++
++const sizeClasses = {
++  screen: "size-[50px] text-[18px]",
++  print: "size-[28px] text-[11px]",
++} as const;
++
++/** Three round corners; the physical bottom-left corner joins the row border. */
++export function RowNumberBadge({ value, size = "screen", className = "" }: RowNumberBadgeProps) {
++  return (
++    <span
++      dir="ltr"
++      className={`inline-flex shrink-0 items-center justify-center rounded-[50%_50%_50%_0] bg-linear-to-r from-brand to-brand-end font-medium leading-none text-white tabular-nums [-webkit-print-color-adjust:exact] [print-color-adjust:exact] ${sizeClasses[size]} ${className}`}
++    >
++      {String(value)}
++    </span>
++  );
++}
+diff --git a/docs/ROW-BADGES-AND-APP-ICON.md b/docs/ROW-BADGES-AND-APP-ICON.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..36f5dfd8afdbd514b8722d351da6318d1a6040eb
+--- /dev/null
++++ b/docs/ROW-BADGES-AND-APP-ICON.md
+@@ -0,0 +1,110 @@
++# Row numbers and Windows app icon
++
++Patch base: `39a2dbaffa30ea7c2185ff740af128c288827268` (`prise demo & icon`).
++
++## Row number shape
++
++`components/price-manager/row-number-badge.tsx` is shared by the screen table
++and printable quote. All styling remains in Tailwind classes.
++
++- Physical corner order is top-left, top-right, bottom-right, bottom-left:
++  `rounded-[50%_50%_50%_0]`. The bottom-left corner must stay square in RTL.
++- Blue gradient, centered white Latin digits, as in the supplied detail image.
++- Screen: 50 by 50 pixels. Print: 28 by 28 pixels.
++- The badge overlaps the row border by one pixel, so it joins the top/right/bottom
++  edges without a white seam. Print descriptions can still wrap to multiple lines.
++- Product details, brand selection, numeric input, and pricing are unchanged.
++
++## Source icon and generation
++
++The source is the existing `public/icon.png` in the repository. Its PNG header
++is 648 by 696 pixels, so it cannot be passed as a square PNG directly.
++
++`scripts/generate-app-icons.cjs` wraps the *unaltered* PNG in a temporary,
++self-contained square SVG. With this source the canvas is 696 by 696, with
++24 transparent pixels on either side. It does not crop, stretch, redraw,
++remove the original background, or overwrite `public/icon.png`.
++
++The script calls the installed Tauri CLI (`@tauri-apps/cli/tauri.js`) using
++Node directly. Arguments are passed without a shell, including paths with spaces.
++No npx download, global image tool, or new npm dependency is required.
++
++The following generated desktop assets are copied to `src-tauri/icons`:
++
++```text
++32x32.png
++128x128.png
++128x128@2x.png
++icon.png
++icon.ico
++```
++
++Tauri's `beforeDevCommand` and `beforeBuildCommand` both run this step. Existing
++`npm run desktop:dev`, `npm run desktop:build`, and `npm run tauri -- build`
++therefore use the same icon workflow. `npm run build` remains a frontend-only build.
++To regenerate icons explicitly:
++
++```powershell
++npm run icons:generate
++```
++
++`bundle.icon` supplies the application icon; the NSIS installer/uninstaller
++also explicitly use `icons/icon.ico`. An installed shortcut uses the icon
++embedded in the newly built executable. This is not just a browser favicon.
++Desktop shortcut creation still follows the installer's existing options.
++
++If the source is missing, malformed, or conversion fails, the build stops.
++The temporary directory is cleaned up. Expected output files are all checked
++before existing icon files are replaced. No database files are touched.
++The Tauri product name, version, and identifier remain unchanged.
++
++## Apply and run
++
++Save your existing local changes first. Put the patch beside `package.json`:
++
++```powershell
++git apply --check .\bollurian-row-badges-app-icon.patch
++git apply .\bollurian-row-badges-app-icon.patch
++npm run test:branding
++npm test
++npm run desktop:dev
++```
++
++An existing working checkout does not need a new dependency installation.
++For a fresh checkout, run `npm install` first.
++
++To produce the Windows installer:
++
++```powershell
++npm run desktop:build
++```
++
++Use the newly generated installer under `src-tauri\target\release\bundle\nsis\`.
++Close the old application and install the new build. An already-built old EXE
++is not modified by applying this source patch.
++
++## Validation performed
++
++- All four modified baseline files were reconstructed from the supplied project
++  and earlier patches, then their Git blob hashes were checked against the live
++  GitHub files at the commit above. New files are included in the patch.
++- 6,084 existing pricing assertions passed unchanged.
++- 14 new `node:test` cases passed: PNG metadata validation, square geometry,
++  transparent padding, cleanup, failure handling, unchanged source bytes,
++  idempotent writes, desktop build hooks, and shared badge integration.
++  The CLI itself is **mocked** in these unit tests; they do not validate a native ICO.
++- The actual badge TSX was transpiled and its utilities compiled with Tailwind
++  4.1.10. Isolated HTML was rendered in Chromium under screen and print media.
++  Checked nine badges (including two-digit numbers), the three rounded corners,
++  square bottom-left corner, and exact screen row-edge alignment. This harness
++  uses a system font, not the project's Peyda asset, and is not a full-app test.
++- `git diff --check` and clean-baseline patch application were checked.
++
++Not performed here: full Next.js production build, native Tauri icon conversion
++with the complete source PNG, Windows compilation, installer execution, or
++Windows desktop/Taskbar verification. Run the build above on the Windows machine.
++
++## Official references
++
++- https://v2.tauri.app/develop/icons/
++- https://v2.tauri.app/reference/config/#nsisconfig
+diff --git a/package.json b/package.json
+index 5cbcd14238be442b3175cee2ac03fabcd9e9ce15..cca4b5ba1ca18cbd1a61cfd45c7ea8fcfcac81b1 100644
+--- a/package.json
++++ b/package.json
+@@ -9,7 +9,9 @@
+     "desktop:dev": "tauri dev",
+     "desktop:build": "tauri build",
+     "typecheck": "tsc --noEmit",
+-    "test": "node scripts/test-pricing.cjs"
++    "test": "node scripts/test-pricing.cjs",
++    "icons:generate": "node scripts/generate-app-icons.cjs",
++    "test:branding": "node --test scripts/test-branding.cjs"
+   },
+   "dependencies": {
+     "@tauri-apps/api": "^2.8.0",
+diff --git a/scripts/generate-app-icons.cjs b/scripts/generate-app-icons.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d0537289cf7669739a879999f619f3b9447b006
+--- /dev/null
++++ b/scripts/generate-app-icons.cjs
+@@ -0,0 +1,96 @@
++/** Build-time only. The installed desktop app never needs Node or this script. */
++const fs = require("node:fs");
++const os = require("node:os");
++const path = require("node:path");
++const { spawnSync } = require("node:child_process");
++
++const ICON_FILES = ["32x32.png", "128x128.png", "128x128@2x.png", "icon.png", "icon.ico"];
++const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
++
++function readPngDimensions(png) {
++  if (png.length < 33 || !png.subarray(0, 8).equals(PNG_SIGNATURE)
++    || png.readUInt32BE(8) !== 13 || png.toString("ascii", 12, 16) !== "IHDR") {
++    throw new Error("public/icon.png must be a valid PNG image (not a renamed JPEG or SVG).");
++  }
++  const width = png.readUInt32BE(16);
++  const height = png.readUInt32BE(20);
++  if (!width || !height || width > 16384 || height > 16384) {
++    throw new Error("Icon dimensions must be between 1 and 16384 pixels.");
++  }
++  return { width, height };
++}
++
++/** Embed the original PNG in a transparent square. Never crop or stretch the logo. */
++function createSquareIconSvg(png) {
++  const { width, height } = readPngDimensions(png);
++  const side = Math.max(width, height);
++  const x = (side - width) / 2;
++  const y = (side - height) / 2;
++  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${side}" height="${side}" viewBox="0 0 ${side} ${side}">
++  <image x="${x}" y="${y}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid meet" xlink:href="data:image/png;base64,${png.toString("base64")}" />
++</svg>\n`;
++}
++
++function runTauriIcon(projectRoot, input, output) {
++  let cli;
++  try {
++    // Invoke the installed JS entrypoint, not npx or a Windows .cmd shell wrapper.
++    cli = require.resolve("@tauri-apps/cli/tauri.js", { paths: [projectRoot] });
++  } catch {
++    throw new Error("Tauri CLI is not installed. Run npm install, then retry.");
++  }
++  const result = spawnSync(process.execPath, [cli, "icon", input, "--output", output], {
++    cwd: projectRoot,
++    stdio: "inherit",
++    windowsHide: true,
++    shell: false,
++  });
++  if (result.error) throw result.error;
++  if (result.status !== 0) {
++    throw new Error(`Tauri icon generation failed (${result.signal || result.status}). Build stopped to avoid packaging an old icon.`);
++  }
++}
++
++function generateAppIcons(projectRoot = path.resolve(__dirname, ".."), generate = runTauriIcon) {
++  const sourcePath = path.join(projectRoot, "public", "icon.png");
++  if (!fs.existsSync(sourcePath)) throw new Error("Missing public/icon.png. Add your source icon before building.");
++  const source = fs.readFileSync(sourcePath);
++  const svg = createSquareIconSvg(source);
++  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "bollurian-icons-"));
++  try {
++    const input = path.join(temp, "square-icon.svg");
++    const generatedDirectory = path.join(temp, "generated");
++    fs.writeFileSync(input, svg, "utf8");
++    generate(projectRoot, input, generatedDirectory);
++
++    // Read every output before replacing any existing icon. Failed CLI runs are fatal.
++    const icons = ICON_FILES.map((name) => {
++      const file = path.join(generatedDirectory, name);
++      if (!fs.existsSync(file)) throw new Error(`Tauri did not generate ${name}. Existing icons were kept.`);
++      const bytes = fs.readFileSync(file);
++      if (!bytes.length) throw new Error(`Tauri generated an empty ${name}. Existing icons were kept.`);
++      return { name, bytes };
++    });
++    const destination = path.join(projectRoot, "src-tauri", "icons");
++    fs.mkdirSync(destination, { recursive: true });
++    for (const { name, bytes } of icons) {
++      const file = path.join(destination, name);
++      // Avoid unnecessary file changes and development restarts.
++      if (!fs.existsSync(file) || !fs.readFileSync(file).equals(bytes)) fs.writeFileSync(file, bytes);
++    }
++    console.log("App icons ready: public/icon.png -> src-tauri/icons (PNG + Windows ICO).");
++  } finally {
++    fs.rmSync(temp, { recursive: true, force: true });
++  }
++}
++
++if (require.main === module) {
++  try {
++    generateAppIcons();
++  } catch (error) {
++    console.error(`[icons] ${error instanceof Error ? error.message : String(error)}`);
++    process.exitCode = 1;
++  }
++}
++
++module.exports = { ICON_FILES, readPngDimensions, createSquareIconSvg, generateAppIcons };
+diff --git a/scripts/test-branding.cjs b/scripts/test-branding.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..93d0503a4ce41b6e47c586fd02342d36b8e39db7
+--- /dev/null
++++ b/scripts/test-branding.cjs
+@@ -0,0 +1,121 @@
++const assert = require("node:assert/strict");
++const fs = require("node:fs");
++const os = require("node:os");
++const path = require("node:path");
++const { test } = require("node:test");
++const { ICON_FILES, readPngDimensions, createSquareIconSvg, generateAppIcons } = require("./generate-app-icons.cjs");
++
++// Header-only fixtures: these unit tests do not pretend to execute Tauri's image codec.
++function pngHeader(width, height) {
++  const data = Buffer.alloc(33);
++  Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(data);
++  data.writeUInt32BE(13, 8);
++  data.write("IHDR", 12, "ascii");
++  data.writeUInt32BE(width, 16);
++  data.writeUInt32BE(height, 20);
++  data[24] = 8;
++  data[25] = 6;
++  return data;
++}
++function temporaryProject(run) {
++  const root = fs.mkdtempSync(path.join(os.tmpdir(), "bollurian branding test "));
++  try {
++    fs.mkdirSync(path.join(root, "public"));
++    fs.mkdirSync(path.join(root, "src-tauri", "icons"), { recursive: true });
++    fs.writeFileSync(path.join(root, "public", "icon.png"), pngHeader(648, 696));
++    return run(root);
++  } finally {
++    fs.rmSync(root, { recursive: true, force: true });
++  }
++}
++function mockGeneration(root, input, output) {
++  assert.ok(fs.existsSync(input));
++  assert.match(fs.readFileSync(input, "utf8"), /viewBox="0 0 696 696"/);
++  fs.mkdirSync(output, { recursive: true });
++  for (const name of ICON_FILES) fs.writeFileSync(path.join(output, name), `mock-generated:${name}`);
++}
++
++test("current source header is 648 by 696, not square", () => {
++  const actualHeader = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAogAAAK4CAYAAAD3MwwXAAAACXBIWXMAACxL", "base64");
++  assert.deepEqual(readPngDimensions(actualHeader), { width: 648, height: 696 });
++});
++test("reject missing, corrupt, and renamed non-PNG inputs", () => {
++  for (const buffer of [Buffer.alloc(0), Buffer.from("<svg/>"), Buffer.alloc(64)]) assert.throws(() => readPngDimensions(buffer));
++  const badChunk = pngHeader(10, 10); badChunk.write("IDAT", 12);
++  assert.throws(() => readPngDimensions(badChunk));
++});
++test("reject zero or unreasonable image dimensions", () => {
++  for (const [w, h] of [[0, 10], [10, 0], [16385, 10], [10, 16385]]) assert.throws(() => readPngDimensions(pngHeader(w, h)));
++});
++test("portrait source gets equal transparent side padding without stretching", () => {
++  const png = pngHeader(648, 696);
++  const svg = createSquareIconSvg(png);
++  assert.match(svg, /width="696" height="696" viewBox="0 0 696 696"/);
++  assert.match(svg, /<image x="24" y="0" width="648" height="696"/);
++  assert.ok(svg.includes(png.toString("base64")));
++  assert.ok(!svg.includes("<rect"));
++});
++test("landscape source gets equal transparent vertical padding", () => {
++  assert.match(createSquareIconSvg(pngHeader(1024, 512)), /<image x="0" y="256" width="1024" height="512"/);
++});
++test("square source keeps its original geometry", () => {
++  assert.match(createSquareIconSvg(pngHeader(512, 512)), /<image x="0" y="0" width="512" height="512"/);
++});
++test("copies all expected desktop formats and removes temporary generation files", () => temporaryProject((root) => {
++  let temporaryInput;
++  const original = fs.readFileSync(path.join(root, "public", "icon.png"));
++  generateAppIcons(root, (...args) => { temporaryInput = args[1]; mockGeneration(...args); });
++  for (const name of ICON_FILES) assert.equal(fs.readFileSync(path.join(root, "src-tauri", "icons", name), "utf8"), `mock-generated:${name}`);
++  assert.equal(fs.existsSync(path.dirname(temporaryInput)), false);
++  assert.deepEqual(fs.readFileSync(path.join(root, "public", "icon.png")), original);
++}));
++test("repeated generation does not rewrite unchanged files", () => temporaryProject((root) => {
++  generateAppIcons(root, mockGeneration);
++  const output = path.join(root, "src-tauri", "icons", "icon.ico");
++  const oldTime = new Date("2020-01-01T00:00:00.000Z");
++  fs.utimesSync(output, oldTime, oldTime);
++  generateAppIcons(root, mockGeneration);
++  assert.equal(fs.statSync(output).mtimeMs, oldTime.getTime());
++}));
++test("failed CLI preserves previous icons and cleans temporary files", () => temporaryProject((root) => {
++  let input;
++  const oldIcon = path.join(root, "src-tauri", "icons", "icon.ico");
++  fs.writeFileSync(oldIcon, "previous-icon");
++  assert.throws(() => generateAppIcons(root, (_, file) => { input = file; throw new Error("mock CLI failure"); }), /mock CLI failure/);
++  assert.equal(fs.readFileSync(oldIcon, "utf8"), "previous-icon");
++  assert.equal(fs.existsSync(path.dirname(input)), false);
++}));
++test("incomplete CLI output is rejected before replacing any icon", () => temporaryProject((root) => {
++  const oldIcon = path.join(root, "src-tauri", "icons", "32x32.png"); fs.writeFileSync(oldIcon, "previous-icon");
++  assert.throws(() => generateAppIcons(root, (...args) => { mockGeneration(...args); fs.unlinkSync(path.join(args[2], "icon.ico")); }), /did not generate icon.ico/);
++  assert.equal(fs.readFileSync(oldIcon, "utf8"), "previous-icon");
++}));
++test("empty CLI output is rejected", () => temporaryProject((root) => {
++  assert.throws(() => generateAppIcons(root, (...args) => { mockGeneration(...args); fs.writeFileSync(path.join(args[2], "icon.ico"), ""); }), /empty icon.ico/);
++}));
++test("missing source stops before calling the CLI", () => temporaryProject((root) => {
++  fs.unlinkSync(path.join(root, "public", "icon.png"));
++  let called = false;
++  assert.throws(() => generateAppIcons(root, () => { called = true; }), /Missing public\/icon.png/);
++  assert.equal(called, false);
++}));
++test("Tauri development and release builds both regenerate icons", () => {
++  const root = path.resolve(__dirname, "..");
++  const config = JSON.parse(fs.readFileSync(path.join(root, "src-tauri", "tauri.conf.json")));
++  assert.equal(config.build.beforeDevCommand, "npm run icons:generate && npm run dev");
++  assert.equal(config.build.beforeBuildCommand, "npm run icons:generate && npm run build");
++  assert.equal(config.bundle.windows.nsis.installerIcon, "icons/icon.ico");
++  assert.equal(config.bundle.windows.nsis.uninstallerIcon, "icons/icon.ico");
++  for (const name of ICON_FILES) assert.ok(config.bundle.icon.includes(`icons/${name}`));
++  assert.equal(config.identifier, "ir.bollourian.elevator", "Keep the existing app/data identity");
++});
++test("screen and print share the same three-round-corner badge", () => {
++  const root = path.resolve(__dirname, "../components/price-manager");
++  for (const file of ["product-brand-menu.tsx", "quote-print-document.tsx"]) {
++    assert.match(fs.readFileSync(path.join(root, file), "utf8"), /<RowNumberBadge /);
++  }
++  const badge = fs.readFileSync(path.join(root, "row-number-badge.tsx"), "utf8");
++  assert.ok(badge.includes("rounded-[50%_50%_50%_0]"));
++  assert.ok(badge.includes('dir="ltr"'));
++  assert.ok(badge.includes("{String(value)}"));
++});
+diff --git a/src-tauri/tauri.conf.json b/src-tauri/tauri.conf.json
+index d879d912ebdf835375545d9811332eba9d6d29a3..9fd1eace7367171f471a02acd8fcd9e415c2c4f0 100644
+--- a/src-tauri/tauri.conf.json
++++ b/src-tauri/tauri.conf.json
+@@ -4,9 +4,9 @@
+   "version": "0.2.0",
+   "identifier": "ir.bollourian.elevator",
+   "build": {
+-    "beforeDevCommand": "npm run dev",
++    "beforeDevCommand": "npm run icons:generate && npm run dev",
+     "devUrl": "http://localhost:3000",
+-    "beforeBuildCommand": "npm run build",
++    "beforeBuildCommand": "npm run icons:generate && npm run build",
+     "frontendDist": "../out"
+   },
+   "app": {
+@@ -32,14 +32,17 @@
+     ],
+     "windows": {
+       "nsis": {
+-        "installMode": "currentUser"
++        "installMode": "currentUser",
++        "installerIcon": "icons/icon.ico",
++        "uninstallerIcon": "icons/icon.ico"
+       }
+     },
+     "icon": [
+       "icons/32x32.png",
+       "icons/128x128.png",
+       "icons/128x128@2x.png",
++      "icons/icon.png",
+       "icons/icon.ico"
+     ]
+   }
+-}
+\ No newline at end of file
++}

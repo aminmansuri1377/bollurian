@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronIcon } from "@/components/ui/icons";
 import { formatNumber, formatMoney } from "@/lib/price-manager/format";
 import type { QuoteRow } from "@/lib/price-manager/types";
+import { RowNumberBadge } from "./row-number-badge";
 
 interface ProductBrandMenuProps {
   row: QuoteRow;
@@ -40,10 +41,10 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
         aria-controls={panelId}
         aria-label={`برند و جزئیات ${product.name}`}
         onClick={() => setOpen((current) => !current)}
-        className="flex h-full w-full cursor-pointer items-center rounded-full border border-outline bg-white text-right outline-none transition-shadow hover:border-brand data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
+        className="relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white pr-[50px] text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
         title={`${product.name}${row.brand ? ` - ${row.brand}` : ""}`}
       >
-        <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-linear-to-r from-brand to-brand-end text-[16px] text-white">{formatNumber(rowNumber)}</span>
+        <RowNumberBadge value={rowNumber} className="absolute -top-px -right-px" />
         <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}{row.brand && !product.name.includes(row.brand) ? ` - ${row.brand}` : ""}</span>
         <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
