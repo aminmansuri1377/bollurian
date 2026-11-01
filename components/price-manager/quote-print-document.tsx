@@ -22,6 +22,7 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
         <PricingSourceNotice settings={settings} />
         <div className="mt-3 flex justify-between text-[10px]">
           <span>مشتری: {settings.customer || "—"}</span>
+          <span>شماره تماس: {settings.phone || "—"}</span>
           <span>شماره: {settings.quoteNumber || "—"}</span>
           <span>تاریخ: {today}</span>
         </div>

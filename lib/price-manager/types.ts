@@ -37,6 +37,8 @@ export interface QuoteSettings {
   brands: Record<string, string>;
   excluded: string[];
   customer: string;
+  /** Customer phone number, entered with the quote metadata. */
+  phone: string;
   rate: number;
   quoteNumber: string;
 }
