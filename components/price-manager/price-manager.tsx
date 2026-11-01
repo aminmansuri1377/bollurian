@@ -19,6 +19,16 @@ export function PriceManager() {
   return (
     <>
       <main className="mx-auto w-[1110px] pt-[14px] pb-8 print:hidden" aria-busy={manager.status === "loading"}>
+        <ManagementTools
+          settings={manager.settings}
+          disabled={disabled}
+          databasePath={manager.databasePath}
+          onSettingsChange={manager.updateSettings}
+          onPriceChange={manager.updatePrice}
+          onPreviousPriceChange={manager.updatePreviousPrice}
+          onResetDemo={manager.resetDemo}
+        />
+
         <HeroSection settings={manager.settings} disabled={disabled} onChange={manager.updateSettings} onBuildList={showResults} />
 
         {manager.message && (
@@ -32,28 +42,12 @@ export function PriceManager() {
 
         <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.printQuote}>
           <ProductTable
-            rows={manager.visibleRows}
+            rows={manager.quote.rows}
             disabled={disabled}
-            onPriceChange={manager.updatePrice}
-            onQuantityChange={manager.updateQuantity}
             onBrandChange={manager.updateBrand}
             onToggle={manager.toggleProduct}
           />
         </QuoteSheet>
-
-        <ManagementTools
-          settings={manager.settings}
-          disabled={disabled}
-          query={manager.query}
-          databasePath={manager.databasePath}
-          onQueryChange={manager.setQuery}
-          onSettingsChange={manager.updateSettings}
-          onPriceChange={manager.updatePrice}
-          onPreviousPriceChange={manager.updatePreviousPrice}
-          onResetDemo={manager.resetDemo}
-          onExportBackup={manager.exportBackup}
-          onImportBackup={manager.restoreBackup}
-        />
       </main>
       <QuotePrintDocument settings={manager.settings} quote={manager.quote} today={manager.today} />
     </>

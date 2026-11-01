@@ -30,7 +30,8 @@ async function run() {
 
   const { INITIAL_SETTINGS, PACKAGE_OPTIONS, SUPPORTED_STOPS, DEMO_BASE_PRICE } = load("constants");
   const { PRODUCTS: products } = load("catalog");
-  const { calculateRow, calculateLineTotal, applyQuoteAdjustment, buildQuote, buildWorkbookComparison, selectProducts, searchQuoteRows } = load("calculations");
+  const { calculateRow, calculateLineTotal, buildQuote, buildWorkbookComparison, selectProducts } = load("calculations");
+  const { isBrandSelectable, resolveBrand, getPriceKey, SINGLE_BRAND_PRODUCT_IDS } = load("brand-rules");
   const { getPackageProductIds } = load("package-rules");
   const { getQuantityOverrideKey } = load("quantity-rules");
   const { getMasterPrice, comparePrices } = load("master-price");
@@ -50,6 +51,8 @@ async function run() {
   equal(workbook.stopHeaders.includes(workbook.selectedStop), false, "Documented source MATCH mismatch");
   equal(invoices.length, 8, "All eight PDFs reviewed");
   equal(invoices.reduce((sum, invoice) => sum + invoice.rows.length, 0), 364, "All 364 printed invoice rows mapped");
+  equal(invoices.find((i) => i.invoiceNumber === "17784").rows.length, 58, "Newest automatic list: 58 rows incl. all-steel cabin");
+  equal(invoices.find((i) => i.invoiceNumber === "19381").rows.length, 60, "Newest semi-automatic list: 60 rows");
   equal(SUPPORTED_STOPS, [6, 7, 8], "No unsupported stop option");
   equal(INITIAL_SETTINGS.stops, 6, "Default is a supported stop");
   equal(products.length, 72, "71 products plus placeholder");
@@ -81,17 +84,30 @@ async function run() {
     equal([original.subtotals.mechanic, original.subtotals.startup, original.total], originalTotals[stops], `Original-price SUMIF/SUM ${stops}`);
   }
 
-  // 2. Package membership is tested against each invoice, not against its implementation.
+  // 2. Package membership: the newest client lists (17784 / 19381) fix the row set AND the exact row order.
+  const retired = new Set(membership.retired);
+  // Older invoices are evidence of the family sets only: P-SEMI-CAM is retired, and the client wants the all-steel cabin last in EVERY package.
+  const adapt = (ids) => [...ids.filter((id) => !retired.has(id)), ...membership.closing.filter((id) => !ids.includes(id))];
   for (const invoice of invoices) {
     const capacity = invoice.capacity || "4-6";
-    const expected = invoice.rows.map((row) => row.productId).sort();
+    const expected = adapt(invoice.rows.map((row) => row.productId)).sort();
     equal(getPackageProductIds(invoice.packageId, capacity).sort(), expected, `Invoice ${invoice.invoiceNumber}: family membership`);
-    for (const row of invoice.rows) equal(byId.has(row.productId), true, `Invoice ${invoice.invoiceNumber}/${row.row}: mapped product exists`);
+    for (const row of invoice.rows) equal(byId.has(row.productId) || retired.has(row.productId), true, `Invoice ${invoice.invoiceNumber}/${row.row}: mapped product exists`);
   }
+  for (const number of ["17784", "19381"]) {
+    const invoice = invoices.find((i) => i.invoiceNumber === number);
+    equal(getPackageProductIds(invoice.packageId, "4-6"), adapt(invoice.rows.map((r) => r.productId)), `Invoice ${number}: exact row order`);
+  }
+  for (const id of retired) equal(byId.has(id), false, `${id}: retired product is not in the catalog`);
   const fullAuto = invoices.find((i) => i.invoiceNumber === "17784");
   equal(getPackageProductIds("rail", "4-6"), fullAuto.rows.slice(48).map((r) => r.productId), "Rail-only extracted from full-auto appendix");
-  const counts = { rail: 9, mechanic: 11, auto: 37, semi: 41, "mech-auto": 48, "mech-semi": 52, "full-auto": 57, "full-semi": 61 };
-  const missing = { rail: 9, mechanic: 0, auto: 6, semi: 11, "mech-auto": 6, "mech-semi": 11, "full-auto": 15, "full-semi": 20 };
+  const semiIds = getPackageProductIds("semi", "4-6");
+  equal(semiIds.indexOf("P-MOTOR-7.5") > semiIds.indexOf("P-SEMI-DOOR") && semiIds.indexOf("P-MOTOR-7.5") < semiIds.indexOf("P-SEMI-DICTATOR"), true, "Semi: motor and controller sit between the doors and the dictator");
+  equal(semiIds.slice(2, 5), ["R030", "R031", "R032"], "Semi wiring order");
+  equal(getPackageProductIds("auto", "4-6").slice(2, 5), ["R031", "R032", "R030"], "Automatic wiring order");
+  equal(semiIds.includes("P-SEMI-CAM"), false, "No mechanical cam in the newest semi list");
+  const counts = { rail: 10, mechanic: 12, auto: 38, semi: 41, "mech-auto": 49, "mech-semi": 52, "full-auto": 58, "full-semi": 61 };
+  const missing = { rail: 9, mechanic: 0, auto: 6, semi: 10, "mech-auto": 6, "mech-semi": 10, "full-auto": 15, "full-semi": 19 };
   const brands = ["\u062f\u0627\u062a\u06cc\u0633", "\u0622\u0631\u06cc\u0646", "\u067e\u0627\u06cc\u0627", "\u0628\u0647\u0631\u0627\u0646", "\u0627\u0644\u06a9\u0648", "ABB"];
   let combinations = 0;
   for (const { value: pack } of PACKAGE_OPTIONS) for (const stops of SUPPORTED_STOPS) for (const capacity of ["4-6", "8"]) for (const motor of ["gearbox", "gearless"]) {
@@ -101,6 +117,8 @@ async function run() {
     equal(quote.rows.length, counts[pack], `${pack}: exact row count`);
     equal(new Set(quote.rows.map((r) => r.product.id)).size, counts[pack], `${pack}: no duplicate invoice row`);
     equal(quote.incompleteRows.length, missing[pack], `${pack}: missing source quantities remain missing`);
+    equal(quote.rows.at(-1).product.id, "P-STEEL-CABIN", `${pack}: all-steel cabin is the last row`);
+    equal(quote.rows.at(-1).quantity, 1, `${pack}: one all-steel cabin`);
     const motors = quote.rows.filter((r) => r.product.group === "motor");
     equal(motors.length, ["rail", "mechanic"].includes(pack) ? 0 : 1, `${pack}: motor only belongs to startup`);
     if (motors.length) {
@@ -110,7 +128,7 @@ async function run() {
     let expectedTotal = 0;
     for (const row of quote.rows) {
       const record = sourceById.get(row.product.id);
-      const expectedQuantity = record ? record.quantities[String(stops)] : null;
+      const expectedQuantity = record ? record.quantities[String(stops)] : row.product.id === "P-STEEL-CABIN" ? 1 : null;
       equal(row.quantity, expectedQuantity, "No capacity or drive-type multiplier invented");
       if (expectedQuantity !== null) expectedTotal += expectedQuantity * 1000;
     }
@@ -130,10 +148,6 @@ async function run() {
   equal(calculateLineTotal(1, null), null, "Blank price propagates");
   equal(calculateLineTotal(-1, 1000), null, "Reject negative quantity");
   equal(calculateLineTotal(Infinity, 1000), null, "Reject infinity");
-  equal(applyQuoteAdjustment(96000, 20), 115200, "App-only percentage adjustment");
-  equal(applyQuoteAdjustment(96000, -100), 0, "Full discount");
-  equal(applyQuoteAdjustment(null, 20), null, "Adjustment cannot fabricate a missing amount");
-  equal(applyQuoteAdjustment(1, -101), null, "Invalid adjustment");
   equal(comparePrices(null, 1000).ratio, null, "Blank current price");
   equal(comparePrices(1000, null).status, "\u0628\u062f\u0648\u0646 \u0645\u0642\u0627\u06cc\u0633\u0647", "Excel no-comparison state");
   near(comparePrices(1200, 1000).ratio, 0.2, "Excel percent increase");
@@ -165,11 +179,11 @@ async function run() {
   equal(oldFive.quantities[getQuantityOverrideKey("M001", { ...oldFive, stops: 5 })], 23, "Old count retained in backup data");
   throws(() => parseSettings({ pack: "bad" }), "Invalid package rejected");
   equal(parseSettings({ ...legacy, prices: { M001: -5, M002: Infinity } }).prices, {}, "Invalid saved prices rejected");
-  const reset = createDemoSettings({ ...migrated, previousPrices: { M001: 4000 }, excluded: ["M001"], rate: 30 });
+  const reset = createDemoSettings({ ...migrated, previousPrices: { M001: 4000 }, excluded: ["M001"], customer: "x", customerPhone: "09120000000" });
   equal(getMasterPrice(product, reset), 1000, "Explicit demo reset");
   equal(reset.quantities, {}, "Reset manual counts, not source counts");
   equal(reset.previousPrices, {}, "Reset previous price comparison");
-  equal(reset.rate, 0, "Reset app adjustment");
+  equal([reset.customer, reset.customerPhone], ["x", "09120000000"], "Demo reset keeps the customer name and phone");
   equal(migrated.prices.M001, 5555, "No mutation of backed-up object");
   for (const power of [7.5, 11]) for (const brand of brands) {
     const motor = byId.get(`P-MOTOR-${power}`);
@@ -179,11 +193,49 @@ async function run() {
   }
 
   const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack: "mechanic" });
-  equal(searchQuoteRows(quote.rows, "no-such-product").length, 0, "Search can hide rows");
-  equal(quote.total, 208000, "Search does not change PDF total");
+  equal(quote.total, 209000, "Mechanic package: 208,000 known lines + one all-steel cabin at the demo price");
+  equal(quote.subtotals.cabin, 1000, "Cabin has its own category subtotal");
   equal(parseNumericInput("\u06f1\u06f2\u06f3\u066c\u06f4\u06f5\u06f6\u066b\u06f5"), 123456.5, "Persian numeric input");
   equal(parseNumericInput("\u0661\u0662\u0663"), 123, "Arabic numeric input");
   equal(parseNumericInput(""), null, "Empty number");
+
+  // 4b. Brands: single-model products can never be switched; multi-brand products price per brand.
+  const singleModel = ["M010", "M006", "M005", "M004", "M003", "M011", "R032", "R011", "R009", "R010", "R001", "R028", "R034", "R013", "R019", "R008", "R006", "R035",
+    "R007", "P-STARTUP-BOLT10", "P-STARTUP-BOLT8", "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", "P-SEMI-DOOR", "P-SEMI-SPRING",
+    "P-BRACKET-T5", "P-BRACKET-T9", "P-CLIP-T5", "P-CLIP-T9", "P-STEEL-CABIN"];
+  for (const id of singleModel) {
+    equal(byId.has(id), true, `${id}: single-model product exists`);
+    equal(SINGLE_BRAND_PRODUCT_IDS.has(id), true, `${id}: on the client's single-model list`);
+    equal(isBrandSelectable(byId.get(id)), false, `${id}: brand cannot be chosen`);
+    equal(isBrandSelectable({ ...byId.get(id), brands: ["A", "B"] }), false, `${id}: still locked even if brands were added later`);
+    equal(resolveBrand({ ...byId.get(id), brands: ["A", "B"] }, "B"), "A", `${id}: a saved brand is ignored`);
+  }
+  for (const power of [7.5, 11]) {
+    const motor = byId.get(`P-MOTOR-${power}`);
+    equal(isBrandSelectable(motor), true, "Motors have a brand menu");
+    const prices = Object.fromEntries(brands.map((brand, index) => [getPriceKey(motor, brand), 5000 + index]));
+    brands.forEach((brand, index) => {
+      const row = calculateRow(motor, { ...INITIAL_SETTINGS, prices, brands: { [motor.id]: brand } });
+      equal([row.brand, row.unitPrice], [brand, 5000 + index], "Changing the brand changes the price to that brand's master price");
+    });
+    equal(calculateRow(motor, { ...INITIAL_SETTINGS, prices: { [getPriceKey(motor, "ABB")]: 9000 }, brands: { [motor.id]: "\u0622\u0631\u06cc\u0646" } }).unitPrice, 1000, "A brand without its own price is not charged another brand's price");
+    equal(calculateRow(motor, { ...INITIAL_SETTINGS, prices: { [motor.id]: 7777 }, brands: { [motor.id]: "ABB" } }).unitPrice, 7777, "Legacy per-product price remains the fallback");
+  }
+  const twoBrand = { ...byId.get("M001"), brands: ["A", "B"] };
+  const brandPrices = { "M001::A": 4000, "M001::B": 5000 };
+  equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, prices: brandPrices, brands: { M001: "B" } }).total, 96 * 5000, "Quantity x price of the chosen brand");
+  equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, prices: brandPrices }).total, 96 * 4000, "First brand is the default");
+  equal(calculateRow(byId.get("M003"), { ...INITIAL_SETTINGS, prices: { "M003::\u0627\u0644\u0645\u067e\u06cc\u06a9": 1 } }).unitPrice, 1000, "Single-model products ignore brand price keys");
+  equal(products.filter((p) => p.source !== "excel" && Object.keys(p.quantities).length).map((p) => p.id), ["P-STEEL-CABIN"], "Only the steel cabin has a fixed non-workbook quantity");
+  const steel = byId.get("P-STEEL-CABIN");
+  for (const stops of SUPPORTED_STOPS) {
+    const row = calculateRow(steel, { ...INITIAL_SETTINGS, stops });
+    equal([row.quantity, row.quantitySource, row.total], [1, "catalog", 1000], `Steel cabin ${stops}`);
+    equal(row.quantityReference.includes("\u062a\u0639\u062f\u0627\u062f_\u062a\u0648\u0642\u0641"), false, "Steel cabin never claims a worksheet cell");
+  }
+  equal(INITIAL_SETTINGS.customerPhone, "", "Customer phone defaults to empty");
+  equal(parseSettings({ ...legacy, customerPhone: "09121234567", rate: 30 }).customerPhone, "09121234567", "Customer phone is stored");
+  equal("rate" in parseSettings({ ...legacy, rate: 30 }), false, "The removed percentage adjustment is ignored in old saved data");
 
   // 5. Real persistence functions, with mocked storage/IPC (not a native Rust test).
   const values = new Map();
@@ -199,8 +251,8 @@ async function run() {
   fs.writeFileSync(path.join(mockFolder, "core.js"), `exports.invoke = async (command, args) => { global.__calls.push({command, args}); if(command === 'save_state') await new Promise(r => setTimeout(r, 2)); };`);
   global.__calls = [];
   global.window = { __TAURI_INTERNALS__: {} };
-  await Promise.all([persistence.saveSettings({ ...migrated, rate: 1 }), persistence.saveSettings({ ...migrated, rate: 2 })]);
-  equal(global.__calls.map((call) => JSON.parse(call.args.payload).rate), [1, 2], "Serialized SQLite saves preserve ordering");
+  await Promise.all([persistence.saveSettings({ ...migrated, customer: "first" }), persistence.saveSettings({ ...migrated, customer: "second" })]);
+  equal(global.__calls.map((call) => JSON.parse(call.args.payload).customer), ["first", "second"], "Serialized SQLite saves preserve ordering");
   const settingsWithBrand = { ...INITIAL_SETTINGS, brands: { "P-MOTOR-7.5": "ABB" } };
   const brandQuote = buildQuote(products, settingsWithBrand);
   await persistence.saveQuote(settingsWithBrand, brandQuote);

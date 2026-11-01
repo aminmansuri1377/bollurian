@@ -3,7 +3,9 @@
     "Visual row-family audit of all eight uploaded PDFs. This is not a verbatim transcription of brand/model names.",
     "Printed quantities are observations only and are NEVER used as 6/7/8-stop quantities. PDF amounts are in rial, workbook prices in toman.",
     "18948 filename says five stops and eight persons; its floor-door/button quantities are eight. Do not infer a capacity multiplier or a new stop count from this conflict.",
-    "Workbook units/models may differ from PDF models (notably M011). ProductId means corresponding equipment family, not a certified interchangeable model."
+    "Workbook units/models may differ from PDF models (notably M011). ProductId means corresponding equipment family, not a certified interchangeable model.",
+    "1405/08/10: invoices 17784 (full automatic, now 58 rows incl. the all-steel cabin) and 19381 (full semi-automatic, 60 rows; replaces 15533) are the client's newest lists. They supersede 17784/15533 and define the row ORDER: mechanic, startup, doors/motor/controller, rail. The older 15527/15528/15529/15530/18948/19040 files remain as evidence of the family sets only.",
+    "The newest semi-automatic list has no mechanical cam (P-SEMI-CAM, present in older semi files 15529/15533/19040). It is retired from the package rules. The client asked for the all-steel cabin (P-STEEL-CABIN) as the last row of EVERY package, including those whose PDF does not print it."
   ],
   "invoices": [
     {
@@ -870,11 +872,13 @@
     },
     {
       "invoiceNumber": "17784",
-      "file": "177845 توقف تمام اتومات صفر تاصد(1).pdf",
-      "sha256": "c989345f771d4653549868f5f15bec8a8f2c5c1710ab49bfcec3f95289297b78",
+      "file": "5 توقف تمام اتومات صفر تا صد.pdf",
+      "sha256": "3632eba8f1f89be09b2f4bc435991ca19eb6f893ce62f8d6a0b8b0ee01b27841",
       "packageId": "full-auto",
       "stopsInFilename": 5,
       "capacity": null,
+      "issuedAt": "1405/08/09-16:22",
+      "supersedes": "177845 توقف تمام اتومات صفر تاصد(1).pdf",
       "rows": [
         {
           "row": 1,
@@ -1082,13 +1086,13 @@
         },
         {
           "row": 35,
-          "page": 1,
+          "page": 2,
           "productId": "R008",
           "printedQuantity": 1
         },
         {
           "row": 36,
-          "page": 1,
+          "page": 2,
           "productId": "R019",
           "printedQuantity": 2
         },
@@ -1217,16 +1221,24 @@
           "page": 2,
           "productId": "P-RAIL-BOLT8",
           "printedQuantity": 60
+        },
+        {
+          "row": 58,
+          "page": 2,
+          "productId": "P-STEEL-CABIN",
+          "printedQuantity": 1
         }
       ]
     },
     {
-      "invoiceNumber": "15533",
-      "file": "15533 5 توقف نیمه صفر تاصد(1).pdf",
-      "sha256": "cedefa145f02a450678b46d59a19beecd13196dd037fa54c810e811837f78f85",
+      "invoiceNumber": "19381",
+      "file": "5 توقف نیمه اتومات صفر تا صد.pdf",
+      "sha256": "9af3a430c943c2531aa37371b2a5bfdd7693d956e24dc98954c1ce6baf55d7ab",
       "packageId": "full-semi",
       "stopsInFilename": 5,
       "capacity": null,
+      "issuedAt": "1405/08/09-10:06",
+      "supersedes": "15533 5 توقف نیمه صفر تاصد(1).pdf",
       "rows": [
         {
           "row": 1,
@@ -1304,7 +1316,7 @@
           "row": 13,
           "page": 1,
           "productId": "P-EARTH-WIRE",
-          "printedQuantity": 6
+          "printedQuantity": 1
         },
         {
           "row": 14,
@@ -1501,95 +1513,89 @@
         {
           "row": 46,
           "page": 2,
-          "productId": "P-SEMI-CAM",
-          "printedQuantity": 1
-        },
-        {
-          "row": 47,
-          "page": 2,
           "productId": "P-SEMI-DOOR",
           "printedQuantity": 5
         },
         {
-          "row": 48,
+          "row": 47,
           "page": 2,
           "productId": "P-MOTOR-7.5",
           "printedQuantity": 1
         },
         {
-          "row": 49,
+          "row": 48,
           "page": 2,
           "productId": "P-CONTROL-7.5",
           "printedQuantity": 1
         },
         {
-          "row": 50,
+          "row": 49,
           "page": 2,
           "productId": "P-SEMI-DICTATOR",
           "printedQuantity": 5
         },
         {
-          "row": 51,
+          "row": 50,
           "page": 2,
           "productId": "P-SEMI-LOCK",
           "printedQuantity": 5
         },
         {
-          "row": 52,
+          "row": 51,
           "page": 2,
           "productId": "P-SEMI-SPRING",
           "printedQuantity": 5
         },
         {
-          "row": 53,
+          "row": 52,
           "page": 2,
           "productId": "P-RAIL-T5",
           "printedQuantity": 7
         },
         {
-          "row": 54,
+          "row": 53,
           "page": 2,
           "productId": "P-RAIL-T9",
           "printedQuantity": 7
         },
         {
-          "row": 55,
+          "row": 54,
           "page": 2,
           "productId": "P-BRACKET-T5",
           "printedQuantity": 24
         },
         {
-          "row": 56,
+          "row": 55,
           "page": 2,
           "productId": "P-BRACKET-T9",
           "printedQuantity": 24
         },
         {
-          "row": 57,
+          "row": 56,
           "page": 2,
           "productId": "P-CLIP-T5",
           "printedQuantity": 48
         },
         {
-          "row": 58,
+          "row": 57,
           "page": 2,
           "productId": "P-CLIP-T9",
           "printedQuantity": 48
         },
         {
-          "row": 59,
+          "row": 58,
           "page": 2,
           "productId": "P-RAIL-BOLT12",
           "printedQuantity": 104
         },
         {
-          "row": 60,
+          "row": 59,
           "page": 2,
           "productId": "P-RAIL-BOLT10",
           "printedQuantity": 50
         },
         {
-          "row": 61,
+          "row": 60,
           "page": 2,
           "productId": "P-RAIL-BOLT8",
           "printedQuantity": 56

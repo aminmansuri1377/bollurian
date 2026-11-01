@@ -13,13 +13,12 @@ function readNumberMap(value: unknown): Record<string, number> {
   ));
 }
 
-/** Preserve legacy custom prices; a demo reset is always explicit and backed up. */
+/** Preserve legacy custom prices; a demo reset is always explicit and backed up. Legacy `rate` is ignored: the optional adjustment was removed. */
 export function parseSettings(value: unknown): QuoteSettings {
   if (!isRecord(value) || !PACKAGE_OPTIONS.some((option) => option.value === value.pack)) {
     throw new Error("Invalid saved settings");
   }
   const oldStop = Number(value.stops);
-  const rate = Number(value.rate);
   const settings: QuoteSettings = {
     ...INITIAL_SETTINGS,
     schemaVersion: 2,
@@ -27,8 +26,8 @@ export function parseSettings(value: unknown): QuoteSettings {
     motor: value.motor === "gearless" ? "gearless" : "gearbox",
     capacity: value.capacity === "8" ? "8" : "4-6",
     stops: isSupportedStop(oldStop) ? oldStop : INITIAL_SETTINGS.stops,
-    rate: Number.isFinite(rate) && rate >= -100 ? rate : 0,
     customer: typeof value.customer === "string" ? value.customer : "",
+    customerPhone: typeof value.customerPhone === "string" ? value.customerPhone : "",
     quoteNumber: typeof value.quoteNumber === "string" ? value.quoteNumber : "",
     prices: readNumberMap(value.prices),
     previousPrices: readNumberMap(value.previousPrices),
@@ -61,5 +60,5 @@ export function updateNumericSetting(
 }
 
 export function createDemoSettings(current: QuoteSettings): QuoteSettings {
-  return { ...current, prices: {}, previousPrices: {}, quantities: {}, excluded: [], rate: 0 };
+  return { ...current, prices: {}, previousPrices: {}, quantities: {}, excluded: [] };
 }

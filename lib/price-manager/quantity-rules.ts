@@ -24,11 +24,15 @@ export function resolveQuantity(product: Product, settings: QuoteSettings): Reso
   }
   const value = product.quantities[String(settings.stops)] ?? null;
   if (value !== null && Number.isFinite(value) && value >= 0) {
+    if (product.workbookRow === undefined) {
+      // Not an Excel row (e.g. the all-steel cabin): a fixed count recorded in the catalog.
+      return { value, source: "catalog", reference: "تعداد ثابت ثبت‌شده در کاتالوگ بر اساس پیش‌فاکتورهای نمونه" };
+    }
     const columns = { 6: "C", 7: "D", 8: "E" } as const;
     return {
       value,
       source: "workbook",
-      reference: `تعداد_توقف!${columns[settings.stops]}${product.workbookRow ?? ""}`,
+      reference: `تعداد_توقف!${columns[settings.stops]}${product.workbookRow}`,
     };
   }
   // Five-stop invoice snapshots do NOT define six/seven/eight-stop quantities.

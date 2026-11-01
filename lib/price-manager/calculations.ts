@@ -1,3 +1,4 @@
+import { resolveBrand } from "./brand-rules";
 import { OMITTED_PRODUCT_ID } from "./constants";
 import { getMasterPrice } from "./master-price";
 import { getPackageProductIds } from "./package-rules";
@@ -21,20 +22,13 @@ export function calculateLineTotal(quantity: number | null, unitPrice: number | 
   return Number.isFinite(result) ? result : null;
 }
 
-/** Existing app-only adjustment; NOT a hidden part of the Excel formula. */
-export function applyQuoteAdjustment(baseTotal: number | null, percentage: number): number | null {
-  if (baseTotal === null || !Number.isFinite(percentage) || percentage < -100) return null;
-  const result = baseTotal * (1 + percentage / 100);
-  return Number.isFinite(result) ? result : null;
-}
-
 export function calculateRow(product: Product, settings: QuoteSettings): QuoteRow {
   const quantity = resolveQuantity(product, settings);
-  const unitPrice = getMasterPrice(product, settings);
+  // The brand decides the master price: every selectable brand has its own price in the master list.
+  const brand = resolveBrand(product, settings.brands[product.id]);
+  const unitPrice = getMasterPrice(product, settings, brand);
   const baseTotal = calculateLineTotal(quantity.value, unitPrice);
   const enabled = !settings.excluded.includes(product.id);
-  const savedBrand = settings.brands[product.id];
-  const brand = product.brands.includes(savedBrand) ? savedBrand : product.brands[0] ?? "";
   return {
     product,
     quantity: quantity.value,
@@ -43,7 +37,7 @@ export function calculateRow(product: Product, settings: QuoteSettings): QuoteRo
     unitPrice,
     baseTotal,
     // No Math.round: the supplied Excel formula does not round the line total.
-    total: enabled ? applyQuoteAdjustment(baseTotal, settings.rate) : null,
+    total: enabled ? baseTotal : null,
     enabled,
     brand,
   };
@@ -52,13 +46,14 @@ export function calculateRow(product: Product, settings: QuoteSettings): QuoteRo
 export function getTotalCategory(product: Product): TotalCategory {
   if (product.group === "mechanic") return "mechanic";
   if (product.group === "rail") return "rail";
+  if (product.group === "cabin") return "cabin";
   return "startup";
 }
 
 /** SUMIF-style category totals; never sum numeric-looking labels or placeholder rows. */
 export function summarizeRows(rows: QuoteRow[]): QuoteSummary {
   const enabledRows = rows.filter((row) => row.enabled);
-  const subtotals: Record<TotalCategory, number> = { mechanic: 0, startup: 0, rail: 0 };
+  const subtotals: Record<TotalCategory, number> = { mechanic: 0, startup: 0, rail: 0, cabin: 0 };
   for (const row of enabledRows) subtotals[getTotalCategory(row.product)] += row.total ?? 0;
   return {
     rows,
@@ -76,14 +71,5 @@ export function buildQuote(products: Product[], settings: QuoteSettings): QuoteS
 /** A worksheet comparison includes ALL 48 real workbook rows, not a PDF package. */
 export function buildWorkbookComparison(products: Product[], settings: QuoteSettings): QuoteSummary {
   const workbookRows = products.filter((product) => product.source === "excel" && product.id !== OMITTED_PRODUCT_ID);
-  return summarizeRows(workbookRows.map((product) => calculateRow(product, { ...settings, excluded: [], rate: 0, quantities: {} })));
-}
-
-/** Search only affects visibility, never the quote's sums or exported rows. */
-export function searchQuoteRows(rows: QuoteRow[], query: string): QuoteRow[] {
-  const normalized = query.trim().toLocaleLowerCase();
-  if (!normalized) return rows;
-  return rows.filter((row) =>
-    `${row.product.id} ${row.product.name} ${row.brand}`.toLocaleLowerCase().includes(normalized),
-  );
+  return summarizeRows(workbookRows.map((product) => calculateRow(product, { ...settings, excluded: [], quantities: {} })));
 }

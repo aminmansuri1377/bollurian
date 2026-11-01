@@ -1,12 +1,17 @@
+import { getPriceKey, resolveBrand } from "./brand-rules";
 import type { Product, QuoteSettings } from "./types";
 
-export function getMasterPrice(product: Product, settings: QuoteSettings): number | null {
-  const price = settings.prices[product.id] ?? product.price;
-  return price !== null && Number.isFinite(price) && price >= 0 ? price : null;
+function readPrice(value: number | null | undefined): number | null {
+  return value !== null && value !== undefined && Number.isFinite(value) && value >= 0 ? value : null;
 }
 
-export function getPreviousPrice(product: Product, settings: QuoteSettings): number | null {
-  return settings.previousPrices[product.id] ?? product.previous;
+/** Brand-specific master price; falls back to the legacy per-product price, then the catalog base price. */
+export function getMasterPrice(product: Product, settings: QuoteSettings, brand = resolveBrand(product, settings.brands[product.id])): number | null {
+  return readPrice(settings.prices[getPriceKey(product, brand)] ?? settings.prices[product.id] ?? product.price);
+}
+
+export function getPreviousPrice(product: Product, settings: QuoteSettings, brand = resolveBrand(product, settings.brands[product.id])): number | null {
+  return settings.previousPrices[getPriceKey(product, brand)] ?? settings.previousPrices[product.id] ?? product.previous;
 }
 
 /** Excel G: current / previous - 1. The result is a ratio (0.2 = 20%). */

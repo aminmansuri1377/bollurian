@@ -12,12 +12,23 @@
     "M003",
     "M011"
   ],
-  "startupCommon": [
+  "startupHead": [
     "R029",
-    "P-EARTH-WIRE",
-    "R031",
-    "R032",
-    "R030",
+    "P-EARTH-WIRE"
+  ],
+  "startupWiring": {
+    "auto": [
+      "R031",
+      "R032",
+      "R030"
+    ],
+    "semi": [
+      "R030",
+      "R031",
+      "R032"
+    ]
+  },
+  "startupTail": [
     "R011",
     "R009",
     "R010",
@@ -47,14 +58,15 @@
     "P-STARTUP-BOLT10",
     "P-STARTUP-BOLT8"
   ],
-  "autoOnly": [
+  "autoDoors": [
     "R020",
     "P-LANDING-DOOR"
   ],
-  "semiOnly": [
+  "semiDoors": [
     "P-SEMI-CABIN-DOOR",
-    "P-SEMI-CAM",
-    "P-SEMI-DOOR",
+    "P-SEMI-DOOR"
+  ],
+  "semiTail": [
     "P-SEMI-DICTATOR",
     "P-SEMI-LOCK",
     "P-SEMI-SPRING"
@@ -69,6 +81,12 @@
     "P-RAIL-BOLT12",
     "P-RAIL-BOLT10",
     "P-RAIL-BOLT8"
+  ],
+  "closing": [
+    "P-STEEL-CABIN"
+  ],
+  "retired": [
+    "P-SEMI-CAM"
   ],
   "workbookOnly": [
     "R014",

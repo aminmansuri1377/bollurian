@@ -2,14 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PRODUCTS } from "@/lib/price-manager/catalog";
-import { buildQuote, searchQuoteRows } from "@/lib/price-manager/calculations";
+import { buildQuote } from "@/lib/price-manager/calculations";
 import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
 import { createDemoSettings, updateNumericSetting } from "@/lib/price-manager/settings";
 import {
   downloadBackup,
   getDatabasePath,
   loadSettings,
-  readBackup,
   saveQuote,
   saveSettings,
 } from "@/lib/price-manager/persistence";
@@ -18,7 +17,6 @@ import type { LoadStatus, QuoteSettings } from "@/lib/price-manager/types";
 export function usePriceManager() {
   const [settings, setSettings] = useState<QuoteSettings>(INITIAL_SETTINGS);
   const [status, setStatus] = useState<LoadStatus>("loading");
-  const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
   const [databasePath, setDatabasePath] = useState("");
   const [isPrinting, setIsPrinting] = useState(false);
@@ -62,22 +60,17 @@ export function usePriceManager() {
   }, [settings, status]);
 
   const quote = useMemo(() => buildQuote(PRODUCTS, settings), [settings]);
-  const visibleRows = useMemo(() => searchQuoteRows(quote.rows, query), [quote.rows, query]);
 
   const updateSettings = useCallback((patch: Partial<QuoteSettings>) => {
     setSettings((current) => ({ ...current, ...patch }));
   }, []);
 
-  const updatePrice = useCallback((id: string, value: number | null) => {
-    setSettings((current) => updateNumericSetting(current, "prices", id, value));
+  const updatePrice = useCallback((key: string, value: number | null) => {
+    setSettings((current) => updateNumericSetting(current, "prices", key, value));
   }, []);
 
-  const updatePreviousPrice = useCallback((id: string, value: number | null) => {
-    setSettings((current) => updateNumericSetting(current, "previousPrices", id, value));
-  }, []);
-
-  const updateQuantity = useCallback((id: string, value: number | null) => {
-    setSettings((current) => updateNumericSetting(current, "quantities", id, value));
+  const updatePreviousPrice = useCallback((key: string, value: number | null) => {
+    setSettings((current) => updateNumericSetting(current, "previousPrices", key, value));
   }, []);
 
   function resetDemo() {
@@ -87,7 +80,7 @@ export function usePriceManager() {
     try {
       downloadBackup(settings);
       setSettings(createDemoSettings(settings));
-      setMessage("نمونه ۱۰۰۰ تومانی بارگذاری شد. تعدادها از اکسل خوانده می‌شوند؛ مقادیر نامشخص همچنان خالی هستند.");
+      setMessage("نمونه ۱۰۰۰ تومانی بارگذاری شد. تعدادها از اکسل خوانده می‌شوند؛ مقادیر نامشخص همچنان خالی هستند. نام و تلفن مشتری حفظ شد.");
     } catch (error) {
       console.error("Demo reset backup failed", error);
       setMessage("تهیه پشتیبان ناموفق بود؛ اطلاعات بازنشانی نشد.");
@@ -106,16 +99,6 @@ export function usePriceManager() {
         : [...current.excluded, id],
     }));
   }, []);
-
-  async function restoreBackup(file: File | undefined) {
-    if (!file) return;
-    try {
-      setSettings(await readBackup(file));
-      setMessage("نسخه پشتیبان با موفقیت بازیابی شد.");
-    } catch {
-      setMessage("فایل انتخاب‌شده یک نسخه پشتیبان معتبر بلوریان نیست.");
-    }
-  }
 
   async function printQuote() {
     if (status !== "ready" || isPrinting) return;
@@ -141,10 +124,9 @@ export function usePriceManager() {
   }
 
   return {
-    settings, status, quote, visibleRows, query, setQuery, message, setMessage,
+    settings, status, quote, message, setMessage,
     databasePath, today, isPrinting,
-    updateSettings, updatePrice, updatePreviousPrice, updateQuantity, updateBrand, toggleProduct, resetDemo,
-    restoreBackup, printQuote,
-    exportBackup: () => downloadBackup(settings),
+    updateSettings, updatePrice, updatePreviousPrice, updateBrand, toggleProduct, resetDemo,
+    printQuote,
   };
 }

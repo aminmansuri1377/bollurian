@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+import { formatMoney } from "@/lib/price-manager/format";
 import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
 import { BrandWordmark } from "./brand-wordmark";
 import { QuotePrintRow } from "./quote-print-row";
@@ -22,6 +22,7 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
         <PricingSourceNotice settings={settings} />
         <div className="mt-3 flex justify-between text-[10px]">
           <span>مشتری: {settings.customer || "—"}</span>
+          <span>تلفن: <bdi>{settings.customerPhone || "—"}</bdi></span>
           <span>شماره: {settings.quoteNumber || "—"}</span>
           <span>تاریخ: {today}</span>
         </div>
@@ -42,8 +43,7 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
         </tbody>
       </table>
       <footer className="mt-4 break-inside-avoid">
-        <div className="flex justify-between border-t border-outline/40 pt-4 text-[11px]">
-          <span>تعدیل اختیاری (خارج از اکسل): {formatNumber(settings.rate)}٪</span>
+        <div className="flex justify-end border-t border-outline/40 pt-4 text-[11px]">
           <strong>جمع کل: {formatMoney(quote.total)} تومان</strong>
         </div>
         <div className="mt-10 flex justify-around text-[10px]"><span>مهر و امضای فروشنده</span><span>امضای خریدار</span></div>

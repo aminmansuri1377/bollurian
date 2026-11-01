@@ -1,7 +1,7 @@
 import membership from "../../data/reference/package-membership.json";
 import type { Capacity, PackageId, Product } from "./types";
 
-/** Exact equipment-family membership from the eight invoice row audits. */
+/** Exact equipment-family membership from the invoice row audits (newest client lists take precedence). */
 const PACKAGE_PARTS: Record<PackageId, { mechanic: boolean; rail: boolean; startup: "auto" | "semi" | null }> = {
   rail: { mechanic: false, rail: true, startup: null },
   mechanic: { mechanic: true, rail: false, startup: null },
@@ -22,18 +22,24 @@ export function matchesCapacity(product: Product, capacity: Capacity): boolean {
   return product.powerKw === undefined || product.powerKw === requiredMotorPower(capacity);
 }
 
+/**
+ * Row order follows the client's newest invoices (17784 automatic, 19381 semi-automatic):
+ * mechanic, startup, doors / motor / controller, rail, and the all-steel cabin LAST in every package.
+ */
 export function getPackageProductIds(packageId: PackageId, capacity: Capacity): string[] {
   const parts = PACKAGE_PARTS[packageId];
   const ids: string[] = [];
   if (parts.mechanic) ids.push(...membership.mechanic);
   if (parts.startup) {
-    ids.push(...membership.startupCommon);
-    ids.push(...(parts.startup === "auto" ? membership.autoOnly : membership.semiOnly));
     const power = requiredMotorPower(capacity);
-    ids.push(`P-MOTOR-${power}`, `P-CONTROL-${power}`);
+    const motorAndController = [`P-MOTOR-${power}`, `P-CONTROL-${power}`];
+    ids.push(...membership.startupHead, ...membership.startupWiring[parts.startup], ...membership.startupTail);
+    if (parts.startup === "auto") ids.push(...membership.autoDoors, ...motorAndController);
+    else ids.push(...membership.semiDoors, ...motorAndController, ...membership.semiTail);
   }
   if (parts.rail) ids.push(...membership.rail);
   // Do not merge rail bolts with startup bolts: PDFs contain BOTH rows.
+  ids.push(...membership.closing);
   return ids;
 }
 

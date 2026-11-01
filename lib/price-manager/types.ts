@@ -4,9 +4,9 @@ export type SupportedStop = 6 | 7 | 8;
 export type PackageId =
   | "rail" | "mechanic" | "auto" | "semi"
   | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
-export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi";
-export type QuantitySource = "workbook" | "manual" | "missing";
-export type TotalCategory = "mechanic" | "startup" | "rail";
+export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi" | "cabin";
+export type QuantitySource = "workbook" | "manual" | "catalog" | "missing";
+export type TotalCategory = "mechanic" | "startup" | "rail" | "cabin";
 
 export interface Product {
   id: string;
@@ -30,6 +30,7 @@ export interface QuoteSettings {
   stops: SupportedStop;
   capacity: Capacity;
   pack: PackageId;
+  /** Key: product ID, or `productId::brand` for products whose brand can be chosen. */
   prices: Record<string, number>;
   previousPrices: Record<string, number>;
   /** Keys include motor, package, capacity, stop count and product ID. */
@@ -37,7 +38,7 @@ export interface QuoteSettings {
   brands: Record<string, string>;
   excluded: string[];
   customer: string;
-  rate: number;
+  customerPhone: string;
   quoteNumber: string;
 }
 

@@ -18,6 +18,7 @@ export const GROUP_LABELS: Record<ProductGroup, string> = {
   startup: "راه‌اندازی",
   auto: "تمام اتومات",
   semi: "نیمه اتومات",
+  cabin: "کابین",
 };
 
 export const SUPPORTED_STOPS: readonly SupportedStop[] = [6, 7, 8];
@@ -39,7 +40,7 @@ export const INITIAL_SETTINGS: QuoteSettings = {
   brands: {},
   excluded: [],
   customer: "",
-  rate: 0,
+  customerPhone: "",
   quoteNumber: "",
 };
 
