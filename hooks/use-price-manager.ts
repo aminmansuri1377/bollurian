@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PRODUCTS } from "@/lib/price-manager/catalog";
 import { buildQuote } from "@/lib/price-manager/calculations";
 import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
+import { selectRailType } from "@/lib/price-manager/rail-rules";
 import { createDemoSettings, updateNumericSetting } from "@/lib/price-manager/settings";
 import {
   downloadBackup,
@@ -12,7 +13,7 @@ import {
   saveQuote,
   saveSettings,
 } from "@/lib/price-manager/persistence";
-import type { LoadStatus, QuoteSettings } from "@/lib/price-manager/types";
+import type { LoadStatus, QuoteSettings, RailType } from "@/lib/price-manager/types";
 
 export function usePriceManager() {
   const [settings, setSettings] = useState<QuoteSettings>(INITIAL_SETTINGS);
@@ -75,17 +76,21 @@ export function usePriceManager() {
 
   function resetDemo() {
     if (status !== "ready") return;
-    const confirmed = window.confirm("قیمت‌ها به ۱۰۰۰ تومان برگردند و تعدادهای دستی و درصد تغییر پاک شوند؟ قبل از بازنشانی، فایل پشتیبان دریافت می‌شود.");
+    const confirmed = window.confirm("قیمت‌ها به مقدار نمونهٔ اولیه برگردند و تعدادهای دستی پاک شوند؟ قبل از بازنشانی، فایل پشتیبان دریافت می‌شود.");
     if (!confirmed) return;
     try {
       downloadBackup(settings);
       setSettings(createDemoSettings(settings));
-      setMessage("نمونه ۱۰۰۰ تومانی بارگذاری شد. تعدادها از اکسل خوانده می‌شوند؛ مقادیر نامشخص همچنان خالی هستند. نام و تلفن مشتری حفظ شد.");
+      setMessage("قیمت‌های نمونه بارگذاری شد. نام و تلفن مشتری حفظ شد.");
     } catch (error) {
       console.error("Demo reset backup failed", error);
       setMessage("تهیه پشتیبان ناموفق بود؛ اطلاعات بازنشانی نشد.");
     }
   }
+
+  const updateRailType = useCallback((slot: 0 | 1, type: RailType) => {
+    setSettings((current) => ({ ...current, railTypes: selectRailType(current.railTypes, slot, type) }));
+  }, []);
 
   const updateBrand = useCallback((id: string, brand: string) => {
     setSettings((current) => ({ ...current, brands: { ...current.brands, [id]: brand } }));
@@ -126,7 +131,7 @@ export function usePriceManager() {
   return {
     settings, status, quote, message, setMessage,
     databasePath, today, isPrinting,
-    updateSettings, updatePrice, updatePreviousPrice, updateBrand, toggleProduct, resetDemo,
+    updateSettings, updatePrice, updatePreviousPrice, updateBrand, updateRailType, toggleProduct, resetDemo,
     printQuote,
   };
 }

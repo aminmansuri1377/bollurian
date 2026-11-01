@@ -1,0 +1,768 @@
+diff --git a/components/price-manager/price-manager.tsx b/components/price-manager/price-manager.tsx
+index 144e514..5dcbd37 100644
+--- a/components/price-manager/price-manager.tsx
++++ b/components/price-manager/price-manager.tsx
+@@ -43,7 +43,9 @@ export function PriceManager() {
+         <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.printQuote}>
+           <ProductTable
+             rows={manager.quote.rows}
++            railTypes={manager.settings.railTypes}
+             disabled={disabled}
++            onRailTypeChange={manager.updateRailType}
+             onBrandChange={manager.updateBrand}
+             onToggle={manager.toggleProduct}
+           />
+diff --git a/components/price-manager/pricing-source-notice.tsx b/components/price-manager/pricing-source-notice.tsx
+index 406fcfb..4c8f320 100644
+--- a/components/price-manager/pricing-source-notice.tsx
++++ b/components/price-manager/pricing-source-notice.tsx
+@@ -1,3 +1,5 @@
++import { hasRail } from "@/lib/price-manager/package-rules";
++import { shouldMergeRailBolts } from "@/lib/price-manager/rail-rules";
+ import type { QuoteSettings } from "@/lib/price-manager/types";
+ 
+ /** Keep assumptions visible; these files do not certify an engineering design. */
+@@ -6,6 +8,7 @@ export function PricingSourceNotice({ settings }: { settings: QuoteSettings }) {
+     <div className="mt-5 rounded-2xl bg-lavender/20 px-5 py-3 text-[11px] leading-6 text-brand">
+       <p>نسخه آزمایشی: قیمت‌های اولیه نمونه‌اند (۱۰۰۰ تومان؛ برندها ۱۰۰۰، ۲۰۰۰ و ۳۰۰۰ به ترتیب)، نه قیمت واقعی فروش. تعداد ۵ توقف دقیقاً از پیش‌فاکتورهای ۵ توقفی مشتری و تعداد ۶ تا ۸ توقف از اکسل خوانده می‌شود. هر برند در «مدیریت قیمت مادر» قیمت منحصربه‌فرد خودش را دارد.</p>
+       {settings.capacity === "8" && <p className="text-amber-800">ظرفیت ۸ نفر: موتور ۷٫۳ کیلووات، تابلو فرمان ۱۱ کیلووات و فلکه ۴۰×۵ انتخاب می‌شوند و تعداد اقلام مکانیک ۵ توقف ویژهٔ ۸ نفر است. تعداد سایر اقلام ۸ نفره هنوز از کارفرما تأیید نشده و مانند ۴ تا ۶ نفر است.</p>}
++      {hasRail(settings.pack) && shouldMergeRailBolts(settings.railTypes) && <p className="text-amber-800">با ریل T9 و T16، همهٔ پیچ و مهره‌های ریل «پیچ و مهره 12» هستند و تعداد پیچ و مهره 10 و 8 به آن اضافه شده است.</p>}
+       {settings.motor === "gearless" && <p className="text-amber-800">قوانین تفاوت تجهیزات گیرلس در فایل‌ها موجود نیست. انتخاب آن به معنی تأیید سازگاری این فهرست یا برندها نیست.</p>}
+     </div>
+   );
+diff --git a/components/price-manager/product-brand-menu.tsx b/components/price-manager/product-brand-menu.tsx
+index d3b33ee..c03d7da 100644
+--- a/components/price-manager/product-brand-menu.tsx
++++ b/components/price-manager/product-brand-menu.tsx
+@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
+ import { ChevronIcon } from "@/components/ui/icons";
+ import { isBrandSelectable } from "@/lib/price-manager/brand-rules";
+ import { formatNumber, formatMoney } from "@/lib/price-manager/format";
+-import type { QuoteRow } from "@/lib/price-manager/types";
++import type { QuoteRow, RailType } from "@/lib/price-manager/types";
+ import { RowNumberBadge } from "./row-number-badge";
+ 
+ interface ProductBrandMenuProps {
+@@ -12,9 +12,11 @@ interface ProductBrandMenuProps {
+   rowNumber: number;
+   onBrandChange: (id: string, brand: string) => void;
+   onToggle: (id: string) => void;
++  /** Present only for the two rail rows: the rail type replaces the brand selector. */
++  rail?: { type: RailType; choices: RailType[]; onChange: (type: RailType) => void };
+ }
+ 
+-export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: ProductBrandMenuProps) {
++export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
+   const [open, setOpen] = useState(false);
+   const containerRef = useRef<HTMLDivElement>(null);
+   const buttonRef = useRef<HTMLButtonElement>(null);
+@@ -54,7 +56,20 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
+         <div id={panelId} className="absolute top-[58px] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
+           <p className="mb-2 text-[13px] font-bold">{product.name}</p>
+           <p className="mb-3 text-caption">کد: <bdi>{product.id}</bdi> · واحد: {product.unit}</p>
+-          {isBrandSelectable(product) ? (
++          {rail ? (
++            <>
++              <label htmlFor={`rail-type-${product.id}`} className="mb-1 block font-medium">نوع ریل</label>
++              <select
++                id={`rail-type-${product.id}`}
++                value={rail.type}
++                onChange={(event) => rail.onChange(event.target.value as RailType)}
++                className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
++              >
++                {rail.choices.map((type) => <option key={type} value={type}>{type}</option>)}
++              </select>
++              <p className="mt-1 text-[11px] text-caption">دو ریل نمی‌توانند هم‌نوع باشند. براکت و لقمه هم‌نوع ریل انتخاب‌شده تغییر می‌کنند و قیمت هر قلم از مدیریت قیمت مادر می‌آید.</p>
++            </>
++          ) : isBrandSelectable(product) ? (
+             <>
+               <label htmlFor={`brand-${product.id}`} className="mb-1 block font-medium">برند / مدل</label>
+               <select
+diff --git a/components/price-manager/product-table.tsx b/components/price-manager/product-table.tsx
+index 30fec7d..b7fe761 100644
+--- a/components/price-manager/product-table.tsx
++++ b/components/price-manager/product-table.tsx
+@@ -1,12 +1,15 @@
+ import { isSingleModel } from "@/lib/price-manager/brand-rules";
++import { getRailChoices } from "@/lib/price-manager/rail-rules";
+ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+-import type { QuoteRow } from "@/lib/price-manager/types";
++import type { QuoteRow, RailSelection, RailType } from "@/lib/price-manager/types";
+ import { ProductBrandMenu } from "./product-brand-menu";
+ import { ProductNameCell } from "./product-name-cell";
+ 
+ interface ProductTableProps {
+   rows: QuoteRow[];
++  railTypes: RailSelection;
+   disabled: boolean;
++  onRailTypeChange: (slot: 0 | 1, type: RailType) => void;
+   onBrandChange: (id: string, brand: string) => void;
+   onToggle: (id: string) => void;
+ }
+@@ -15,7 +18,7 @@ const columns = "grid grid-cols-[1.85fr_0.43fr_1fr_1fr] gap-[14px]";
+ const cell = "flex h-[50px] min-w-0 items-center justify-center rounded-full border bg-white px-2 text-[13px] font-light tabular-nums";
+ 
+ /** Quantity, unit price and total are read-only here; prices are changed only in the master-price dialog. */
+-export function ProductTable({ rows, disabled, onBrandChange, onToggle }: ProductTableProps) {
++export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBrandChange, onToggle }: ProductTableProps) {
+   return (
+     <fieldset disabled={disabled} className="min-w-0">
+       <div role="table" aria-label="جدول تجهیزات و قیمت‌ها" aria-colcount={4} aria-rowcount={rows.length + 1}>
+@@ -29,12 +32,16 @@ export function ProductTable({ rows, disabled, onBrandChange, onToggle }: Produc
+           </div>
+         </div>
+         <div role="rowgroup" className="flex flex-col gap-[14px]">
+-          {rows.map((row, index) => (
+-            <div key={row.product.id} role="row" className={`${columns} ${row.enabled ? "" : "[&>div:not(:first-child)]:opacity-45"}`}>
++          {rows.map((row, index) => {
++            // Only the rows of the two rails have a type menu; brackets and clips just follow the choice.
++            const slot = row.product.rail?.kind === "rail" ? (railTypes.indexOf(row.product.rail.type) as 0 | 1) : null;
++            return (
++            <div key={slot === null ? row.product.id : `rail-${slot}`} role="row" className={`${columns} ${row.enabled ? "" : "[&>div:not(:first-child)]:opacity-45"}`}>
+               <div role="cell" className="min-w-0">
+                 {isSingleModel(row.product)
+                   ? <ProductNameCell row={row} rowNumber={index + 1} />
+-                  : <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle} />}
++                  : <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle}
++                      rail={slot === null ? undefined : { type: railTypes[slot], choices: getRailChoices(railTypes, slot), onChange: (type) => onRailTypeChange(slot, type) }} />}
+               </div>
+               <div role="cell" className={`${cell} ${row.quantity === null && row.enabled ? "border-amber-500/75" : "border-outline"}`} title={`واحد: ${row.product.unit}`}>
+                 {row.quantity === null ? "—" : formatNumber(row.quantity)}
+@@ -46,7 +53,8 @@ export function ProductTable({ rows, disabled, onBrandChange, onToggle }: Produc
+                 {formatMoney(row.total)}
+               </div>
+             </div>
+-          ))}
++            );
++          })}
+           {!rows.length && <p className="py-10 text-center text-sm text-caption">محصولی برای نمایش وجود ندارد.</p>}
+         </div>
+       </div>
+diff --git a/data/catalog.json b/data/catalog.json
+index e5bc31a..8b2f706 100644
+--- a/data/catalog.json
++++ b/data/catalog.json
+@@ -890,19 +890,43 @@
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "rail",
++      "type": "T5"
++    }
+   },
+   {
+     "id": "P-RAIL-T9",
+     "name": "ریل چین سرد T9 درجه یک",
+     "group": "rail",
+     "unit": "واحد",
+-    "price": 1000,
++    "price": 2000,
+     "previous": null,
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "rail",
++      "type": "T9"
++    }
++  },
++  {
++    "id": "P-RAIL-T16",
++    "name": "ریل چین سرد T16 درجه یک",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 3000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "rail",
++      "type": "T16"
++    }
+   },
+   {
+     "id": "P-BRACKET-T5",
+@@ -914,19 +938,43 @@
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "bracket",
++      "type": "T5"
++    }
+   },
+   {
+     "id": "P-BRACKET-T9",
+     "name": "براکت T9",
+     "group": "rail",
+     "unit": "واحد",
+-    "price": 1000,
++    "price": 2000,
+     "previous": null,
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "bracket",
++      "type": "T9"
++    }
++  },
++  {
++    "id": "P-BRACKET-T16",
++    "name": "براکت T16",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 3000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "bracket",
++      "type": "T16"
++    }
+   },
+   {
+     "id": "P-CLIP-T5",
+@@ -938,19 +986,43 @@
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "clip",
++      "type": "T5"
++    }
+   },
+   {
+     "id": "P-CLIP-T9",
+     "name": "لقمه T9",
+     "group": "rail",
+     "unit": "واحد",
+-    "price": 1000,
++    "price": 2000,
+     "previous": null,
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "clip",
++      "type": "T9"
++    }
++  },
++  {
++    "id": "P-CLIP-T16",
++    "name": "لقمه T16",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 3000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "clip",
++      "type": "T16"
++    }
+   },
+   {
+     "id": "P-RAIL-BOLT12",
+diff --git a/data/five-stop-quantities.json b/data/five-stop-quantities.json
+index 48c4152..bc65206 100644
+--- a/data/five-stop-quantities.json
++++ b/data/five-stop-quantities.json
+@@ -3,7 +3,8 @@
+   "notes": [
+     "Exact printed quantities of the client's 5-stop lists: invoice 17784 (automatic, 4-6 persons) and 19381 (semi-automatic, 4-6 persons).",
+     "Rail-only and mechanic-only packages use the automatic list. The all-steel cabin is 1 in every package.",
+-    "8 persons: only the items in capacity8 differ (client message 1405/08/10); all other quantities follow the 4-6 list."
++    "8 persons: only the items in capacity8 differ (client message 1405/08/10); all other quantities follow the 4-6 list.",
++    "Rail, bracket and clip quantities are per kind, the same for T5, T9 and T16 (the two printed lists give identical counts for T5 and T9; T16 follows them until the client says otherwise). The rail bolts 12/10/8 are summed into bolt 12 when T9 and T16 are both chosen."
+   ],
+   "sources": {
+     "auto": "17784",
+@@ -59,12 +60,6 @@
+       "P-LANDING-DOOR": 5,
+       "P-MOTOR-6.1": 1,
+       "P-CONTROL-7.5": 1,
+-      "P-RAIL-T5": 7,
+-      "P-RAIL-T9": 7,
+-      "P-BRACKET-T5": 22,
+-      "P-BRACKET-T9": 22,
+-      "P-CLIP-T5": 44,
+-      "P-CLIP-T9": 44,
+       "P-RAIL-BOLT12": 105,
+       "P-RAIL-BOLT10": 50,
+       "P-RAIL-BOLT8": 60,
+@@ -124,12 +119,6 @@
+       "P-SEMI-DICTATOR": 5,
+       "P-SEMI-LOCK": 5,
+       "P-SEMI-SPRING": 5,
+-      "P-RAIL-T5": 7,
+-      "P-RAIL-T9": 7,
+-      "P-BRACKET-T5": 24,
+-      "P-BRACKET-T9": 24,
+-      "P-CLIP-T5": 48,
+-      "P-CLIP-T9": 48,
+       "P-RAIL-BOLT12": 104,
+       "P-RAIL-BOLT10": 50,
+       "P-RAIL-BOLT8": 56,
+@@ -144,5 +133,17 @@
+     "M006": 32,
+     "M011": 1000,
+     "P-PULLEY-40X5": 1
++  },
++  "railKinds": {
++    "auto": {
++      "rail": 7,
++      "bracket": 22,
++      "clip": 44
++    },
++    "semi": {
++      "rail": 7,
++      "bracket": 24,
++      "clip": 48
++    }
+   }
+ }
+\ No newline at end of file
+diff --git a/data/reference/package-membership.json b/data/reference/package-membership.json
+index 5364dd6..4100719 100644
+--- a/data/reference/package-membership.json
++++ b/data/reference/package-membership.json
+@@ -71,17 +71,6 @@
+     "P-SEMI-LOCK",
+     "P-SEMI-SPRING"
+   ],
+-  "rail": [
+-    "P-RAIL-T5",
+-    "P-RAIL-T9",
+-    "P-BRACKET-T5",
+-    "P-BRACKET-T9",
+-    "P-CLIP-T5",
+-    "P-CLIP-T9",
+-    "P-RAIL-BOLT12",
+-    "P-RAIL-BOLT10",
+-    "P-RAIL-BOLT8"
+-  ],
+   "closing": [
+     "P-STEEL-CABIN"
+   ],
+@@ -98,5 +87,10 @@
+   ],
+   "capacity8Substitutions": {
+     "M008": "P-PULLEY-40X5"
+-  }
++  },
++  "railBolts": [
++    "P-RAIL-BOLT12",
++    "P-RAIL-BOLT10",
++    "P-RAIL-BOLT8"
++  ]
+ }
+\ No newline at end of file
+diff --git a/docs/CLIENT-CHANGES-1405-08.md b/docs/CLIENT-CHANGES-1405-08.md
+index c54b22e..884bffa 100644
+--- a/docs/CLIENT-CHANGES-1405-08.md
++++ b/docs/CLIENT-CHANGES-1405-08.md
+@@ -1,4 +1,4 @@
+-# Client changes, 1405/08 (revisions 1 and 2)
++# Client changes, 1405/08 (revisions 1 to 3)
+ 
+ Base commit: `2e2a1fb` (`fix pdf export`). Pricing formulas are unchanged
+ (`quantity x master price`); no package-price or passenger multiplier was added.
+@@ -65,6 +65,24 @@ full automatic 58, full semi 61.
+ * One-per-elevator items (motor, controller, earth wire, semi cabin door, 40x5 pulley, steel cabin)
+   also have quantity 1 at 6-8 stops, like their Excel analogues.
+ 
++## Revision 3: rail types (T5 / T9 / T16)
++
++* The two "ریل چین سرد ... درجه یک" rows are selectable like brands. The menu "نوع ریل" offers T5, T9 and T16;
++  the type used by the other rail is hidden, so the two rails can never be the same (choosing it from the other
++  menu is also swapped in the state). Default: T5 and T9. The choice is saved with the settings.
++* Brackets and clips follow the selected types in the same order (T5 + T16 gives bracket T5, T16 and clip T5, T16).
++  Row order: rail 1, rail 2, bracket 1, bracket 2, clip 1, clip 2, then the bolts, then the steel cabin.
++* All nine parts (rail, bracket, clip x T5/T9/T16) exist in `data/catalog.json` and appear in
++  "مدیریت قیمت مادر", each with its own price (demo 1000 / 2000 / 3000 for T5 / T9 / T16).
++* Rail bolts: only when **both T9 and T16** are selected, the bolts 10 and 8 are removed and their
++  quantities are added to bolt 12 (5 stops: auto 105 + 50 + 60 = 215, semi 104 + 50 + 56 = 210).
++  Otherwise the three bolts stay at the end, before the steel cabin. A note on the screen explains the merge.
++  The merge applies to the rail bolts only, not to the startup bolts 10 / 8.
++* Quantities per kind at 5 stops (`railKinds` in `data/five-stop-quantities.json`): auto rail 7 / bracket 22 / clip 44,
++  semi 7 / 24 / 48. T16 uses the same per-kind counts as T5 and T9 (assumption: the invoices only show two types).
++* Code: `lib/price-manager/rail-rules.ts` (selection, choices, merge rule), `package-rules.ts`, `quantity-rules.ts`,
++  `product-brand-menu.tsx` (the menu), `product-table.tsx`, tests in `scripts/test-pricing.cjs` (section 4d).
++
+ ## Still open
+ 
+ * Quantities at 6/7/8 stops of landing doors, startup bolts 10/8, semi doors/dictator/lock/spring and all rail items
+diff --git a/hooks/use-price-manager.ts b/hooks/use-price-manager.ts
+index f2d4e8c..e0f7d5e 100644
+--- a/hooks/use-price-manager.ts
++++ b/hooks/use-price-manager.ts
+@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
+ import { PRODUCTS } from "@/lib/price-manager/catalog";
+ import { buildQuote } from "@/lib/price-manager/calculations";
+ import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
++import { selectRailType } from "@/lib/price-manager/rail-rules";
+ import { createDemoSettings, updateNumericSetting } from "@/lib/price-manager/settings";
+ import {
+   downloadBackup,
+@@ -12,7 +13,7 @@ import {
+   saveQuote,
+   saveSettings,
+ } from "@/lib/price-manager/persistence";
+-import type { LoadStatus, QuoteSettings } from "@/lib/price-manager/types";
++import type { LoadStatus, QuoteSettings, RailType } from "@/lib/price-manager/types";
+ 
+ export function usePriceManager() {
+   const [settings, setSettings] = useState<QuoteSettings>(INITIAL_SETTINGS);
+@@ -87,6 +88,10 @@ export function usePriceManager() {
+     }
+   }
+ 
++  const updateRailType = useCallback((slot: 0 | 1, type: RailType) => {
++    setSettings((current) => ({ ...current, railTypes: selectRailType(current.railTypes, slot, type) }));
++  }, []);
++
+   const updateBrand = useCallback((id: string, brand: string) => {
+     setSettings((current) => ({ ...current, brands: { ...current.brands, [id]: brand } }));
+   }, []);
+@@ -126,7 +131,7 @@ export function usePriceManager() {
+   return {
+     settings, status, quote, message, setMessage,
+     databasePath, today, isPrinting,
+-    updateSettings, updatePrice, updatePreviousPrice, updateBrand, toggleProduct, resetDemo,
++    updateSettings, updatePrice, updatePreviousPrice, updateBrand, updateRailType, toggleProduct, resetDemo,
+     printQuote,
+   };
+ }
+diff --git a/lib/price-manager/brand-rules.ts b/lib/price-manager/brand-rules.ts
+index bbc4083..26ce087 100644
+--- a/lib/price-manager/brand-rules.ts
++++ b/lib/price-manager/brand-rules.ts
+@@ -27,7 +27,7 @@ export const SINGLE_BRAND_PRODUCT_IDS: ReadonlySet<string> = new Set([
+   "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (ریل)
+   "P-SEMI-DOOR", // درب لولایی ۸۰ چپ کرم
+   "P-SEMI-SPRING", // فنر درب (در پیام کارفرما «فلز درب»)
+-  "P-BRACKET-T5", "P-BRACKET-T9", "P-CLIP-T5", "P-CLIP-T9", // براکت و لقمه
++  "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16", "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16", // براکت و لقمه (همنوع ریل)
+   "P-STEEL-CABIN", // کابین تمام استیل
+ ]);
+ 
+diff --git a/lib/price-manager/calculations.ts b/lib/price-manager/calculations.ts
+index 3dc9130..c177cb9 100644
+--- a/lib/price-manager/calculations.ts
++++ b/lib/price-manager/calculations.ts
+@@ -9,7 +9,7 @@ export { matchesCapacity } from "./package-rules";
+ 
+ export function selectProducts(products: Product[], settings: QuoteSettings): Product[] {
+   const byId = new Map(products.map((product) => [product.id, product]));
+-  return getPackageProductIds(settings.pack, settings.capacity)
++  return getPackageProductIds(settings.pack, settings.capacity, settings.railTypes)
+     .map((id) => byId.get(id))
+     .filter((product): product is Product => !!product && product.id !== OMITTED_PRODUCT_ID);
+ }
+diff --git a/lib/price-manager/constants.ts b/lib/price-manager/constants.ts
+index c929b5d..60cab51 100644
+--- a/lib/price-manager/constants.ts
++++ b/lib/price-manager/constants.ts
+@@ -1,3 +1,4 @@
++import { DEFAULT_RAIL_SELECTION } from "./rail-rules";
+ import type { PackageId, ProductGroup, QuoteSettings, SupportedStop } from "./types";
+ 
+ export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
+@@ -36,6 +37,7 @@ export const INITIAL_SETTINGS: QuoteSettings = {
+   stops: 5,
+   capacity: "4-6",
+   pack: "full-auto",
++  railTypes: [...DEFAULT_RAIL_SELECTION],
+   prices: {},
+   previousPrices: {},
+   quantities: {},
+diff --git a/lib/price-manager/package-rules.ts b/lib/price-manager/package-rules.ts
+index f7ba0a4..dad6c72 100644
+--- a/lib/price-manager/package-rules.ts
++++ b/lib/price-manager/package-rules.ts
+@@ -1,5 +1,6 @@
+ import membership from "../../data/reference/package-membership.json";
+-import type { Capacity, PackageId, Product } from "./types";
++import { DEFAULT_RAIL_SELECTION, getRailProductIds, shouldMergeRailBolts } from "./rail-rules";
++import type { Capacity, PackageId, Product, RailSelection } from "./types";
+ 
+ /** Exact equipment-family membership from the invoice row audits (newest client lists take precedence). */
+ const PACKAGE_PARTS: Record<PackageId, { mechanic: boolean; rail: boolean; startup: "auto" | "semi" | null }> = {
+@@ -37,7 +38,11 @@ export function getStartupFamily(packageId: PackageId): "auto" | "semi" {
+  * Row order follows the client's newest invoices (17784 automatic, 19381 semi-automatic):
+  * mechanic, startup, doors / motor / controller, rail, and the all-steel cabin LAST in every package.
+  */
+-export function getPackageProductIds(packageId: PackageId, capacity: Capacity): string[] {
++export function hasRail(packageId: PackageId): boolean {
++  return PACKAGE_PARTS[packageId].rail;
++}
++
++export function getPackageProductIds(packageId: PackageId, capacity: Capacity, railTypes: RailSelection = DEFAULT_RAIL_SELECTION): string[] {
+   const parts = PACKAGE_PARTS[packageId];
+   const ids: string[] = [];
+   const substitutions: Record<string, string> = capacity === "8" ? membership.capacity8Substitutions : {};
+@@ -48,8 +53,12 @@ export function getPackageProductIds(packageId: PackageId, capacity: Capacity):
+     if (parts.startup === "auto") ids.push(...membership.autoDoors, ...motorAndController);
+     else ids.push(...membership.semiDoors, ...motorAndController, ...membership.semiTail);
+   }
+-  if (parts.rail) ids.push(...membership.rail);
+-  // Do not merge rail bolts with startup bolts: PDFs contain BOTH rows.
++  if (parts.rail) {
++    // Rails, brackets and clips follow the two chosen rail types. T9 + T16 turn every rail bolt into a bolt 12.
++    ids.push(...getRailProductIds(railTypes));
++    // Do not merge rail bolts with startup bolts: PDFs contain BOTH rows.
++    ids.push(...(shouldMergeRailBolts(railTypes) ? membership.railBolts.slice(0, 1) : membership.railBolts));
++  }
+   ids.push(...membership.closing);
+   return ids;
+ }
+diff --git a/lib/price-manager/quantity-rules.ts b/lib/price-manager/quantity-rules.ts
+index 79e010b..7f74826 100644
+--- a/lib/price-manager/quantity-rules.ts
++++ b/lib/price-manager/quantity-rules.ts
+@@ -1,6 +1,9 @@
+ import fiveStop from "../../data/five-stop-quantities.json";
++import membership from "../../data/reference/package-membership.json";
++import { PRODUCTS } from "./catalog";
+ import { isSupportedStop } from "./constants";
+ import { getStartupFamily } from "./package-rules";
++import { shouldMergeRailBolts } from "./rail-rules";
+ import type { Product, QuantitySource, QuoteSettings } from "./types";
+ 
+ type QuantityContext = Pick<QuoteSettings, "motor" | "pack" | "capacity"> & { stops: number };
+@@ -16,7 +19,23 @@ export interface ResolvedQuantity {
+   reference: string;
+ }
+ 
++/** Rail bolts 10 and 8 are removed when T9 + T16 are chosen; bolt 12 then carries all three counts. */
++const MERGED_BOLT = membership.railBolts[0];
++
+ export function resolveQuantity(product: Product, settings: QuoteSettings): ResolvedQuantity {
++  const base = resolveBaseQuantity(product, settings);
++  if (product.id !== MERGED_BOLT || !shouldMergeRailBolts(settings.railTypes)) return base;
++  const parts = membership.railBolts.map((id) => {
++    const bolt = PRODUCTS.find((candidate) => candidate.id === id);
++    return bolt && bolt.id !== product.id ? resolveBaseQuantity(bolt, settings) : base;
++  });
++  if (parts.some((part) => part.value === null)) {
++    return { value: null, source: "missing", reference: "مجموع پیچ و مهره ۱۲، ۱۰ و ۸ ریل؛ یکی از تعدادها نامشخص است." };
++  }
++  return { value: parts.reduce((sum, part) => sum + (part.value ?? 0), 0), source: base.source, reference: `مجموع پیچ و مهره ۱۲، ۱۰ و ۸ ریل (ریل T9 و T16)؛ ${base.reference}` };
++}
++
++function resolveBaseQuantity(product: Product, settings: QuoteSettings): ResolvedQuantity {
+   if (!isSupportedStop(settings.stops)) {
+     return { value: null, source: "missing", reference: "تعداد توقف خارج از جدول اکسل است." };
+   }
+@@ -29,7 +48,8 @@ export function resolveQuantity(product: Product, settings: QuoteSettings): Reso
+     const family = getStartupFamily(settings.pack);
+     const table: Record<string, number> = fiveStop.quantities[family];
+     const overrides: Record<string, number> = settings.capacity === "8" ? fiveStop.capacity8 : {};
+-    const printed = overrides[product.id] ?? table[product.id];
++    // Rail, bracket and clip counts depend on the kind of part, not on the rail type (T5, T9, T16).
++    const printed = overrides[product.id] ?? (product.rail ? fiveStop.railKinds[family][product.rail.kind] : table[product.id]);
+     if (printed !== undefined) {
+       const capacityNote = overrides[product.id] !== undefined ? " (ویژهٔ ۸ نفر)" : "";
+       return { value: printed, source: "invoice", reference: `پیش‌فاکتور ۵ توقف ${fiveStop.sources[family]}${capacityNote}` };
+diff --git a/lib/price-manager/rail-rules.ts b/lib/price-manager/rail-rules.ts
+new file mode 100644
+index 0000000..6081c73
+--- /dev/null
++++ b/lib/price-manager/rail-rules.ts
+@@ -0,0 +1,42 @@
++import type { RailKind, RailSelection, RailType } from "./types";
++
++export const RAIL_TYPES: readonly RailType[] = ["T5", "T9", "T16"];
++export const DEFAULT_RAIL_SELECTION: RailSelection = ["T5", "T9"];
++
++export function isRailType(value: unknown): value is RailType {
++  return RAIL_TYPES.some((type) => type === value);
++}
++
++/** Two DIFFERENT rail types; anything else falls back to the default. */
++export function normalizeRailSelection(value: unknown): RailSelection {
++  if (Array.isArray(value) && value.length === 2 && isRailType(value[0]) && isRailType(value[1]) && value[0] !== value[1]) {
++    return [value[0], value[1]];
++  }
++  return [...DEFAULT_RAIL_SELECTION];
++}
++
++/** Choose a type for one of the two rails. Picking the other rail's type swaps them, so they never repeat. */
++export function selectRailType(current: RailSelection, slot: 0 | 1, type: RailType): RailSelection {
++  const next: RailSelection = [...current];
++  const other = slot === 0 ? 1 : 0;
++  if (next[other] === type) next[other] = next[slot];
++  next[slot] = type;
++  return next;
++}
++
++/** Types offered by one rail's menu: everything except the type the other rail already uses. */
++export function getRailChoices(current: RailSelection, slot: 0 | 1): RailType[] {
++  const other = current[slot === 0 ? 1 : 0];
++  return RAIL_TYPES.filter((type) => type !== other);
++}
++
++/** Client rule: only when BOTH T9 and T16 are chosen, the rail bolts 10 and 8 become bolts 12. */
++export function shouldMergeRailBolts(selection: RailSelection): boolean {
++  return selection.includes("T9") && selection.includes("T16");
++}
++
++/** Row order of the rail block: rails, then brackets, then clips, each in the order of the two selected types. */
++export function getRailProductIds(selection: RailSelection): string[] {
++  const prefix: Record<RailKind, string> = { rail: "P-RAIL", bracket: "P-BRACKET", clip: "P-CLIP" };
++  return (Object.keys(prefix) as RailKind[]).flatMap((kind) => selection.map((type) => `${prefix[kind]}-${type}`));
++}
+diff --git a/lib/price-manager/settings.ts b/lib/price-manager/settings.ts
+index 3b33955..ffdb765 100644
+--- a/lib/price-manager/settings.ts
++++ b/lib/price-manager/settings.ts
+@@ -1,5 +1,6 @@
+ import { INITIAL_SETTINGS, isSupportedStop, PACKAGE_OPTIONS } from "./constants";
+ import { getQuantityOverrideKey } from "./quantity-rules";
++import { normalizeRailSelection } from "./rail-rules";
+ import type { QuoteSettings } from "./types";
+ 
+ export function isRecord(value: unknown): value is Record<string, unknown> {
+@@ -25,6 +26,7 @@ export function parseSettings(value: unknown): QuoteSettings {
+     pack: value.pack as QuoteSettings["pack"],
+     motor: value.motor === "gearless" ? "gearless" : "gearbox",
+     capacity: value.capacity === "8" ? "8" : "4-6",
++    railTypes: normalizeRailSelection(value.railTypes),
+     stops: isSupportedStop(oldStop) ? oldStop : INITIAL_SETTINGS.stops,
+     customer: typeof value.customer === "string" ? value.customer : "",
+     customerPhone: typeof value.customerPhone === "string" ? value.customerPhone : "",
+diff --git a/lib/price-manager/types.ts b/lib/price-manager/types.ts
+index 80ecb98..fd08837 100644
+--- a/lib/price-manager/types.ts
++++ b/lib/price-manager/types.ts
+@@ -6,6 +6,10 @@ export type PackageId =
+   | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
+ export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi" | "cabin";
+ export type QuantitySource = "workbook" | "invoice" | "manual" | "catalog" | "missing";
++export type RailType = "T5" | "T9" | "T16";
++export type RailKind = "rail" | "bracket" | "clip";
++/** The two rails of a quote: always two different types. */
++export type RailSelection = [RailType, RailType];
+ export type TotalCategory = "mechanic" | "startup" | "rail" | "cabin";
+ 
+ export interface Product {
+@@ -23,6 +27,8 @@ export interface Product {
+   notes: string;
+   workbookRow?: number;
+   powerKw?: 6.1 | 7.3 | 7.5 | 11;
++  /** Rail, bracket and clip products: which part it is and for which rail type. */
++  rail?: { kind: RailKind; type: RailType };
+ }
+ 
+ /** Older backups are migrated by parseSettings; never by UI components. */
+@@ -32,6 +38,7 @@ export interface QuoteSettings {
+   stops: SupportedStop;
+   capacity: Capacity;
+   pack: PackageId;
++  railTypes: RailSelection;
+   /** Key: product ID, or `productId::brand` for products whose brand can be chosen. */
+   prices: Record<string, number>;
+   previousPrices: Record<string, number>;
+diff --git a/scripts/test-pricing.cjs b/scripts/test-pricing.cjs
+index 9379d49..3153242 100644
+--- a/scripts/test-pricing.cjs
++++ b/scripts/test-pricing.cjs
+@@ -33,6 +33,7 @@ async function run() {
+   const { calculateRow, calculateLineTotal, buildQuote, buildWorkbookComparison, selectProducts } = load("calculations");
+   const { isBrandSelectable, resolveBrand, getPriceKey, SINGLE_BRAND_PRODUCT_IDS } = load("brand-rules");
+   const { getPackageProductIds } = load("package-rules");
++  const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds } = load("rail-rules");
+   const { getQuantityOverrideKey } = load("quantity-rules");
+   const { getMasterPrice, comparePrices } = load("master-price");
+   const { parseSettings, updateNumericSetting, createDemoSettings } = load("settings");
+@@ -56,9 +57,10 @@ async function run() {
+   equal(SUPPORTED_STOPS, [5, 6, 7, 8], "5 stops come from the client invoices, 6-8 from Excel");
+   equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns");
+   equal(INITIAL_SETTINGS.stops, 5, "Default is the fully specified 5-stop list");
+-  equal(products.length, 73, "72 products plus placeholder");
++  equal(products.length, 76, "75 products plus placeholder");
+   equal(new Set(products.map((p) => p.id)).size, products.length, "No duplicate catalog IDs");
+-  for (const product of products) equal(product.price, DEMO_BASE_PRICE, `${product.id}: every base price is 1000`);
++  const railDemoPrice = { T5: 1000, T9: 2000, T16: 3000 };
++  for (const product of products) equal(product.price, product.rail ? railDemoPrice[product.rail.type] : DEMO_BASE_PRICE, `${product.id}: demo base price (rail parts: one distinct price per type)`);
+ 
+   // Literal source-cell comparisons: no linear extrapolation or five-stop substitution.
+   for (const record of workbook.records) {
+@@ -292,6 +294,57 @@ async function run() {
+   equal([semi5.quantity, auto5.quantity], [27, 30], "Travelling cable differs between the semi (27) and automatic (30) lists");
+   equal(semi5.quantityReference.includes("19381") && auto5.quantityReference.includes("17784"), true, "Quantity reference names the invoice");
+ 
++  // 4d. Rails: two different types out of T5 / T9 / T16; brackets and clips follow; T9 + T16 merge the rail bolts.
++  equal(RAIL_TYPES, ["T5", "T9", "T16"], "Three rail types");
++  equal(DEFAULT_RAIL_SELECTION, ["T5", "T9"], "Default rails match the printed lists");
++  const railParts = products.filter((p) => p.rail);
++  equal(railParts.length, 9, "Rail, bracket and clip exist for T5, T9 and T16");
++  equal(new Set(railParts.map((p) => p.price)).size >= 3, true, "Rail parts have their own prices");
++  for (const kind of ["rail", "bracket", "clip"]) equal(new Set(railParts.filter((p) => p.rail.kind === kind).map((p) => p.price)).size, 3, `${kind}: one different price per type`);
++  for (const id of ["P-BRACKET-T16", "P-CLIP-T16", "P-BRACKET-T5", "P-CLIP-T9"]) equal(isBrandSelectable(byId.get(id)), false, `${id}: static row, follows the rail`);
++  equal(normalizeRailSelection(["T9", "T9"]), ["T5", "T9"], "Duplicate rails are rejected");
++  equal(normalizeRailSelection(["T3", "T9"]), ["T5", "T9"], "Unknown rail type is rejected");
++  equal(normalizeRailSelection(undefined), ["T5", "T9"], "Missing selection falls back to the default");
++  equal(normalizeRailSelection(["T16", "T5"]), ["T16", "T5"], "A valid selection is kept in order");
++  equal(selectRailType(["T5", "T9"], 0, "T9"), ["T9", "T5"], "Choosing the other rail's type swaps instead of repeating");
++  equal(selectRailType(["T5", "T9"], 1, "T16"), ["T5", "T16"], "Free type is simply selected");
++  equal(getRailChoices(["T5", "T9"], 0), ["T5", "T16"], "First menu hides the type of the second rail");
++  equal(getRailChoices(["T5", "T9"], 1), ["T9", "T16"], "Second menu hides the type of the first rail");
++  const pairs = RAIL_TYPES.flatMap((a) => RAIL_TYPES.filter((b) => b !== a).map((b) => [a, b]));
++  equal(pairs.length, 6, "Six ordered pairs of two different rails");
++  for (const pair of pairs) {
++    const [a, b] = pair;
++    equal(getRailProductIds(pair), [`P-RAIL-${a}`, `P-RAIL-${b}`, `P-BRACKET-${a}`, `P-BRACKET-${b}`, `P-CLIP-${a}`, `P-CLIP-${b}`], `${a}/${b}: brackets and clips follow the rails`);
++    const merged = pair.includes("T9") && pair.includes("T16");
++    equal(shouldMergeRailBolts(pair), merged, `${a}/${b}: bolt merge rule`);
++    for (const pack of ["rail", "full-auto", "full-semi"]) for (const capacity of ["4-6", "8"]) {
++      const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack, capacity, railTypes: pair, stops: 5 });
++      const ids = quote.rows.map((r) => r.product.id);
++      equal(new Set(ids).size, ids.length, `${pack}/${a}/${b}: no duplicate row`);
++      equal(quote.incompleteRows.length, 0, `${pack}/${a}/${b}: nothing blank at 5 stops`);
++      equal(ids.at(-1), "P-STEEL-CABIN", "Steel cabin stays last");
++      const start = ids.indexOf(`P-RAIL-${a}`);
++      equal(ids.slice(start, start + 6), getRailProductIds(pair), `${pack}/${a}/${b}: rail block order`);
++      const bolts = ids.filter((id) => id.startsWith("P-RAIL-BOLT"));
++      equal(bolts, merged ? ["P-RAIL-BOLT12"] : ["P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8"], `${pack}/${a}/${b}: rail bolts`);
++      equal(ids.at(-2 - bolts.length), `P-CLIP-${b}`, "Bolts come right after the clips and before the steel cabin");
++      const family = pack === "full-semi" ? "semi" : "auto";
++      const kinds = family === "semi" ? { rail: 7, bracket: 24, clip: 48 } : { rail: 7, bracket: 22, clip: 44 };
++      const bolt = family === "semi" ? [104, 50, 56] : [105, 50, 60];
++      for (const row of quote.rows.filter((r) => r.product.rail)) equal(row.quantity, kinds[row.product.rail.kind], `${a}/${b}/${row.product.id}: count follows the kind of part`);
++      equal(quote.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, merged ? bolt[0] + bolt[1] + bolt[2] : bolt[0], `${pack}/${a}/${b}: bolt 12 count`);
++      const base = buildQuote(products, { ...INITIAL_SETTINGS, pack, capacity, stops: 5 });
++      equal(quote.rows.length, base.rows.length - (merged ? 2 : 0), `${pack}/${a}/${b}: two rows less only when bolts merge`);
++    }
++  }
++  const mergedSix = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T9", "T16"], stops: 6 });
++  equal(mergedSix.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, null, "Unknown 6-stop bolt counts are not summed into a fake number");
++  const priced = { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T16", "T5"], stops: 5, prices: { "P-RAIL-T16": 111, "P-BRACKET-T16": 22, "P-CLIP-T16": 3 } };
++  const pricedRows = Object.fromEntries(buildQuote(products, priced).rows.map((r) => [r.product.id, r.unitPrice]));
++  equal([pricedRows["P-RAIL-T16"], pricedRows["P-BRACKET-T16"], pricedRows["P-CLIP-T16"], pricedRows["P-RAIL-T5"]], [111, 22, 3, 1000], "Each rail part has its own editable master price");
++  equal(parseSettings({ ...legacy, railTypes: ["T16", "T9"] }).railTypes, ["T16", "T9"], "Rail choice is saved");
++  equal(parseSettings({ ...legacy, railTypes: ["T9", "T9"] }).railTypes, ["T5", "T9"], "Saved duplicate rails are repaired");
++
+   // 5. Real persistence functions, with mocked storage/IPC (not a native Rust test).
+   const values = new Map();
+   global.localStorage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };

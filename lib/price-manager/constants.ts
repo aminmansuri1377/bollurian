@@ -1,3 +1,4 @@
+import { DEFAULT_RAIL_SELECTION } from "./rail-rules";
 import type { PackageId, ProductGroup, QuoteSettings, SupportedStop } from "./types";
 
 export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
@@ -21,7 +22,9 @@ export const GROUP_LABELS: Record<ProductGroup, string> = {
   cabin: "کابین",
 };
 
-export const SUPPORTED_STOPS: readonly SupportedStop[] = [6, 7, 8];
+/** 5 stops come from the client's 5-stop invoices; 6, 7 and 8 stops come from the Excel stop table. */
+export const SUPPORTED_STOPS: readonly SupportedStop[] = [5, 6, 7, 8];
+export const WORKBOOK_STOPS: readonly SupportedStop[] = [6, 7, 8];
 export const DEMO_BASE_PRICE = 1000;
 
 export function isSupportedStop(value: number): value is SupportedStop {
@@ -31,9 +34,10 @@ export function isSupportedStop(value: number): value is SupportedStop {
 export const INITIAL_SETTINGS: QuoteSettings = {
   schemaVersion: 2,
   motor: "gearbox",
-  stops: 6,
+  stops: 5,
   capacity: "4-6",
   pack: "full-auto",
+  railTypes: [...DEFAULT_RAIL_SELECTION],
   prices: {},
   previousPrices: {},
   quantities: {},

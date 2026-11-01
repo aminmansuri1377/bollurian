@@ -41,7 +41,7 @@ export function ManagementTools({ settings, disabled, databasePath, onSettingsCh
           <p className="mt-4 text-[12px] leading-6 text-caption">قیمت‌ها فقط از «مدیریت قیمت مادر» تغییر می‌کنند. در لیست اصلی، تعداد و قیمت‌ها فقط نمایش داده می‌شوند. برای حذف یک قلم از محاسبات، گزینه آن را در منوی کنار نام محصول بردارید.</p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button type="button" onClick={() => setPricesOpen(true)} className={actionButton}>مدیریت قیمت مادر</button>
-            <button type="button" onClick={onResetDemo} className={actionButton}>بازنشانی نمونه ۱۰۰۰ تومانی (با پشتیبان)</button>
+            <button type="button" onClick={onResetDemo} className={actionButton}>بازنشانی قیمت‌های نمونه (با پشتیبان)</button>
           </div>
           <p className="mt-4 text-[11px] leading-6 text-caption">
             {databasePath ? <>مسیر دیتابیس: <bdi className="select-all">{databasePath}</bdi></> : "نسخه مرورگر: ذخیره در همین مرورگر • نسخه دسکتاپ: ذخیره در SQLite"}

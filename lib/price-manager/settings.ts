@@ -1,5 +1,6 @@
 import { INITIAL_SETTINGS, isSupportedStop, PACKAGE_OPTIONS } from "./constants";
 import { getQuantityOverrideKey } from "./quantity-rules";
+import { normalizeRailSelection } from "./rail-rules";
 import type { QuoteSettings } from "./types";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -25,6 +26,7 @@ export function parseSettings(value: unknown): QuoteSettings {
     pack: value.pack as QuoteSettings["pack"],
     motor: value.motor === "gearless" ? "gearless" : "gearbox",
     capacity: value.capacity === "8" ? "8" : "4-6",
+    railTypes: normalizeRailSelection(value.railTypes),
     stops: isSupportedStop(oldStop) ? oldStop : INITIAL_SETTINGS.stops,
     customer: typeof value.customer === "string" ? value.customer : "",
     customerPhone: typeof value.customerPhone === "string" ? value.customerPhone : "",
@@ -37,12 +39,7 @@ export function parseSettings(value: unknown): QuoteSettings {
       : {},
     excluded: Array.isArray(value.excluded) ? value.excluded.filter((id): id is string => typeof id === "string") : [],
   };
-  for (const [key, quantity] of Object.entries(readNumberMap(value.quantities))) {
-    // Old five-stop overrides are retained under five-stop keys, NOT applied to six stops.
-    const context = { ...settings, stops: Number.isInteger(oldStop) && oldStop >= 1 && oldStop <= 13 ? oldStop : settings.stops };
-    const scopedKey = key.includes("|") ? key : getQuantityOverrideKey(key, context);
-    settings.quantities[scopedKey] = quantity;
-  }
+  // Counts are read-only now (5 stops: client invoices, 6-8 stops: Excel). Old hand-typed counts are dropped so a hidden number can never change a quote.
   return settings;
 }
 

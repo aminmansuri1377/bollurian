@@ -5,9 +5,14 @@ function readPrice(value: number | null | undefined): number | null {
   return value !== null && value !== undefined && Number.isFinite(value) && value >= 0 ? value : null;
 }
 
-/** Brand-specific master price; falls back to the legacy per-product price, then the catalog base price. */
+/** Base price of one brand: its own catalog price, else the product base price. */
+export function getBaseBrandPrice(product: Product, brand: string): number | null {
+  return readPrice(product.brandPrices?.[brand] ?? product.price);
+}
+
+/** Brand-specific master price; falls back to the legacy per-product price, then the brand's catalog price. */
 export function getMasterPrice(product: Product, settings: QuoteSettings, brand = resolveBrand(product, settings.brands[product.id])): number | null {
-  return readPrice(settings.prices[getPriceKey(product, brand)] ?? settings.prices[product.id] ?? product.price);
+  return readPrice(settings.prices[getPriceKey(product, brand)] ?? settings.prices[product.id] ?? getBaseBrandPrice(product, brand));
 }
 
 export function getPreviousPrice(product: Product, settings: QuoteSettings, brand = resolveBrand(product, settings.brands[product.id])): number | null {

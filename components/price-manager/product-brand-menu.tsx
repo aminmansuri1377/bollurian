@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronIcon } from "@/components/ui/icons";
 import { isBrandSelectable } from "@/lib/price-manager/brand-rules";
 import { formatNumber, formatMoney } from "@/lib/price-manager/format";
-import type { QuoteRow } from "@/lib/price-manager/types";
+import type { QuoteRow, RailType } from "@/lib/price-manager/types";
 import { RowNumberBadge } from "./row-number-badge";
 
 interface ProductBrandMenuProps {
@@ -12,9 +12,11 @@ interface ProductBrandMenuProps {
   rowNumber: number;
   onBrandChange: (id: string, brand: string) => void;
   onToggle: (id: string) => void;
+  /** Present only for the two rail rows: the rail type replaces the brand selector. */
+  rail?: { type: RailType; choices: RailType[]; onChange: (type: RailType) => void };
 }
 
-export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: ProductBrandMenuProps) {
+export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -54,7 +56,20 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
         <div id={panelId} className="absolute top-[58px] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
           <p className="mb-2 text-[13px] font-bold">{product.name}</p>
           <p className="mb-3 text-caption">کد: <bdi>{product.id}</bdi> · واحد: {product.unit}</p>
-          {isBrandSelectable(product) ? (
+          {rail ? (
+            <>
+              <label htmlFor={`rail-type-${product.id}`} className="mb-1 block font-medium">نوع ریل</label>
+              <select
+                id={`rail-type-${product.id}`}
+                value={rail.type}
+                onChange={(event) => rail.onChange(event.target.value as RailType)}
+                className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
+              >
+                {rail.choices.map((type) => <option key={type} value={type}>{type}</option>)}
+              </select>
+              <p className="mt-1 text-[11px] text-caption">دو ریل نمی‌توانند هم‌نوع باشند. براکت و لقمه هم‌نوع ریل انتخاب‌شده تغییر می‌کنند و قیمت هر قلم از مدیریت قیمت مادر می‌آید.</p>
+            </>
+          ) : isBrandSelectable(product) ? (
             <>
               <label htmlFor={`brand-${product.id}`} className="mb-1 block font-medium">برند / مدل</label>
               <select
@@ -68,11 +83,11 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
               <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند.</p>
             </>
           ) : (
-            <p className="font-medium">برند / مدل: <span className="font-light">{row.brand || "مدل یگانه؛ انتخاب برند ندارد"}</span></p>
+            <p className="font-medium">برند / مدل: <span className="font-light">{row.brand || "ثبت نشده"}</span></p>
           )}
 
           <div className="mt-3 rounded-xl bg-lavender/25 p-3 text-[11px] leading-6">
-            <p>{row.quantitySource === "manual" ? "تعداد دستی" : row.quantitySource === "workbook" ? "تعداد اکسل" : row.quantitySource === "catalog" ? "تعداد کاتالوگ" : "تعداد نامشخص"}: <bdi>{row.quantityReference}</bdi></p>
+            <p>{row.quantitySource === "manual" ? "تعداد دستی" : row.quantitySource === "workbook" ? "تعداد اکسل" : row.quantitySource === "invoice" ? "تعداد پیش‌فاکتور" : row.quantitySource === "catalog" ? "تعداد کاتالوگ" : "تعداد نامشخص"}: <bdi>{row.quantityReference}</bdi></p>
             <p>فرمول مبنا: تعداد × قیمت مادر</p>
             <p dir="ltr" className="text-center tabular-nums">{row.quantity === null ? "—" : formatNumber(row.quantity)} × {formatMoney(row.unitPrice)} = {formatMoney(row.baseTotal)}</p>
           </div>

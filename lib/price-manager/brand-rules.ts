@@ -27,13 +27,18 @@ export const SINGLE_BRAND_PRODUCT_IDS: ReadonlySet<string> = new Set([
   "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (ریل)
   "P-SEMI-DOOR", // درب لولایی ۸۰ چپ کرم
   "P-SEMI-SPRING", // فنر درب (در پیام کارفرما «فلز درب»)
-  "P-BRACKET-T5", "P-BRACKET-T9", "P-CLIP-T5", "P-CLIP-T9", // براکت و لقمه
+  "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16", "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16", // براکت و لقمه (همنوع ریل)
   "P-STEEL-CABIN", // کابین تمام استیل
 ]);
 
+/** Products the client confirmed have a single model: their row is static (no menu, no click action). */
+export function isSingleModel(product: Product): boolean {
+  return SINGLE_BRAND_PRODUCT_IDS.has(product.id);
+}
+
 /** A brand menu exists only for products with at least two brands that are not on the single-model list. */
 export function isBrandSelectable(product: Product): boolean {
-  return !SINGLE_BRAND_PRODUCT_IDS.has(product.id) && product.brands.length > 1;
+  return !isSingleModel(product) && product.brands.length > 1;
 }
 
 export function resolveBrand(product: Product, savedBrand: string | undefined): string {

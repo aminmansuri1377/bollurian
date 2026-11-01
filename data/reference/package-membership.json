@@ -71,17 +71,6 @@
     "P-SEMI-LOCK",
     "P-SEMI-SPRING"
   ],
-  "rail": [
-    "P-RAIL-T5",
-    "P-RAIL-T9",
-    "P-BRACKET-T5",
-    "P-BRACKET-T9",
-    "P-CLIP-T5",
-    "P-CLIP-T9",
-    "P-RAIL-BOLT12",
-    "P-RAIL-BOLT10",
-    "P-RAIL-BOLT8"
-  ],
   "closing": [
     "P-STEEL-CABIN"
   ],
@@ -95,5 +84,13 @@
     "R026",
     "R027",
     "R033"
+  ],
+  "capacity8Substitutions": {
+    "M008": "P-PULLEY-40X5"
+  },
+  "railBolts": [
+    "P-RAIL-BOLT12",
+    "P-RAIL-BOLT10",
+    "P-RAIL-BOLT8"
   ]
 }

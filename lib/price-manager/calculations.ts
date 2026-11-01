@@ -9,7 +9,7 @@ export { matchesCapacity } from "./package-rules";
 
 export function selectProducts(products: Product[], settings: QuoteSettings): Product[] {
   const byId = new Map(products.map((product) => [product.id, product]));
-  return getPackageProductIds(settings.pack, settings.capacity)
+  return getPackageProductIds(settings.pack, settings.capacity, settings.railTypes)
     .map((id) => byId.get(id))
     .filter((product): product is Product => !!product && product.id !== OMITTED_PRODUCT_ID);
 }

@@ -43,7 +43,9 @@ export function PriceManager() {
         <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.printQuote}>
           <ProductTable
             rows={manager.quote.rows}
+            railTypes={manager.settings.railTypes}
             disabled={disabled}
+            onRailTypeChange={manager.updateRailType}
             onBrandChange={manager.updateBrand}
             onToggle={manager.toggleProduct}
           />
