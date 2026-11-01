@@ -39,6 +39,7 @@ export const INITIAL_SETTINGS: QuoteSettings = {
   brands: {},
   excluded: [],
   customer: "",
+  phone: "",
   rate: 0,
   quoteNumber: "",
 };

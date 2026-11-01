@@ -29,6 +29,7 @@ export function parseSettings(value: unknown): QuoteSettings {
     stops: isSupportedStop(oldStop) ? oldStop : INITIAL_SETTINGS.stops,
     rate: Number.isFinite(rate) && rate >= -100 ? rate : 0,
     customer: typeof value.customer === "string" ? value.customer : "",
+    phone: typeof value.phone === "string" ? value.phone : "",
     quoteNumber: typeof value.quoteNumber === "string" ? value.quoteNumber : "",
     prices: readNumberMap(value.prices),
     previousPrices: readNumberMap(value.previousPrices),
