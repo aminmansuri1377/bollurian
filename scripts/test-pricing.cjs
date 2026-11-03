@@ -34,13 +34,14 @@ async function run() {
   const { isBrandSelectable, resolveBrand, getPriceKey, SINGLE_BRAND_PRODUCT_IDS } = load("brand-rules");
   const { getPackageProductIds } = load("package-rules");
   const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds } = load("rail-rules");
-  const { getQuantityOverrideKey } = load("quantity-rules");
+  const { getQuantityOverrideKey, resolveWorkbookQuantity } = load("quantity-rules");
   const { getMasterPrice, comparePrices } = load("master-price");
   const { parseSettings, updateNumericSetting, createDemoSettings } = load("settings");
   const { parseNumericInput } = load("format");
   const persistence = load("persistence");
   const workbook = readJSON("tests/fixtures/workbook-reference.json");
   const invoices = readJSON("data/reference/invoices.json").invoices;
+  const stopInvoices = readJSON("data/reference/stop-invoices.json").invoices;
   const membership = readJSON("data/reference/package-membership.json");
   const byId = new Map(products.map((p) => [p.id, p]));
   const sourceById = new Map(workbook.records.map((p) => [p.id, p]));
@@ -54,10 +55,11 @@ async function run() {
   equal(invoices.reduce((sum, invoice) => sum + invoice.rows.length, 0), 364, "All 364 printed invoice rows mapped");
   equal(invoices.find((i) => i.invoiceNumber === "17784").rows.length, 58, "Newest automatic list: 58 rows incl. all-steel cabin");
   equal(invoices.find((i) => i.invoiceNumber === "19381").rows.length, 60, "Newest semi-automatic list: 60 rows");
-  equal(SUPPORTED_STOPS, [5, 6, 7, 8], "5 stops come from the client invoices, 6-8 from Excel");
-  equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns");
+  equal(SUPPORTED_STOPS, [3, 4, 5, 6, 7, 8, 9], "3 to 9 stops: every stop count has the client's printed invoices");
+  equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns (kept as evidence)");
+  equal(stopInvoices.map((i) => `${i.stops}/${i.family}`), ["3/auto", "3/semi", "4/auto", "4/semi", "6/auto", "6/semi", "7/auto", "7/semi", "8/auto", "8/semi", "9/auto", "9/semi"], "12 new invoices: 3, 4, 6, 7, 8 and 9 stops, automatic and semi-automatic");
   equal(INITIAL_SETTINGS.stops, 5, "Default is the fully specified 5-stop list");
-  equal(products.length, 76, "75 products plus placeholder");
+  equal(products.length, 84, "83 products plus placeholder");
   equal(new Set(products.map((p) => p.id)).size, products.length, "No duplicate catalog IDs");
   const railDemoPrice = { T5: 1000, T9: 2000, T16: 3000 };
   for (const product of products) equal(product.price, product.rail ? railDemoPrice[product.rail.type] : DEMO_BASE_PRICE, `${product.id}: demo base price (rail parts: one distinct price per type)`);
@@ -68,7 +70,7 @@ async function run() {
     equal(product.unit, record.unit, `${record.id}: workbook unit`);
     equal(product.workbookRow, record.masterRow, `${record.id}: row provenance`);
     for (const stops of WORKBOOK_STOPS) {
-      const row = calculateRow(product, { ...INITIAL_SETTINGS, stops });
+      const row = calculateRow(product, { ...INITIAL_SETTINGS, stops }, resolveWorkbookQuantity(product, stops));
       const expected = record.quantities[String(stops)];
       equal(row.quantity, expected, `${record.id}/${stops}: exact lookup`);
       equal(row.total, expected === null ? null : expected * 1000, `${record.id}/${stops}: E * G`);
@@ -89,11 +91,14 @@ async function run() {
   // 2. Package membership: the newest client lists (17784 / 19381) fix the row set AND the exact row order.
   const retired = new Set(membership.retired);
   // Older invoices are evidence of the family sets only: P-SEMI-CAM is retired, and the client wants the all-steel cabin last in EVERY package.
-  const adapt = (ids, capacity = "4-6") => [...ids.filter((id) => !retired.has(id)).map((id) => (capacity === "8" ? membership.capacity8Substitutions[id] ?? id : id)), ...membership.closing.filter((id) => !ids.includes(id))];
+  // The all-steel cabin closes only the four packages that contain the startup list (client message 1405/08/12).
+  const CABIN_PACKS = new Set(["mech-auto", "mech-semi", "full-auto", "full-semi"]);
+  const config = (capacity = "4-6", stops = 5, railTypes = DEFAULT_RAIL_SELECTION) => ({ capacity, stops, railTypes });
+  const adapt = (ids, capacity = "4-6", packageId = "full-auto") => [...ids.filter((id) => !retired.has(id) && (CABIN_PACKS.has(packageId) || !membership.closing.includes(id))).map((id) => (capacity === "8" ? membership.capacity8Substitutions[id] ?? id : id)), ...(CABIN_PACKS.has(packageId) ? membership.closing.filter((id) => !ids.includes(id)) : [])];
   for (const invoice of invoices) {
     const capacity = invoice.capacity || "4-6";
-    const expected = adapt(invoice.rows.map((row) => row.productId), capacity).sort();
-    equal(getPackageProductIds(invoice.packageId, capacity).sort(), expected, `Invoice ${invoice.invoiceNumber}: family membership`);
+    const expected = adapt(invoice.rows.map((row) => row.productId), capacity, invoice.packageId).sort();
+    equal(getPackageProductIds(invoice.packageId, config(capacity)).sort(), expected, `Invoice ${invoice.invoiceNumber}: family membership`);
     for (const row of invoice.rows) equal(byId.has(row.productId) || retired.has(row.productId), true, `Invoice ${invoice.invoiceNumber}/${row.row}: mapped product exists`);
   }
   for (const number of ["17784", "19381"]) {
@@ -102,33 +107,61 @@ async function run() {
       if (/^P-(MOTOR|CONTROL)/.test(row.productId)) continue; // brand-dependent names
       equal(byId.get(row.productId).name, row.printedName, `Invoice ${number}/${row.row}: catalog name is the printed name`);
     }
-    equal(getPackageProductIds(invoice.packageId, "4-6"), adapt(invoice.rows.map((r) => r.productId)), `Invoice ${number}: exact row order`);
+    equal(getPackageProductIds(invoice.packageId, config()), adapt(invoice.rows.map((r) => r.productId), "4-6", invoice.packageId), `Invoice ${number}: exact row order`);
   }
   for (const id of retired) equal(byId.has(id), false, `${id}: retired product is not in the catalog`);
   const fullAuto = invoices.find((i) => i.invoiceNumber === "17784");
-  equal(getPackageProductIds("rail", "4-6"), fullAuto.rows.slice(48).map((r) => r.productId), "Rail-only extracted from full-auto appendix");
-  const semiIds = getPackageProductIds("semi", "4-6");
+  equal(getPackageProductIds("rail", config()), fullAuto.rows.slice(48, -1).map((r) => r.productId), "Rail-only is the rail block of the full-auto list (no cabin)");
+  const semiIds = getPackageProductIds("semi", config());
   equal(semiIds.indexOf("P-MOTOR-6.1") > semiIds.indexOf("P-SEMI-DOOR") && semiIds.indexOf("P-MOTOR-6.1") < semiIds.indexOf("P-SEMI-DICTATOR"), true, "Semi: motor and controller sit between the doors and the dictator");
   equal(semiIds.slice(2, 5), ["R030", "R031", "R032"], "Semi wiring order");
-  equal(getPackageProductIds("auto", "4-6").slice(2, 5), ["R031", "R032", "R030"], "Automatic wiring order");
+  equal(getPackageProductIds("auto", config()).slice(2, 5), ["R031", "R032", "R030"], "Automatic wiring order");
   equal(semiIds.includes("P-SEMI-CAM"), false, "No mechanical cam in the newest semi list");
-  const counts = { rail: 10, mechanic: 12, auto: 38, semi: 41, "mech-auto": 49, "mech-semi": 52, "full-auto": 58, "full-semi": 61 };
-  const missing = { rail: 9, mechanic: 0, auto: 3, semi: 6, "mech-auto": 3, "mech-semi": 6, "full-auto": 12, "full-semi": 15 }; // 6-8 stops; 5 stops has none
+  // Printed quantity of every standard row ("slot") of the 14 client lists: 5 stops (17784 / 19381) and the 12 new invoices.
+  const slotName = (productId) => {
+    const part = /^P-(RAIL|BRACKET|CLIP)-T(5|9)$/.exec(productId);
+    if (part) return `RAIL:T${part[2]}:${{ RAIL: "rail", BRACKET: "bracket", CLIP: "clip" }[part[1]]}`;
+    if (productId.startsWith("P-MOTOR")) return "MOTOR";
+    if (productId.startsWith("P-CONTROL")) return "CONTROL";
+    return productId === "P-STEEL-CABIN" ? "CABIN" : productId;
+  };
+  const printedSlots = (stops, family) => stops === 5
+    ? Object.fromEntries(invoices.find((i) => i.invoiceNumber === (family === "semi" ? "19381" : "17784")).rows.map((r) => [slotName(r.productId), r.printedQuantity]))
+    : Object.fromEntries(stopInvoices.find((i) => i.stops === stops && i.family === family).rows.map((r) => [r.slot, r.printedQuantity]));
+  const standardRow = Object.fromEntries(Object.entries(membership.stopVariants).flatMap(([row, variants]) => variants.map((id) => [id, row])));
+  // Client rules by capacity (1405/08/12): rope 10 is 4 x (8 persons: 5 x) the number in its description; fixed counts for three mechanic rows.
+  const ROPE_LENGTH = { 3: 14, 4: 18, 5: 21, 6: 24, 7: 28, 8: 32, 9: 35 };
+  const CAPACITY_COUNTS = { "4-6": { M009: 8, M006: 24, M011: 780 }, "8": { M009: 10, M006: 32, M011: 1000, "P-PULLEY-40X5": 1 } };
+  /** Independent expectation of one quantity: printed list + client rules. */
+  const expectedQuantity = (stops, family, capacity, product) => {
+    const printed = printedSlots(stops, family);
+    if (product.rail) return printed[`RAIL:${product.rail.type === "T16" ? "T9" : product.rail.type}:${product.rail.kind}`];
+    if (product.id === "M001") return (capacity === "8" ? 5 : 4) * ROPE_LENGTH[stops];
+    const fixed = CAPACITY_COUNTS[capacity][product.id];
+    if (fixed !== undefined) return fixed;
+    const slot = slotName(standardRow[product.id] ?? product.id);
+    return ["CABIN", "MOTOR", "CONTROL"].includes(slot) ? 1 : printed[slot];
+  };
   const constantOne = new Set(["P-STEEL-CABIN", "P-MOTOR-6.1", "P-MOTOR-7.3", "P-CONTROL-7.5", "P-CONTROL-11", "P-EARTH-WIRE", "P-SEMI-CABIN-DOOR", "P-PULLEY-40X5"]);
-  const printedBy = (number) => Object.fromEntries(invoices.find((i) => i.invoiceNumber === number).rows.map((r) => [r.productId, r.printedQuantity]));
-  const printedAlias = { "P-MOTOR-7.3": "P-MOTOR-6.1", "P-CONTROL-11": "P-CONTROL-7.5", "P-PULLEY-40X5": "M008" };
+  const counts = { rail: 9, mechanic: 11, auto: 37, semi: 40, "mech-auto": 49, "mech-semi": 52, "full-auto": 58, "full-semi": 61 };
   const motorBrands = ["\u0628\u0647\u0631\u0627\u0646", "\u0627\u0644\u06a9\u0648", "ABB"];
   const controlBrands = ["\u062f\u0627\u062a\u06cc\u0633", "\u067e\u0627\u06cc\u0627", "\u0622\u0631\u06cc\u0627\u0646"];
   let combinations = 0;
   for (const { value: pack } of PACKAGE_OPTIONS) for (const stops of SUPPORTED_STOPS) for (const capacity of ["4-6", "8"]) for (const motor of ["gearbox", "gearless"]) {
     combinations += 1;
+    const family = pack.includes("semi") ? "semi" : "auto";
     const settings = { ...INITIAL_SETTINGS, pack, stops, capacity, motor };
     const quote = buildQuote(products, settings);
-    equal(quote.rows.length, counts[pack], `${pack}: exact row count`);
-    equal(new Set(quote.rows.map((r) => r.product.id)).size, counts[pack], `${pack}: no duplicate invoice row`);
-    equal(quote.incompleteRows.length, stops === 5 ? 0 : missing[pack], `${pack}/${stops}: no blank at 5 stops; only unknown quantities stay blank at 6-8`);
-    equal(quote.rows.at(-1).product.id, "P-STEEL-CABIN", `${pack}: all-steel cabin is the last row`);
-    equal(quote.rows.at(-1).quantity, 1, `${pack}: one all-steel cabin`);
+    // Rows the printed list of this stop count does not contain (for example screws-and-plugs in 6-stop list 15587) are not part of the package.
+    const printed = printedSlots(stops, family);
+    const absent = getPackageProductIds(pack, config(capacity, 5)).filter((id) => !/^P-(RAIL|BRACKET|CLIP)-/.test(id) && id !== "P-STEEL-CABIN" && printed[slotName(standardRow[id] ?? id)] === undefined && !(id in CAPACITY_COUNTS[capacity]) && id !== "M001" && !/^P-(MOTOR|CONTROL)/.test(id) && id !== "P-PULLEY-40X5");
+    equal(quote.rows.length, counts[pack] - absent.length, `${pack}/${stops}: exact row count`);
+    equal(new Set(quote.rows.map((r) => r.product.id)).size, quote.rows.length, `${pack}/${stops}: no duplicate invoice row`);
+    equal(quote.incompleteRows.length, 0, `${pack}/${stops}: nothing blank at any stop count`);
+    if (CABIN_PACKS.has(pack)) {
+      equal(quote.rows.at(-1).product.id, "P-STEEL-CABIN", `${pack}: all-steel cabin is the last row`);
+      equal(quote.rows.at(-1).quantity, 1, `${pack}: one all-steel cabin`);
+    } else equal(quote.rows.some((r) => r.product.id === "P-STEEL-CABIN"), false, `${pack}: no all-steel cabin in this package`);
     const motors = quote.rows.filter((r) => r.product.group === "motor");
     equal(motors.length, ["rail", "mechanic"].includes(pack) ? 0 : 1, `${pack}: motor only belongs to startup`);
     if (motors.length) {
@@ -138,27 +171,19 @@ async function run() {
       equal(control.product.powerKw, capacity === "8" ? 11 : 7.5, "Client controller rule: 7.5 kW for 4-6 persons, 11 kW for 8");
       equal(control.product.brands, controlBrands, "Controller brands: Datis, Paya, Aryan");
     }
-    const printed = printedBy(pack.includes("semi") || pack === "semi" ? "19381" : "17784");
     let expectedTotal = 0;
     for (const row of quote.rows) {
-      const id = row.product.id;
-      const record = sourceById.get(id);
-      let expectedQuantity;
-      if (stops === 5) {
-        const overrides = capacity === "8" ? { M001: 105, M009: 12, M006: 32, M011: 1000 } : {};
-        expectedQuantity = overrides[id] ?? (id === "P-PULLEY-40X5" ? 1 : printed[printedAlias[id] ?? id] ?? (id === "P-STEEL-CABIN" ? 1 : undefined));
-        equal(expectedQuantity !== undefined, true, `${pack}/${id}: 5-stop quantity exists in the invoice`);
-      } else {
-        expectedQuantity = record ? record.quantities[String(stops)] : constantOne.has(id) ? 1 : null;
-      }
-      equal(row.quantity, expectedQuantity, `${pack}/${stops}/${capacity}/${id}: quantity`);
-      if (expectedQuantity !== null) expectedTotal += expectedQuantity * row.unitPrice;
+      const expected = expectedQuantity(stops, family, capacity, row.product);
+      equal(expected !== undefined, true, `${pack}/${stops}/${row.product.id}: the printed list contains this row`);
+      equal(row.quantity, expected, `${pack}/${stops}/${capacity}/${row.product.id}: quantity`);
+      equal(row.quantitySource, "invoice", `${pack}/${stops}/${row.product.id}: quantities come from the printed invoices`);
+      expectedTotal += expected * row.unitPrice;
     }
-    equal(quote.total, expectedTotal, "Package total only sums known selected lines");
+    equal(quote.total, expectedTotal, "Package total sums every selected line");
     equal(Object.values(quote.subtotals).reduce((a, b) => a + b, 0), quote.total, "Category totals reconcile");
     for (const id of membership.workbookOnly) equal(quote.rows.some((r) => r.product.id === id), false, "Workbook-only items are not silently assigned to a PDF package");
   }
-  equal(combinations, 128, "8 packages x 4 stops (5-8) x 2 capacities x 2 drive types");
+  equal(combinations, 224, "8 packages x 7 stops (3-9) x 2 capacities x 2 drive types");
   for (const id of ["P-CABIN-DOOR", "P-DOOR-MOTOR", "P-RAIL-FASTEN"]) equal(byId.has(id), false, "Remove duplicate/invented legacy rows");
   equal(selectProducts(products, { ...INITIAL_SETTINGS, pack: "semi" }).some((p) => p.id === "R020"), false, "Automatic cabin door must not appear in semi package");
 
@@ -182,19 +207,19 @@ async function run() {
   const product = byId.get("M001");
   let manual = updateNumericSetting({ ...INITIAL_SETTINGS, stops: 6 }, "quantities", "M001", 3);
   equal(calculateRow(product, manual).quantity, 3, "Manual count");
-  equal(calculateRow(product, { ...manual, stops: 7 }).quantity, 108, "No leak into another stop");
-  equal(calculateRow(product, { ...manual, capacity: "8" }).quantity, 96, "No leak into another capacity");
+  equal(calculateRow(product, { ...manual, stops: 7 }).quantity, 112, "No leak into another stop");
+  equal(calculateRow(product, { ...manual, capacity: "8" }).quantity, 120, "No leak into another capacity (8 persons: 5 x 24)");
   equal(calculateRow(product, { ...manual, pack: "mechanic" }).quantity, 96, "No leak into another package");
   equal(calculateRow(product, { ...manual, motor: "gearless" }).quantity, 96, "No leak into another drive type");
-  equal(calculateRow(product, updateNumericSetting(manual, "quantities", "M001", null)).quantity, 96, "Clear override restores workbook");
+  equal(calculateRow(product, updateNumericSetting(manual, "quantities", "M001", null)).quantity, 96, "Clear override restores the printed quantity");
   equal(calculateRow(product, updateNumericSetting(manual, "quantities", "M001", 0)).total, 0, "Manual zero");
   equal(calculateRow(product, { ...manual, excluded: ["M001"] }).total, null, "Excluded line not charged");
-  for (const stops of [1, 2, 3, 4, 9, 13]) equal(calculateRow(product, { ...INITIAL_SETTINGS, stops }).quantity, null, "Never extrapolate unsupported stops");
+  for (const stops of [1, 2, 10, 11, 12, 13]) equal(calculateRow(product, { ...INITIAL_SETTINGS, stops }).quantity, null, "Never extrapolate unsupported stops");
   const legacy = { pack: "mechanic", stops: 7, capacity: "4-6", motor: "gearbox", prices: { M001: 5555 }, quantities: { M001: 23 }, rate: 0 };
   const migrated = parseSettings(legacy);
   equal(migrated.prices.M001, 5555, "Preserve customized master prices");
   equal(Object.keys(migrated.quantities).length, 0, "Old hand-typed counts are dropped: counts are read-only now");
-  equal(calculateRow(product, migrated).quantity, 108, "Quantity comes from the Excel table, not a hidden number");
+  equal(calculateRow(product, migrated).quantity, 112, "Quantity comes from the printed 7-stop list (4 x 28), not a hidden number");
   equal(parseSettings(migrated), migrated, "Idempotent schema migration");
   const five = parseSettings({ ...legacy, stops: 5 });
   equal(five.stops, 5, "5 stops are supported");
@@ -214,8 +239,8 @@ async function run() {
   });
 
   const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack: "mechanic", stops: 6 });
-  equal(quote.total, 209000, "Mechanic package: 208,000 known lines + one all-steel cabin at the demo price");
-  equal(quote.subtotals.cabin, 1000, "Cabin has its own category subtotal");
+  equal(quote.total, 976000, "Mechanic package at 6 stops: 976 units at the demo price, no cabin");
+  equal(quote.subtotals.cabin, 0, "The mechanic package has no all-steel cabin");
   equal(parseNumericInput("\u06f1\u06f2\u06f3\u066c\u06f4\u06f5\u06f6\u066b\u06f5"), 123456.5, "Persian numeric input");
   equal(parseNumericInput("\u0661\u0662\u0663"), 123, "Arabic numeric input");
   equal(parseNumericInput(""), null, "Empty number");
@@ -253,12 +278,12 @@ async function run() {
   equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, stops: 6, prices: brandPrices, brands: { M001: "B" } }).total, 96 * 5000, "Quantity x price of the chosen brand");
   equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, stops: 6, prices: brandPrices }).total, 96 * 4000, "First brand is the default");
   equal(calculateRow(byId.get("M003"), { ...INITIAL_SETTINGS, prices: { "M003::\u0627\u0644\u0645\u067e\u06cc\u06a9": 1 } }).unitPrice, 1000, "Single-model products ignore brand price keys");
-  equal(products.filter((p) => p.source !== "excel" && Object.keys(p.quantities).length).map((p) => p.id).sort(), [...constantOne].sort(), "Only one-per-elevator items have a fixed non-workbook quantity at 6-8 stops");
+  equal(products.filter((p) => p.source !== "excel" && Object.keys(p.quantities).length).map((p) => p.id).sort(), [...constantOne].sort(), "Only one-per-elevator items keep a catalog quantity next to the printed lists");
   const steel = byId.get("P-STEEL-CABIN");
   for (const stops of SUPPORTED_STOPS) {
     const row = calculateRow(steel, { ...INITIAL_SETTINGS, stops });
     equal([row.quantity, row.total], [1, 1000], `Steel cabin ${stops}`);
-    equal(row.quantitySource, stops === 5 ? "invoice" : "catalog", "Steel cabin source");
+    equal(row.quantitySource, "invoice", "Steel cabin source");
     equal(row.quantityReference.includes("\u062a\u0639\u062f\u0627\u062f_\u062a\u0648\u0642\u0641"), false, "Steel cabin never claims a worksheet cell");
   }
   equal(INITIAL_SETTINGS.customerPhone, "", "Customer phone defaults to empty");
@@ -280,15 +305,15 @@ async function run() {
     equal(rows5.every((r) => r.quantity !== null), true, `${pack}: all 5-stop quantities present`);
   }
   const railRows = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", stops: 5 }).rows;
-  equal(railRows.map((r) => r.quantity), [7, 7, 22, 22, 44, 44, 105, 50, 60, 1], "Rail package at 5 stops");
+  equal(railRows.map((r) => r.quantity), [7, 7, 22, 22, 44, 44, 105, 50, 60], "Rail package at 5 stops (no cabin)");
   const mech = (capacity, stops = 5) => Object.fromEntries(buildQuote(products, { ...INITIAL_SETTINGS, pack: "mechanic", stops, capacity }).rows.map((r) => [r.product.id, r.quantity]));
   equal([mech("4-6").M001, mech("4-6").M009, mech("4-6").M006, mech("4-6").M011, mech("4-6").M008], [84, 8, 24, 780, 1], "4-6 persons mechanic at 5 stops");
   const m8 = mech("8");
-  equal([m8.M001, m8.M009, m8.M006, m8.M011, m8["P-PULLEY-40X5"], m8.M008], [105, 12, 32, 1000, 1, undefined], "8 persons mechanic at 5 stops: 40x5 pulley replaces 40x4");
+  equal([m8.M001, m8.M009, m8.M006, m8.M011, m8["P-PULLEY-40X5"], m8.M008], [105, 10, 32, 1000, 1, undefined], "8 persons mechanic at 5 stops: 40x5 pulley replaces 40x4");
   equal(m8.M002, mech("4-6").M002, "Items the client did not change keep the list quantity");
-  equal(mech("8", 6).M001, 96, "The 8-person counts belong to the 5-stop list; 6-8 stops keep the Excel counts");
-  equal(getPackageProductIds("mechanic", "8").includes("M008"), false, "8 persons: no 40x4 pulley");
-  equal(getPackageProductIds("mechanic", "4-6").includes("P-PULLEY-40X5"), false, "4-6 persons: no 40x5 pulley");
+  equal(mech("8", 6).M001, 120, "8 persons: 5 x the rope length of every stop count (6 stops: 5 x 24)");
+  equal(getPackageProductIds("mechanic", config("8")).includes("M008"), false, "8 persons: no 40x4 pulley");
+  equal(getPackageProductIds("mechanic", config()).includes("P-PULLEY-40X5"), false, "4-6 persons: no 40x5 pulley");
   const semi5 = buildQuote(products, { ...INITIAL_SETTINGS, pack: "semi", stops: 5 }).rows.find((r) => r.product.id === "R029");
   const auto5 = buildQuote(products, { ...INITIAL_SETTINGS, pack: "auto", stops: 5 }).rows.find((r) => r.product.id === "R029");
   equal([semi5.quantity, auto5.quantity], [27, 30], "Travelling cable differs between the semi (27) and automatic (30) lists");
@@ -322,12 +347,12 @@ async function run() {
       const ids = quote.rows.map((r) => r.product.id);
       equal(new Set(ids).size, ids.length, `${pack}/${a}/${b}: no duplicate row`);
       equal(quote.incompleteRows.length, 0, `${pack}/${a}/${b}: nothing blank at 5 stops`);
-      equal(ids.at(-1), "P-STEEL-CABIN", "Steel cabin stays last");
+      equal(ids.at(-1) === "P-STEEL-CABIN", pack !== "rail", "Steel cabin stays last where the package has it");
       const start = ids.indexOf(`P-RAIL-${a}`);
       equal(ids.slice(start, start + 6), getRailProductIds(pair), `${pack}/${a}/${b}: rail block order`);
       const bolts = ids.filter((id) => id.startsWith("P-RAIL-BOLT"));
       equal(bolts, merged ? ["P-RAIL-BOLT12"] : ["P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8"], `${pack}/${a}/${b}: rail bolts`);
-      equal(ids.at(-2 - bolts.length), `P-CLIP-${b}`, "Bolts come right after the clips and before the steel cabin");
+      equal(ids.at(pack === "rail" ? -1 - bolts.length : -2 - bolts.length), `P-CLIP-${b}`, "Bolts come right after the clips (and before the steel cabin when there is one)");
       const family = pack === "full-semi" ? "semi" : "auto";
       const kinds = family === "semi" ? { rail: 7, bracket: 24, clip: 48 } : { rail: 7, bracket: 22, clip: 44 };
       const bolt = family === "semi" ? [104, 50, 56] : [105, 50, 60];
@@ -338,12 +363,46 @@ async function run() {
     }
   }
   const mergedSix = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T9", "T16"], stops: 6 });
-  equal(mergedSix.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, null, "Unknown 6-stop bolt counts are not summed into a fake number");
+  equal(mergedSix.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, 132 + 60 + 72, "6 stops: the merged bolt 12 is the sum of the printed 132 + 60 + 72");
+  const mergedNine = buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-semi", railTypes: ["T16", "T9"], stops: 9 });
+  equal(mergedNine.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, 200 + 80 + 104, "9 stops: 200 + 80 + 104");
+  const threeStops = (railTypes) => Object.fromEntries(buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes, stops: 3 }).rows.map((r) => [r.product.id, r.quantity]));
+  equal([threeStops(["T5", "T9"])["P-RAIL-T5"], threeStops(["T5", "T9"])["P-RAIL-T9"]], [8, 5], "3 stops automatic: the printed rail counts differ per type (T5 8, T9 5)");
+  equal(threeStops(["T16", "T5"])["P-RAIL-T16"], 5, "T16 follows the T9 count until the client gives its own");
   const priced = { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T16", "T5"], stops: 5, prices: { "P-RAIL-T16": 111, "P-BRACKET-T16": 22, "P-CLIP-T16": 3 } };
   const pricedRows = Object.fromEntries(buildQuote(products, priced).rows.map((r) => [r.product.id, r.unitPrice]));
   equal([pricedRows["P-RAIL-T16"], pricedRows["P-BRACKET-T16"], pricedRows["P-CLIP-T16"], pricedRows["P-RAIL-T5"]], [111, 22, 3, 1000], "Each rail part has its own editable master price");
   equal(parseSettings({ ...legacy, railTypes: ["T16", "T9"] }).railTypes, ["T16", "T9"], "Rail choice is saved");
   equal(parseSettings({ ...legacy, railTypes: ["T9", "T9"] }).railTypes, ["T5", "T9"], "Saved duplicate rails are repaired");
+
+  // 4e. The 12 new invoices (3, 4, 6, 7, 8, 9 stops): row set and quantities of the full packages equal the printed rows.
+  // Only the client's capacity rules (rope 10, serbokosl, krapi 10, weight) may differ from a printed value.
+  const RULE_SLOTS = new Set(["M001", "M009", "M006", "M011"]);
+  const IGNORED_SLOTS = new Set(["CAM", "MDF"]); // retired mechanical cam, MDF cabin (replaced by the all-steel cabin)
+  const printedCounts = { "15675": { M001: 175 } }; // a 4-6 person list that already prints 5 x 35 for rope 10
+  for (const invoice of stopInvoices) {
+    const pack = invoice.family === "semi" ? "full-semi" : "full-auto";
+    const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack, stops: invoice.stops, capacity: invoice.capacity });
+    const engine = new Map(quote.rows.map((r) => [r.product.id === "P-PULLEY-40X5" ? "M008" : slotName(standardRow[r.product.id] ?? r.product.id), r]));
+    const printedRows = invoice.rows.filter((r) => !IGNORED_SLOTS.has(r.slot));
+    equal([...engine.keys()].sort(), [...new Set([...printedRows.map((r) => r.slot), "CABIN"])].sort(), `${invoice.invoiceNumber}: the package has exactly the printed rows (plus the all-steel cabin)`);
+    for (const printedRow of printedRows) {
+      if (["MOTOR", "CONTROL", "CABIN"].includes(printedRow.slot)) continue;
+      const row = engine.get(printedRow.slot);
+      const printed = printedRow.printedQuantity;
+      if (RULE_SLOTS.has(printedRow.slot) && row.quantity !== printed) {
+        equal(printedRow.slot !== "M001" || invoice.invoiceNumber in printedCounts, true, `${invoice.invoiceNumber}/${printedRow.slot}: only a client rule may replace a printed count`);
+        continue;
+      }
+      equal(row.quantity, printed, `${invoice.invoiceNumber}/${printedRow.slot}: printed ${printedRow.printedName}`);
+    }
+    equal(engine.get("CABIN").quantity, 1, `${invoice.invoiceNumber}: one all-steel cabin`);
+    equal(quote.rows.find((r) => r.product.id === "R022" || r.product.id.startsWith("P-CAB-BTN")).product.name.includes(`${invoice.stops} توقف`), true, `${invoice.invoiceNumber}: the cabin button is the one of this stop count`);
+  }
+  equal(printedCounts["15675"].M001, 5 * 35, "The 9-stop semi list prints 5 x 35");
+  const nine = (family) => buildQuote(products, { ...INITIAL_SETTINGS, pack: family === "semi" ? "full-semi" : "full-auto", stops: 9 }).rows.map((r) => r.product.name);
+  equal([nine("auto").includes("شستی طبقه آذرتابش پلکسی طلایی نور آبی"), nine("semi").includes("شستی طبقه آذرتابش پلکسی طلایی نور قرمز")], [true, true], "9 stops: gold floor buttons (blue light automatic, red light semi-automatic)");
+  equal(nine("auto").includes("شستی کابین آذرتابش 9 توقف دومتری طلایی"), true, "9 stops: gold two-metre cabin button");
 
   // 5. Real persistence functions, with mocked storage/IPC (not a native Rust test).
   const values = new Map();
@@ -366,7 +425,7 @@ async function run() {
   await persistence.saveQuote(settingsWithBrand, brandQuote);
   const payload = JSON.parse(global.__calls.at(-1).args.payload);
   equal(payload.rows.find((p) => p.id === "P-MOTOR-6.1").brand, "ABB", "Selected brand stored with quote snapshot");
-  equal(payload.rows.find((p) => p.id === "M001").quantitySource, "workbook", "Quantity provenance stored with quote");
+  equal(payload.rows.find((p) => p.id === "M001").quantitySource, "invoice", "Quantity provenance stored with quote");
 
   console.log(`PASS: ${assertions} assertions; ${combinations} configurations; 248 source formulas; 364 PDF row mappings.`);
   console.log("Test scope: pricing, source tables, BOM families, state migrations, mocked persistence. Native Windows/PDF rendering not tested here.");

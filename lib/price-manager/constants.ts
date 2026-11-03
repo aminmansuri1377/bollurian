@@ -8,8 +8,8 @@ export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
   { value: "semi", label: "راه‌اندازی نیمه اتومات" },
   { value: "mech-auto", label: "مکانیک و راه‌اندازی تمام اتومات" },
   { value: "mech-semi", label: "مکانیک و راه‌اندازی نیمه اتومات" },
-  { value: "full-auto", label: "ریل، مکانیک و راه‌اندازی تمام اتومات" },
-  { value: "full-semi", label: "ریل، مکانیک و راه‌اندازی نیمه اتومات" },
+  { value: "full-auto", label: "صفر تا صد تمام اتومات" },
+  { value: "full-semi", label: "صفر تا صد نیمه اتومات" },
 ];
 
 export const GROUP_LABELS: Record<ProductGroup, string> = {
@@ -22,8 +22,9 @@ export const GROUP_LABELS: Record<ProductGroup, string> = {
   cabin: "کابین",
 };
 
-/** 5 stops come from the client's 5-stop invoices; 6, 7 and 8 stops come from the Excel stop table. */
-export const SUPPORTED_STOPS: readonly SupportedStop[] = [5, 6, 7, 8];
+/** Every stop count has the client's printed "صفر تا صد" invoices (automatic and semi-automatic). */
+export const SUPPORTED_STOPS: readonly SupportedStop[] = [3, 4, 5, 6, 7, 8, 9];
+/** The Excel stop table only has these three columns; it is kept as evidence and for the workbook comparison. */
 export const WORKBOOK_STOPS: readonly SupportedStop[] = [6, 7, 8];
 export const DEMO_BASE_PRICE = 1000;
 

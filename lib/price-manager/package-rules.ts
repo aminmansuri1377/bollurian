@@ -1,17 +1,26 @@
 import membership from "../../data/reference/package-membership.json";
-import { DEFAULT_RAIL_SELECTION, getRailProductIds, shouldMergeRailBolts } from "./rail-rules";
-import type { Capacity, PackageId, Product, RailSelection } from "./types";
+import { getRailProductIds, shouldMergeRailBolts } from "./rail-rules";
+import { getStopList, isListed, resolveVariant, type StartupFamily } from "./stop-lists";
+import type { Capacity, PackageId, Product, QuoteSettings } from "./types";
+
+interface PackageParts {
+  mechanic: boolean;
+  rail: boolean;
+  startup: StartupFamily | null;
+  /** The all-steel cabin closes only the four packages that contain the startup list. */
+  cabin: boolean;
+}
 
 /** Exact equipment-family membership from the invoice row audits (newest client lists take precedence). */
-const PACKAGE_PARTS: Record<PackageId, { mechanic: boolean; rail: boolean; startup: "auto" | "semi" | null }> = {
-  rail: { mechanic: false, rail: true, startup: null },
-  mechanic: { mechanic: true, rail: false, startup: null },
-  auto: { mechanic: false, rail: false, startup: "auto" },
-  semi: { mechanic: false, rail: false, startup: "semi" },
-  "mech-auto": { mechanic: true, rail: false, startup: "auto" },
-  "mech-semi": { mechanic: true, rail: false, startup: "semi" },
-  "full-auto": { mechanic: true, rail: true, startup: "auto" },
-  "full-semi": { mechanic: true, rail: true, startup: "semi" },
+const PACKAGE_PARTS: Record<PackageId, PackageParts> = {
+  rail: { mechanic: false, rail: true, startup: null, cabin: false },
+  mechanic: { mechanic: true, rail: false, startup: null, cabin: false },
+  auto: { mechanic: false, rail: false, startup: "auto", cabin: false },
+  semi: { mechanic: false, rail: false, startup: "semi", cabin: false },
+  "mech-auto": { mechanic: true, rail: false, startup: "auto", cabin: true },
+  "mech-semi": { mechanic: true, rail: false, startup: "semi", cabin: true },
+  "full-auto": { mechanic: true, rail: true, startup: "auto", cabin: true },
+  "full-semi": { mechanic: true, rail: true, startup: "semi", cabin: true },
 };
 
 /** Client rule: 4-6 persons use a 6.1 kW motor, 8 persons a 7.3 kW motor (brands Behran, Elco, ABB). */
@@ -30,22 +39,26 @@ export function matchesCapacity(product: Product, capacity: Capacity): boolean {
 }
 
 /** The startup family that decides which invoice a quantity comes from; packages without startup use the automatic list. */
-export function getStartupFamily(packageId: PackageId): "auto" | "semi" {
+export function getStartupFamily(packageId: PackageId): StartupFamily {
   return PACKAGE_PARTS[packageId].startup ?? "auto";
 }
 
-/**
- * Row order follows the client's newest invoices (17784 automatic, 19381 semi-automatic):
- * mechanic, startup, doors / motor / controller, rail, and the all-steel cabin LAST in every package.
- */
 export function hasRail(packageId: PackageId): boolean {
   return PACKAGE_PARTS[packageId].rail;
 }
 
-export function getPackageProductIds(packageId: PackageId, capacity: Capacity, railTypes: RailSelection = DEFAULT_RAIL_SELECTION): string[] {
+type PackageConfig = Pick<QuoteSettings, "capacity" | "railTypes" | "stops">;
+
+/**
+ * Row order follows the client's newest invoices (17784 automatic, 19381 semi-automatic):
+ * mechanic, startup, doors / motor / controller, rail, and the all-steel cabin LAST in the four packages that have it.
+ * The printed list of the chosen stop count decides which standard rows exist and which variant (cabin button) is used.
+ */
+export function getPackageProductIds(packageId: PackageId, { capacity, railTypes, stops }: PackageConfig): string[] {
   const parts = PACKAGE_PARTS[packageId];
-  const ids: string[] = [];
+  const list = getStopList(stops, getStartupFamily(packageId));
   const substitutions: Record<string, string> = capacity === "8" ? membership.capacity8Substitutions : {};
+  const ids: string[] = [];
   if (parts.mechanic) ids.push(...membership.mechanic.map((id) => substitutions[id] ?? id));
   if (parts.startup) {
     const motorAndController = [`P-MOTOR-${requiredMotorPower(capacity)}`, `P-CONTROL-${requiredControllerPower(capacity)}`];
@@ -53,14 +66,15 @@ export function getPackageProductIds(packageId: PackageId, capacity: Capacity, r
     if (parts.startup === "auto") ids.push(...membership.autoDoors, ...motorAndController);
     else ids.push(...membership.semiDoors, ...motorAndController, ...membership.semiTail);
   }
+  const listed = list ? ids.filter((id) => isListed(list, id)).map((id) => resolveVariant(list, id)) : ids;
   if (parts.rail) {
     // Rails, brackets and clips follow the two chosen rail types. T9 + T16 turn every rail bolt into a bolt 12.
-    ids.push(...getRailProductIds(railTypes));
+    listed.push(...getRailProductIds(railTypes));
     // Do not merge rail bolts with startup bolts: PDFs contain BOTH rows.
-    ids.push(...(shouldMergeRailBolts(railTypes) ? membership.railBolts.slice(0, 1) : membership.railBolts));
+    listed.push(...(shouldMergeRailBolts(railTypes) ? membership.railBolts.slice(0, 1) : membership.railBolts));
   }
-  ids.push(...membership.closing);
-  return ids;
+  if (parts.cabin) listed.push(...membership.closing);
+  return listed;
 }
 
 export const WORKBOOK_ONLY_PRODUCT_IDS: readonly string[] = membership.workbookOnly;

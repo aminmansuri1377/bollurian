@@ -39,7 +39,7 @@ export function parseSettings(value: unknown): QuoteSettings {
       : {},
     excluded: Array.isArray(value.excluded) ? value.excluded.filter((id): id is string => typeof id === "string") : [],
   };
-  // Counts are read-only now (5 stops: client invoices, 6-8 stops: Excel). Old hand-typed counts are dropped so a hidden number can never change a quote.
+  // Counts are read-only now (printed client invoices). Old hand-typed counts are dropped so a hidden number can never change a quote.
   return settings;
 }
 

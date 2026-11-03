@@ -2,14 +2,14 @@ import { resolveBrand } from "./brand-rules";
 import { OMITTED_PRODUCT_ID } from "./constants";
 import { getMasterPrice } from "./master-price";
 import { getPackageProductIds } from "./package-rules";
-import { resolveQuantity } from "./quantity-rules";
+import { resolveQuantity, resolveWorkbookQuantity, type ResolvedQuantity } from "./quantity-rules";
 import type { Product, QuoteRow, QuoteSettings, QuoteSummary, TotalCategory } from "./types";
 
 export { matchesCapacity } from "./package-rules";
 
 export function selectProducts(products: Product[], settings: QuoteSettings): Product[] {
   const byId = new Map(products.map((product) => [product.id, product]));
-  return getPackageProductIds(settings.pack, settings.capacity, settings.railTypes)
+  return getPackageProductIds(settings.pack, settings)
     .map((id) => byId.get(id))
     .filter((product): product is Product => !!product && product.id !== OMITTED_PRODUCT_ID);
 }
@@ -22,8 +22,7 @@ export function calculateLineTotal(quantity: number | null, unitPrice: number | 
   return Number.isFinite(result) ? result : null;
 }
 
-export function calculateRow(product: Product, settings: QuoteSettings): QuoteRow {
-  const quantity = resolveQuantity(product, settings);
+export function calculateRow(product: Product, settings: QuoteSettings, quantity: ResolvedQuantity = resolveQuantity(product, settings)): QuoteRow {
   // The brand decides the master price: every selectable brand has its own price in the master list.
   const brand = resolveBrand(product, settings.brands[product.id]);
   const unitPrice = getMasterPrice(product, settings, brand);
@@ -71,5 +70,5 @@ export function buildQuote(products: Product[], settings: QuoteSettings): QuoteS
 /** A worksheet comparison includes ALL 48 real workbook rows, not a PDF package. */
 export function buildWorkbookComparison(products: Product[], settings: QuoteSettings): QuoteSummary {
   const workbookRows = products.filter((product) => product.source === "excel" && product.id !== OMITTED_PRODUCT_ID);
-  return summarizeRows(workbookRows.map((product) => calculateRow(product, { ...settings, excluded: [], quantities: {} })));
+  return summarizeRows(workbookRows.map((product) => calculateRow(product, { ...settings, excluded: [] }, resolveWorkbookQuantity(product, settings.stops))));
 }

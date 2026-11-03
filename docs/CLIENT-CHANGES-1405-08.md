@@ -1,4 +1,4 @@
-# Client changes, 1405/08 (revisions 1 to 3)
+# Client changes, 1405/08 (revisions 1 to 4)
 
 Base commit: `2e2a1fb` (`fix pdf export`). Pricing formulas are unchanged
 (`quantity x master price`); no package-price or passenger multiplier was added.
@@ -82,6 +82,30 @@ full automatic 58, full semi 61.
   semi 7 / 24 / 48. T16 uses the same per-kind counts as T5 and T9 (assumption: the invoices only show two types).
 * Code: `lib/price-manager/rail-rules.ts` (selection, choices, merge rule), `package-rules.ts`, `quantity-rules.ts`,
   `product-brand-menu.tsx` (the menu), `product-table.tsx`, tests in `scripts/test-pricing.cjs` (section 4d).
+
+## Revision 4: stops 3 to 9, capacity 8, package names
+
+* Stop counts 3, 4, 5, 6, 7, 8, 9. Quantities of every package come from the client's printed "صفر تا صد" invoices
+  (`data/stop-quantities.json`; evidence rows of the 12 new files in `data/reference/stop-invoices.json`, 5 stops: 17784 / 19381).
+  Other packages take their rows from the same list of the same stop count (rail, mechanic and mechanic-only use the automatic list).
+  A row that a printed list does not contain is not shown (the screws-and-plugs row is not printed in 6-stop automatic list 15587).
+* Names: "ریل، مکانیک و راه‌اندازی ..." became "صفر تا صد تمام اتومات / نیمه اتومات".
+* The all-steel cabin is the last row only in: mechanic + startup (automatic / semi) and "صفر تا صد" (automatic / semi). Not in rail, mechanic, startup-only.
+* Capacity rules for every stop count (`capacityRules` in the data file):
+  rope 10 = 4 x the number in the description (24 at 6 stops gives 96); 8 persons 5 x (120). Serbokosl 10: 8 / 10. Krapi 10: 24 / 32. Weight 87+: 780 / 1000.
+  Pulley 40x4 (4-6) / 40x5 (8). Motor 6.1 / 7.3 and controller 7.5 / 11 as before. Other rows are the same for both capacities.
+* Rails: counts per type and kind for each stop count. 3 stops automatic prints T5 = 8 and T9 = 5. T16 follows T9 (assumption).
+* Products tied to the stop count: cabin button 3, 4, 6, 7, 8, 9 stops (5 = R022) and, at 9 stops, gold floor buttons
+  (blue light automatic, red light semi). Each has its own master price.
+* Not copied from the older printed lists (names differ between files, the newest 5-stop names are kept): travelling cable
+  "آسیا پلاس"/"هدسان", cable clamp "درجه 1"/"یاشار", tunnel lamp 12 W / 18 W / "راین", metal sensor, buffer "آلسن", dictator "سپاهان",
+  two-speed motor "AC1", rope "چین درجه یک", MDF cabin. The mechanical cam (older semi lists) stays retired.
+
+### Printed values that look like mistakes (followed exactly)
+* 6 stops automatic (15587): buffer 5 (others 2). 3 stops automatic (15595): duct 3 = 26 (semi 16).
+* 7 stops semi (19383): earth wire 6 (others 1). 8 stops semi (15661): floor buttons 6 (8 stops).
+* 3 stops semi (15599): the cabin button is printed "5 توقف"; the 3-stop button is used.
+* 15663 (9 stops automatic) is an 8-person list (40x5 pulley, 7.3 kW, 11 kW); 15675 (9 stops semi) prints rope 5 x 35.
 
 ## Still open
 

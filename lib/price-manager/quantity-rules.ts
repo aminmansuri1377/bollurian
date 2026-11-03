@@ -1,9 +1,10 @@
-import fiveStop from "../../data/five-stop-quantities.json";
 import membership from "../../data/reference/package-membership.json";
 import { PRODUCTS } from "./catalog";
 import { isSupportedStop } from "./constants";
+import { formatNumber } from "./format";
 import { getStartupFamily } from "./package-rules";
 import { shouldMergeRailBolts } from "./rail-rules";
+import { getListQuantity, getStopList } from "./stop-lists";
 import type { Product, QuantitySource, QuoteSettings } from "./types";
 
 type QuantityContext = Pick<QuoteSettings, "motor" | "pack" | "capacity"> & { stops: number };
@@ -37,38 +38,31 @@ export function resolveQuantity(product: Product, settings: QuoteSettings): Reso
 
 function resolveBaseQuantity(product: Product, settings: QuoteSettings): ResolvedQuantity {
   if (!isSupportedStop(settings.stops)) {
-    return { value: null, source: "missing", reference: "تعداد توقف خارج از جدول اکسل است." };
+    return { value: null, source: "missing", reference: "تعداد توقف پشتیبانی نمی‌شود." };
   }
   const manual = settings.quantities[getQuantityOverrideKey(product.id, settings)];
   if (Number.isFinite(manual) && manual >= 0) {
     return { value: manual, source: "manual", reference: "تعداد دستی مخصوص همین پکیج، ظرفیت، موتور و توقف" };
   }
-  if (settings.stops === 5) {
-    // Exact printed quantities of the client's 5-stop invoices (17784 automatic, 19381 semi-automatic).
-    const family = getStartupFamily(settings.pack);
-    const table: Record<string, number> = fiveStop.quantities[family];
-    const overrides: Record<string, number> = settings.capacity === "8" ? fiveStop.capacity8 : {};
-    // Rail, bracket and clip counts depend on the kind of part, not on the rail type (T5, T9, T16).
-    const printed = overrides[product.id] ?? (product.rail ? fiveStop.railKinds[family][product.rail.kind] : table[product.id]);
-    if (printed !== undefined) {
-      const capacityNote = overrides[product.id] !== undefined ? " (ویژهٔ ۸ نفر)" : "";
-      return { value: printed, source: "invoice", reference: `پیش‌فاکتور ۵ توقف ${fiveStop.sources[family]}${capacityNote}` };
-    }
-    return { value: null, source: "missing", reference: "این قلم در پیش‌فاکتور ۵ توقف نیست." };
+  // Exact printed quantities of the client's invoice for this stop count (automatic or semi-automatic family).
+  const list = getStopList(settings.stops, getStartupFamily(settings.pack));
+  const printed = list && getListQuantity(list, product, settings.capacity);
+  if (list && printed) {
+    return { value: printed.value, source: "invoice", reference: `پیش‌فاکتور ${formatNumber(settings.stops)} توقف ${list.source}${printed.note}` };
   }
-  const value = product.quantities[String(settings.stops)] ?? null;
-  if (value !== null && Number.isFinite(value) && value >= 0) {
-    if (product.workbookRow === undefined) {
-      // Not an Excel row (e.g. the all-steel cabin): a fixed count recorded in the catalog.
-      return { value, source: "catalog", reference: "تعداد ثابت ثبت‌شده در کاتالوگ بر اساس پیش‌فاکتورهای نمونه" };
-    }
-    const columns = { 6: "C", 7: "D", 8: "E" } as const;
-    return {
-      value,
-      source: "workbook",
-      reference: `تعداد_توقف!${columns[settings.stops]}${product.workbookRow}`,
-    };
+  return { value: null, source: "missing", reference: `این قلم در پیش‌فاکتور ${formatNumber(settings.stops)} توقف نیست.` };
+}
+
+/** The Excel stop table (6, 7 and 8 stops) kept as evidence; the quote itself reads the printed invoices. */
+export function resolveWorkbookQuantity(product: Product, stops: number): ResolvedQuantity {
+  const value = product.quantities[String(stops)] ?? null;
+  if (value === null || !Number.isFinite(value) || value < 0) {
+    return { value: null, source: "missing", reference: "فاقد تعداد در جدول اکسل." };
   }
-  // Five-stop invoice snapshots do NOT define six/seven/eight-stop quantities.
-  return { value: null, source: "missing", reference: "فاقد تعداد تأییدشده در اکسل؛ مقدار PDF پنج‌توقف تعمیم داده نشده است." };
+  if (product.workbookRow === undefined) {
+    // Not an Excel row: a fixed count recorded in the catalog.
+    return { value, source: "catalog", reference: "تعداد ثابت ثبت‌شده در کاتالوگ" };
+  }
+  const columns: Record<number, string> = { 6: "C", 7: "D", 8: "E" };
+  return { value, source: "workbook", reference: `تعداد_توقف!${columns[stops]}${product.workbookRow}` };
 }

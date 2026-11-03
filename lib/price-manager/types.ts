@@ -1,6 +1,6 @@
 export type MotorType = "gearbox" | "gearless";
 export type Capacity = "4-6" | "8";
-export type SupportedStop = 5 | 6 | 7 | 8;
+export type SupportedStop = 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type PackageId =
   | "rail" | "mechanic" | "auto" | "semi"
   | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
