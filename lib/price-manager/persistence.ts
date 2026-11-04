@@ -1,3 +1,4 @@
+import { getAdminSessionToken } from "./admin-session";
 import { INITIAL_SETTINGS, STORAGE_KEY } from "./constants";
 import { isRecord, parseSettings } from "./settings";
 export { parseSettings } from "./settings";
@@ -19,10 +20,12 @@ let saveQueue: Promise<void> = Promise.resolve();
 
 export function saveSettings(settings: QuoteSettings): Promise<void> {
   const payload = JSON.stringify(settings);
+  // Capture permission with the edit, not later when its queued write runs.
+  const sessionToken = getAdminSessionToken();
   const operation = saveQueue.catch(() => undefined).then(async () => {
     if (isDesktopApp()) {
       const { invoke } = await import("@tauri-apps/api/core");
-      await invoke("save_state", { payload });
+      await invoke("save_state", { payload, sessionToken });
     } else {
       localStorage.setItem(STORAGE_KEY, payload);
     }
@@ -30,6 +33,9 @@ export function saveSettings(settings: QuoteSettings): Promise<void> {
   saveQueue = operation;
   return operation;
 }
+
+/** Await pending edits before revoking the native administrator session. */
+export function flushSettingsWrites(): Promise<void> { return saveQueue; }
 
 export async function getDatabasePath(): Promise<string> {
   if (!isDesktopApp()) return "";

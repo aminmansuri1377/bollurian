@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "node scripts/test-pricing.cjs",
     "icons:generate": "node scripts/generate-app-icons.cjs",
-    "test:branding": "node --test scripts/test-branding.cjs"
+    "test:branding": "node --test scripts/test-branding.cjs",
+    "test:admin": "node --test scripts/test-admin-security.cjs",
+    "admin:password": "node scripts/set-admin-password.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",

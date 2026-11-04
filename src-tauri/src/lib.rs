@@ -1,36 +1,56 @@
-use rusqlite::{params, Connection};
-use tauri::{AppHandle, Manager};
-use std::{fs, path::PathBuf};
-fn db_path(app: &AppHandle) -> Result<PathBuf, String> {
- let dir=app.path().app_data_dir().map_err(|e|e.to_string())?;
- fs::create_dir_all(&dir).map_err(|e|e.to_string())?;
- Ok(dir.join("bollourian.db"))
-}
-fn db(app:&AppHandle)->Result<Connection,String>{
- let c=Connection::open(db_path(app)?).map_err(|e|e.to_string())?;
- c.execute_batch("CREATE TABLE IF NOT EXISTS state(key TEXT PRIMARY KEY,value TEXT NOT NULL);CREATE TABLE IF NOT EXISTS quotes(id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT DEFAULT CURRENT_TIMESTAMP, payload TEXT NOT NULL);").map_err(|e|e.to_string())?;
- Ok(c)
-}
+mod admin;
+mod price_write_policy;
+mod storage;
+
+use admin::AdminSession;
+use std::sync::{Arc, Mutex};
+use tauri::{AppHandle, State};
+
+type AdminState = Arc<Mutex<AdminSession>>;
+
 #[tauri::command]
-fn load_state(app:AppHandle)->Result<Option<String>,String>{
- let c=db(&app)?;
- match c.query_row("SELECT value FROM state WHERE key='main'",[],|r|r.get::<_,String>(0)){
-  Ok(s)=>Ok(Some(s)),Err(rusqlite::Error::QueryReturnedNoRows)=>Ok(None),Err(e)=>Err(e.to_string())
- }
+fn load_state(app: AppHandle) -> Result<Option<String>, String> {
+    storage::load_state(&app)
 }
+
 #[tauri::command]
-fn save_state(app:AppHandle,payload:String)->Result<(),String>{
- let c=db(&app)?;
- c.execute("INSERT INTO state(key,value) VALUES('main',?1) ON CONFLICT(key) DO UPDATE SET value=excluded.value",params![payload]).map_err(|e|e.to_string())?;
- Ok(())
+fn save_state(app: AppHandle, payload: String, session_token: Option<String>, admin: State<'_, AdminState>) -> Result<(), String> {
+    storage::save_state(&app, &payload, session_token.as_deref(), admin.inner().as_ref())
 }
+
 #[tauri::command]
-fn save_quote(app:AppHandle,payload:String)->Result<(),String>{
- let c=db(&app)?;
- c.execute("INSERT INTO quotes(payload) VALUES(?1)",params![payload]).map_err(|e|e.to_string())?;
- Ok(())
+fn save_quote(app: AppHandle, payload: String) -> Result<(), String> {
+    storage::save_quote(&app, &payload)
 }
+
 #[tauri::command]
-fn database_path(app:AppHandle)->Result<String,String>{Ok(db_path(&app)?.display().to_string())}
-#[cfg_attr(mobile,tauri::mobile_entry_point)]
-pub fn run(){tauri::Builder::default().invoke_handler(tauri::generate_handler![load_state,save_state,save_quote,database_path]).run(tauri::generate_context!()).expect("tauri error")}
+fn database_path(app: AppHandle) -> Result<String, String> {
+    Ok(storage::database_path(&app)?.display().to_string())
+}
+
+#[tauri::command]
+async fn unlock_master_prices(password: String, admin: State<'_, AdminState>) -> Result<String, String> {
+    let shared = Arc::clone(admin.inner());
+    // Password derivation is deliberately expensive; never block the native UI thread.
+    tauri::async_runtime::spawn_blocking(move || {
+        shared.lock().map_err(|_| "ADMIN_UNAVAILABLE".to_string())?.unlock(&password)
+    }).await.map_err(|_| "ADMIN_UNAVAILABLE".to_string())?
+}
+
+#[tauri::command]
+fn lock_master_prices(session_token: String, admin: State<'_, AdminState>) -> Result<(), String> {
+    admin.lock().map_err(|_| "ADMIN_UNAVAILABLE")?.lock(&session_token);
+    Ok(())
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .manage(AdminState::default())
+        .invoke_handler(tauri::generate_handler![
+            load_state, save_state, save_quote, database_path,
+            unlock_master_prices, lock_master_prices,
+        ])
+        .run(tauri::generate_context!())
+        .expect("tauri error");
+}

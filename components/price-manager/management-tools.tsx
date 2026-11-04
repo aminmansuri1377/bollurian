@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { SettingsIcon } from "@/components/ui/icons";
 import type { QuoteSettings } from "@/lib/price-manager/types";
-import { MasterPricesDialog } from "./master-prices-dialog";
+import { MasterPriceAccess } from "@/components/admin/master-price-access";
+import type { AdminAction } from "@/hooks/use-master-price-access";
 
 interface ManagementToolsProps {
   settings: QuoteSettings;
@@ -20,7 +21,7 @@ const actionButton = "cursor-pointer rounded-full border border-outline bg-white
 
 /** Shown at the very top of the page so the customer's name and phone are entered first. */
 export function ManagementTools({ settings, disabled, databasePath, onSettingsChange, onPriceChange, onPreviousPriceChange, onResetDemo }: ManagementToolsProps) {
-  const [pricesOpen, setPricesOpen] = useState(false);
+  const [adminAction, setAdminAction] = useState<AdminAction | null>(null);
 
   return (
     <>
@@ -40,15 +41,24 @@ export function ManagementTools({ settings, disabled, databasePath, onSettingsCh
           </div>
           <p className="mt-4 text-[12px] leading-6 text-caption">قیمت‌ها فقط از «مدیریت قیمت مادر» تغییر می‌کنند. در لیست اصلی، تعداد و قیمت‌ها فقط نمایش داده می‌شوند. برای حذف یک قلم از محاسبات، گزینه آن را در منوی کنار نام محصول بردارید.</p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={() => setPricesOpen(true)} className={actionButton}>مدیریت قیمت مادر</button>
-            <button type="button" onClick={onResetDemo} className={actionButton}>بازنشانی قیمت‌های نمونه (با پشتیبان)</button>
+            <button type="button" onClick={() => setAdminAction("prices")} className={actionButton}>مدیریت قیمت مادر</button>
+            <button type="button" onClick={() => setAdminAction("reset")} className={actionButton}>بازنشانی قیمت‌های نمونه (با پشتیبان)</button>
           </div>
           <p className="mt-4 text-[11px] leading-6 text-caption">
             {databasePath ? <>مسیر دیتابیس: <bdi className="select-all">{databasePath}</bdi></> : "نسخه مرورگر: ذخیره در همین مرورگر • نسخه دسکتاپ: ذخیره در SQLite"}
           </p>
         </fieldset>
       </section>
-      <MasterPricesDialog open={pricesOpen} settings={settings} onClose={() => setPricesOpen(false)} onPriceChange={onPriceChange} onPreviousPriceChange={onPreviousPriceChange} />
+      {adminAction && (
+        <MasterPriceAccess
+          action={adminAction}
+          settings={settings}
+          onClose={() => setAdminAction(null)}
+          onPriceChange={onPriceChange}
+          onPreviousPriceChange={onPreviousPriceChange}
+          onResetDemo={onResetDemo}
+        />
+      )}
     </>
   );
 }

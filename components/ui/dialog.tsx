@@ -9,9 +9,10 @@ interface DialogProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  size?: "default" | "compact";
 }
 
-export function Dialog({ open, title, onClose, children }: DialogProps) {
+export function Dialog({ open, title, onClose, children, size = "default" }: DialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -24,11 +25,11 @@ export function Dialog({ open, title, onClose, children }: DialogProps) {
   return (
     <dialog
       ref={dialogRef}
-      onCancel={onClose}
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
       onClose={onClose}
       onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
       aria-label={title}
-      className="fixed inset-0 m-auto max-h-[86vh] w-[1040px] max-w-none overflow-hidden rounded-[24px] border border-outline bg-white p-0 text-brand shadow-2xl backdrop:bg-brand/40 print:hidden"
+      className={`fixed inset-0 m-auto max-h-[86vh] ${size === "compact" ? "w-[440px]" : "w-[1040px]"} max-w-none overflow-hidden rounded-[24px] border border-outline bg-white p-0 text-brand shadow-2xl backdrop:bg-brand/40 print:hidden`}
     >
       <header className="flex items-center justify-between border-b border-outline/30 px-7 py-5">
         <h2 className="text-xl font-bold">{title}</h2>
