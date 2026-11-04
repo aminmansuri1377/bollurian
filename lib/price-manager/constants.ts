@@ -23,7 +23,7 @@ export const GROUP_LABELS: Record<ProductGroup, string> = {
 };
 
 /** Every stop count has the client's printed "صفر تا صد" invoices (automatic and semi-automatic). */
-export const SUPPORTED_STOPS: readonly SupportedStop[] = [3, 4, 5, 6, 7, 8, 9];
+export const SUPPORTED_STOPS: readonly SupportedStop[] = [3, 4, 5, 6, 7, 8, 9, 10];
 /** The Excel stop table only has these three columns; it is kept as evidence and for the workbook comparison. */
 export const WORKBOOK_STOPS: readonly SupportedStop[] = [6, 7, 8];
 export const DEMO_BASE_PRICE = 1000;

@@ -1,4 +1,4 @@
-# Client changes, 1405/08 (revisions 1 to 4)
+# Client changes, 1405/08 (revisions 1 to 5)
 
 Base commit: `2e2a1fb` (`fix pdf export`). Pricing formulas are unchanged
 (`quantity x master price`); no package-price or passenger multiplier was added.
@@ -106,6 +106,15 @@ full automatic 58, full semi 61.
 * 7 stops semi (19383): earth wire 6 (others 1). 8 stops semi (15661): floor buttons 6 (8 stops).
 * 3 stops semi (15599): the cabin button is printed "5 توقف"; the 3-stop button is used.
 * 15663 (9 stops automatic) is an 8-person list (40x5 pulley, 7.3 kW, 11 kW); 15675 (9 stops semi) prints rope 5 x 35.
+
+## Revision 5: 10 stops
+
+* 10 stops added with the same logic as 3-9: lists from invoices 15688 (automatic) and 15691 (semi-automatic), both 4-6 persons;
+  8 persons, rail types T5 / T9 / T16 and the T9 + T16 bolt merge follow the earlier rules. Rope 10 = 4 x 40 = 160 (8 persons 5 x 40 = 200).
+* New product: cabin button 10 stops "شستی کابین آذرتابش 10 توقف دو متری نقره‌ای" (own master price).
+* Both files print "براکت T9" twice; the second one (unit price 150,000, after the T5 clip) is the clip T9.
+* The semi list prints the mechanical cam (stays retired) and serbokosl "آسان شایان"; names follow the standard product.
+* Printed counts replaced by the client rules: weight 950 -> 780 / 1000.
 
 ## Still open
 

@@ -1,8 +1,9 @@
 {
  "notes": [
-  "Visual transcription of the 12 'صفر تا صد' invoices sent on 1405/08/12 (3, 4, 6, 7, 8 and 9 stops, automatic and semi-automatic). Printed quantities are in 'printedQuantity'.",
+  "Visual transcription of the 12 'صفر تا صد' invoices sent on 1405/08/12 (3, 4, 6, 7, 8 and 9 stops; 10 stops: 15688 / 15691 on 1405/08/14, automatic and semi-automatic). Printed quantities are in 'printedQuantity'.",
   "slot = the standard row of the app the printed row belongs to (RAIL:T5:rail = rail T5 ...). CAM = mechanical cam (retired), MDF = MDF-steel cabin (replaced by the all-steel cabin).",
-  "15663 is an 8-person list (flakeh 40x5, motor 7.3, controller 11); all others are 4-6 persons. Capacity rules (serbokosl, krapi, weight) of the client override the printed values."
+  "15663 is an 8-person list (flakeh 40x5, motor 7.3, controller 11); all others are 4-6 persons. Capacity rules (serbokosl, krapi, weight) of the client override the printed values.",
+  "In 15688 and 15691 the row printed 'براکت T9' after the T5 clip is the clip T9 (unit price 150,000, same as the clip)."
  ],
  "invoices": [
   {
@@ -4364,6 +4365,732 @@
      "row": 61,
      "printedName": "پیچ و مهره 8",
      "printedQuantity": 104,
+     "slot": "P-RAIL-BOLT8"
+    }
+   ]
+  },
+  {
+   "invoiceNumber": "15688",
+   "stops": 10,
+   "family": "auto",
+   "capacity": "4-6",
+   "rows": [
+    {
+     "row": 1,
+     "printedName": "سیم بکسل 10 گوستاولف نواردار",
+     "printedQuantity": 160,
+     "slot": "M001",
+     "description": "4x40"
+    },
+    {
+     "row": 2,
+     "printedName": "سیم بکسل 6 گالوانیزه",
+     "printedQuantity": 80,
+     "slot": "M002"
+    },
+    {
+     "row": 3,
+     "printedName": "فلکه 40x4 پرهام",
+     "printedQuantity": 1,
+     "slot": "M008"
+    },
+    {
+     "row": 4,
+     "printedName": "سربکسل 10 پرشیا",
+     "printedQuantity": 8,
+     "slot": "M009"
+    },
+    {
+     "row": 5,
+     "printedName": "اشکی گاورنر استیل",
+     "printedQuantity": 2,
+     "slot": "M010"
+    },
+    {
+     "row": 6,
+     "printedName": "کرپی 10",
+     "printedQuantity": 24,
+     "slot": "M006"
+    },
+    {
+     "row": 7,
+     "printedName": "کرپی 6",
+     "printedQuantity": 6,
+     "slot": "M005"
+    },
+    {
+     "row": 8,
+     "printedName": "پیچ پایه موتور 16",
+     "printedQuantity": 4,
+     "slot": "M004"
+    },
+    {
+     "row": 9,
+     "printedName": "گاورنر آسان شایان یک متر",
+     "printedQuantity": 1,
+     "slot": "M007"
+    },
+    {
+     "row": 10,
+     "printedName": "لاستیک تخت",
+     "printedQuantity": 4,
+     "slot": "M003"
+    },
+    {
+     "row": 11,
+     "printedName": "وزنه فلزی 87+",
+     "printedQuantity": 950,
+     "slot": "M011"
+    },
+    {
+     "row": 12,
+     "printedName": "تراول 24 رشته هدسان",
+     "printedQuantity": 46,
+     "slot": "R029"
+    },
+    {
+     "row": 13,
+     "printedName": "سیم نمره 4 هادی نور",
+     "printedQuantity": 1,
+     "slot": "P-EARTH-WIRE"
+    },
+    {
+     "row": 14,
+     "printedName": "سیم تلفنی خروج معمولی",
+     "printedQuantity": 70,
+     "slot": "R030"
+    },
+    {
+     "row": 15,
+     "printedName": "سیم 0.75 ایمان",
+     "printedQuantity": 11,
+     "slot": "R031"
+    },
+    {
+     "row": 16,
+     "printedName": "کابل 1x4",
+     "printedQuantity": 70,
+     "slot": "R032"
+    },
+    {
+     "row": 17,
+     "printedName": "داکت فلزی 10",
+     "printedQuantity": 1,
+     "slot": "R011"
+    },
+    {
+     "row": 18,
+     "printedName": "داکت نمره 3 پلاستیکی",
+     "printedQuantity": 44,
+     "slot": "R009"
+    },
+    {
+     "row": 19,
+     "printedName": "داکت نمره 9 پلاستیکی",
+     "printedQuantity": 4,
+     "slot": "R010"
+    },
+    {
+     "row": 20,
+     "printedName": "اورلود زیر کابینی توربوسل",
+     "printedQuantity": 1,
+     "slot": "R002"
+    },
+    {
+     "row": 21,
+     "printedName": "سنسور پیشرو فلزی با آهنربا",
+     "printedQuantity": 1,
+     "slot": "R016"
+    },
+    {
+     "row": 22,
+     "printedName": "استپ قارچی",
+     "printedQuantity": 3,
+     "slot": "R001"
+    },
+    {
+     "row": 23,
+     "printedName": "لیمیت شهاب",
+     "printedQuantity": 1,
+     "slot": "R017"
+    },
+    {
+     "row": 24,
+     "printedName": "بافر آلسن 1500",
+     "printedQuantity": 2,
+     "slot": "R003"
+    },
+    {
+     "row": 25,
+     "printedName": "تابلو 3فاز",
+     "printedQuantity": 1,
+     "slot": "R025"
+    },
+    {
+     "row": 26,
+     "printedName": "شستی کابین آذرتابش 10 توقف دو متری نقره ای",
+     "printedQuantity": 1,
+     "slot": "R022"
+    },
+    {
+     "row": 27,
+     "printedName": "شستی طبقه آذرتابش پلکسی نقره ای نور آبی",
+     "printedQuantity": 10,
+     "slot": "R023"
+    },
+    {
+     "row": 28,
+     "printedName": "نوار چسب",
+     "printedQuantity": 10,
+     "slot": "R028"
+    },
+    {
+     "row": 29,
+     "printedName": "علائم استاندارد",
+     "printedQuantity": 1,
+     "slot": "R034"
+    },
+    {
+     "row": 30,
+     "printedName": "بست تراول کابل یاشار",
+     "printedQuantity": 4,
+     "slot": "R005"
+    },
+    {
+     "row": 31,
+     "printedName": "بست کمربندی 20 سانت",
+     "printedQuantity": 1,
+     "slot": "R004"
+    },
+    {
+     "row": 32,
+     "printedName": "لوله خرطومی پلاستیکی",
+     "printedQuantity": 1,
+     "slot": "R013"
+    },
+    {
+     "row": 33,
+     "printedName": "لوله خرطومی فلزی 13",
+     "printedQuantity": 5,
+     "slot": "R012"
+    },
+    {
+     "row": 34,
+     "printedName": "روغندان یاشار",
+     "printedQuantity": 4,
+     "slot": "R015"
+    },
+    {
+     "row": 35,
+     "printedName": "پیچ و رولپلاک",
+     "printedQuantity": 1,
+     "slot": "R008"
+    },
+    {
+     "row": 36,
+     "printedName": "کلید تبدیل",
+     "printedQuantity": 2,
+     "slot": "R019"
+    },
+    {
+     "row": 37,
+     "printedName": "پریز بارانی",
+     "printedQuantity": 1,
+     "slot": "R006"
+    },
+    {
+     "row": 38,
+     "printedName": "گوشی تلفن",
+     "printedQuantity": 3,
+     "slot": "R035"
+    },
+    {
+     "row": 39,
+     "printedName": "چراغ تونلی راین",
+     "printedQuantity": 14,
+     "slot": "R024"
+    },
+    {
+     "row": 40,
+     "printedName": "محافظ کادر وزنه 87",
+     "printedQuantity": 1,
+     "slot": "R037"
+    },
+    {
+     "row": 41,
+     "printedName": "پک محافظ سه تیکه",
+     "printedQuantity": 1,
+     "slot": "R036"
+    },
+    {
+     "row": 42,
+     "printedName": "پیچ و مهره 12",
+     "printedQuantity": 10,
+     "slot": "R007"
+    },
+    {
+     "row": 43,
+     "printedName": "پیچ و مهره 10",
+     "printedQuantity": 10,
+     "slot": "P-STARTUP-BOLT10"
+    },
+    {
+     "row": 44,
+     "printedName": "پیچ و مهره 8",
+     "printedQuantity": 10,
+     "slot": "P-STARTUP-BOLT8"
+    },
+    {
+     "row": 45,
+     "printedName": "درب یاران فول کابین 80 چپ دو لته",
+     "printedQuantity": 1,
+     "slot": "R020"
+    },
+    {
+     "row": 46,
+     "printedName": "درب یاران طبقه 80 چپ دو لته",
+     "printedQuantity": 10,
+     "slot": "P-LANDING-DOOR"
+    },
+    {
+     "row": 47,
+     "printedName": "موتور بهران 6.1KW تک سرعته",
+     "printedQuantity": 1,
+     "slot": "MOTOR"
+    },
+    {
+     "row": 48,
+     "printedName": "تابلو داتیس زیما 7.5KW بدون نجات",
+     "printedQuantity": 1,
+     "slot": "CONTROL"
+    },
+    {
+     "row": 49,
+     "printedName": "ریل چین سرد T5 درجه یک",
+     "printedQuantity": 14,
+     "slot": "RAIL:T5:rail"
+    },
+    {
+     "row": 50,
+     "printedName": "ریل چین سرد T9 درجه یک",
+     "printedQuantity": 14,
+     "slot": "RAIL:T9:rail"
+    },
+    {
+     "row": 51,
+     "printedName": "براکت T5",
+     "printedQuantity": 44,
+     "slot": "RAIL:T5:bracket"
+    },
+    {
+     "row": 52,
+     "printedName": "براکت T9",
+     "printedQuantity": 44,
+     "slot": "RAIL:T9:bracket"
+    },
+    {
+     "row": 53,
+     "printedName": "لقمه T5",
+     "printedQuantity": 88,
+     "slot": "RAIL:T5:clip"
+    },
+    {
+     "row": 54,
+     "printedName": "لقمه T9",
+     "printedQuantity": 88,
+     "slot": "RAIL:T9:clip"
+    },
+    {
+     "row": 55,
+     "printedName": "پیچ و مهره 12",
+     "printedQuantity": 200,
+     "slot": "P-RAIL-BOLT12"
+    },
+    {
+     "row": 56,
+     "printedName": "پیچ و مهره 10",
+     "printedQuantity": 88,
+     "slot": "P-RAIL-BOLT10"
+    },
+    {
+     "row": 57,
+     "printedName": "پیچ و مهره 8",
+     "printedQuantity": 112,
+     "slot": "P-RAIL-BOLT8"
+    }
+   ]
+  },
+  {
+   "invoiceNumber": "15691",
+   "stops": 10,
+   "family": "semi",
+   "capacity": "4-6",
+   "rows": [
+    {
+     "row": 1,
+     "printedName": "سیم بکسل 10 گوستاولف نواردار",
+     "printedQuantity": 160,
+     "slot": "M001",
+     "description": "4x40"
+    },
+    {
+     "row": 2,
+     "printedName": "سیم بکسل 6 گالوانیزه",
+     "printedQuantity": 80,
+     "slot": "M002"
+    },
+    {
+     "row": 3,
+     "printedName": "فلکه 40x4 پرهام",
+     "printedQuantity": 1,
+     "slot": "M008"
+    },
+    {
+     "row": 4,
+     "printedName": "سربکسل 10 آسان شایان",
+     "printedQuantity": 8,
+     "slot": "M009"
+    },
+    {
+     "row": 5,
+     "printedName": "اشکی گاورنر استیل",
+     "printedQuantity": 2,
+     "slot": "M010"
+    },
+    {
+     "row": 6,
+     "printedName": "کرپی 10",
+     "printedQuantity": 24,
+     "slot": "M006"
+    },
+    {
+     "row": 7,
+     "printedName": "کرپی 6",
+     "printedQuantity": 6,
+     "slot": "M005"
+    },
+    {
+     "row": 8,
+     "printedName": "پیچ پایه موتور 16",
+     "printedQuantity": 4,
+     "slot": "M004"
+    },
+    {
+     "row": 9,
+     "printedName": "گاورنر آسان شایان یک متر",
+     "printedQuantity": 1,
+     "slot": "M007"
+    },
+    {
+     "row": 10,
+     "printedName": "لاستیک تخت",
+     "printedQuantity": 4,
+     "slot": "M003"
+    },
+    {
+     "row": 11,
+     "printedName": "وزنه فلزی 87+",
+     "printedQuantity": 950,
+     "slot": "M011"
+    },
+    {
+     "row": 12,
+     "printedName": "تراول 24 رشته هدسان",
+     "printedQuantity": 46,
+     "slot": "R029"
+    },
+    {
+     "row": 13,
+     "printedName": "سیم نمره 4 هادی نور",
+     "printedQuantity": 1,
+     "slot": "P-EARTH-WIRE"
+    },
+    {
+     "row": 14,
+     "printedName": "سیم تلفنی خروج معمولی",
+     "printedQuantity": 70,
+     "slot": "R030"
+    },
+    {
+     "row": 15,
+     "printedName": "سیم 0.75 ایمان",
+     "printedQuantity": 11,
+     "slot": "R031"
+    },
+    {
+     "row": 16,
+     "printedName": "کابل 1x4",
+     "printedQuantity": 70,
+     "slot": "R032"
+    },
+    {
+     "row": 17,
+     "printedName": "داکت فلزی 10",
+     "printedQuantity": 1,
+     "slot": "R011"
+    },
+    {
+     "row": 18,
+     "printedName": "داکت نمره 3 پلاستیکی",
+     "printedQuantity": 44,
+     "slot": "R009"
+    },
+    {
+     "row": 19,
+     "printedName": "داکت نمره 9 پلاستیکی",
+     "printedQuantity": 4,
+     "slot": "R010"
+    },
+    {
+     "row": 20,
+     "printedName": "اورلود زیر کابینی توربوسل",
+     "printedQuantity": 1,
+     "slot": "R002"
+    },
+    {
+     "row": 21,
+     "printedName": "سنسور پیشرو فلزی با آهنربا",
+     "printedQuantity": 1,
+     "slot": "R016"
+    },
+    {
+     "row": 22,
+     "printedName": "استپ قارچی",
+     "printedQuantity": 3,
+     "slot": "R001"
+    },
+    {
+     "row": 23,
+     "printedName": "لیمیت شهاب",
+     "printedQuantity": 1,
+     "slot": "R017"
+    },
+    {
+     "row": 24,
+     "printedName": "بافر آلسن 1500",
+     "printedQuantity": 2,
+     "slot": "R003"
+    },
+    {
+     "row": 25,
+     "printedName": "تابلو 3فاز",
+     "printedQuantity": 1,
+     "slot": "R025"
+    },
+    {
+     "row": 26,
+     "printedName": "شستی کابین آذرتابش 10 توقف دو متری نقره ای",
+     "printedQuantity": 1,
+     "slot": "R022"
+    },
+    {
+     "row": 27,
+     "printedName": "شستی طبقه آذرتابش پلکسی نقره ای نور آبی",
+     "printedQuantity": 10,
+     "slot": "R023"
+    },
+    {
+     "row": 28,
+     "printedName": "نوار چسب",
+     "printedQuantity": 10,
+     "slot": "R028"
+    },
+    {
+     "row": 29,
+     "printedName": "علائم استاندارد",
+     "printedQuantity": 1,
+     "slot": "R034"
+    },
+    {
+     "row": 30,
+     "printedName": "بست تراول کابل یاشار",
+     "printedQuantity": 4,
+     "slot": "R005"
+    },
+    {
+     "row": 31,
+     "printedName": "بست کمربندی 20 سانت",
+     "printedQuantity": 1,
+     "slot": "R004"
+    },
+    {
+     "row": 32,
+     "printedName": "لوله خرطومی پلاستیکی",
+     "printedQuantity": 1,
+     "slot": "R013"
+    },
+    {
+     "row": 33,
+     "printedName": "لوله خرطومی فلزی 13",
+     "printedQuantity": 5,
+     "slot": "R012"
+    },
+    {
+     "row": 34,
+     "printedName": "روغندان یاشار",
+     "printedQuantity": 4,
+     "slot": "R015"
+    },
+    {
+     "row": 35,
+     "printedName": "پیچ و رولپلاک",
+     "printedQuantity": 1,
+     "slot": "R008"
+    },
+    {
+     "row": 36,
+     "printedName": "کلید تبدیل",
+     "printedQuantity": 2,
+     "slot": "R019"
+    },
+    {
+     "row": 37,
+     "printedName": "پریز بارانی",
+     "printedQuantity": 1,
+     "slot": "R006"
+    },
+    {
+     "row": 38,
+     "printedName": "گوشی تلفن",
+     "printedQuantity": 3,
+     "slot": "R035"
+    },
+    {
+     "row": 39,
+     "printedName": "چراغ تونلی راین",
+     "printedQuantity": 14,
+     "slot": "R024"
+    },
+    {
+     "row": 40,
+     "printedName": "محافظ کادر وزنه 87",
+     "printedQuantity": 1,
+     "slot": "R037"
+    },
+    {
+     "row": 41,
+     "printedName": "پک محافظ سه تیکه",
+     "printedQuantity": 1,
+     "slot": "R036"
+    },
+    {
+     "row": 42,
+     "printedName": "پیچ و مهره 12",
+     "printedQuantity": 10,
+     "slot": "R007"
+    },
+    {
+     "row": 43,
+     "printedName": "پیچ و مهره 10",
+     "printedQuantity": 10,
+     "slot": "P-STARTUP-BOLT10"
+    },
+    {
+     "row": 44,
+     "printedName": "پیچ و مهره 8",
+     "printedQuantity": 10,
+     "slot": "P-STARTUP-BOLT8"
+    },
+    {
+     "row": 45,
+     "printedName": "درب یاران نیمه کابین 80 چپ دو لته",
+     "printedQuantity": 1,
+     "slot": "P-SEMI-CABIN-DOOR"
+    },
+    {
+     "row": 46,
+     "printedName": "کمان مکانیکی یاران",
+     "printedQuantity": 1,
+     "slot": "CAM"
+    },
+    {
+     "row": 47,
+     "printedName": "درب لولایی 80 چپ کرم",
+     "printedQuantity": 10,
+     "slot": "P-SEMI-DOOR"
+    },
+    {
+     "row": 48,
+     "printedName": "موتور بهران 6.1KW تک سرعته",
+     "printedQuantity": 1,
+     "slot": "MOTOR"
+    },
+    {
+     "row": 49,
+     "printedName": "تابلو داتیس زیما 7.5KW بدون نجات",
+     "printedQuantity": 1,
+     "slot": "CONTROL"
+    },
+    {
+     "row": 50,
+     "printedName": "دیکتاتور سپاهان",
+     "printedQuantity": 10,
+     "slot": "P-SEMI-DICTATOR"
+    },
+    {
+     "row": 51,
+     "printedName": "قفل چپ تاپ لیفت",
+     "printedQuantity": 10,
+     "slot": "P-SEMI-LOCK"
+    },
+    {
+     "row": 52,
+     "printedName": "فنر درب",
+     "printedQuantity": 10,
+     "slot": "P-SEMI-SPRING"
+    },
+    {
+     "row": 53,
+     "printedName": "ریل چین سرد T5 درجه یک",
+     "printedQuantity": 14,
+     "slot": "RAIL:T5:rail"
+    },
+    {
+     "row": 54,
+     "printedName": "ریل چین سرد T9 درجه یک",
+     "printedQuantity": 14,
+     "slot": "RAIL:T9:rail"
+    },
+    {
+     "row": 55,
+     "printedName": "براکت T5",
+     "printedQuantity": 44,
+     "slot": "RAIL:T5:bracket"
+    },
+    {
+     "row": 56,
+     "printedName": "براکت T9",
+     "printedQuantity": 44,
+     "slot": "RAIL:T9:bracket"
+    },
+    {
+     "row": 57,
+     "printedName": "لقمه T5",
+     "printedQuantity": 88,
+     "slot": "RAIL:T5:clip"
+    },
+    {
+     "row": 58,
+     "printedName": "لقمه T9",
+     "printedQuantity": 88,
+     "slot": "RAIL:T9:clip"
+    },
+    {
+     "row": 59,
+     "printedName": "پیچ و مهره 12",
+     "printedQuantity": 200,
+     "slot": "P-RAIL-BOLT12"
+    },
+    {
+     "row": 60,
+     "printedName": "پیچ و مهره 10",
+     "printedQuantity": 88,
+     "slot": "P-RAIL-BOLT10"
+    },
+    {
+     "row": 61,
+     "printedName": "پیچ و مهره 8",
+     "printedQuantity": 112,
      "slot": "P-RAIL-BOLT8"
     }
    ]

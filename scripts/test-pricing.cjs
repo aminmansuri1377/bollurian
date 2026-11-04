@@ -55,11 +55,11 @@ async function run() {
   equal(invoices.reduce((sum, invoice) => sum + invoice.rows.length, 0), 364, "All 364 printed invoice rows mapped");
   equal(invoices.find((i) => i.invoiceNumber === "17784").rows.length, 58, "Newest automatic list: 58 rows incl. all-steel cabin");
   equal(invoices.find((i) => i.invoiceNumber === "19381").rows.length, 60, "Newest semi-automatic list: 60 rows");
-  equal(SUPPORTED_STOPS, [3, 4, 5, 6, 7, 8, 9], "3 to 9 stops: every stop count has the client's printed invoices");
+  equal(SUPPORTED_STOPS, [3, 4, 5, 6, 7, 8, 9, 10], "3 to 10 stops: every stop count has the client's printed invoices");
   equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns (kept as evidence)");
-  equal(stopInvoices.map((i) => `${i.stops}/${i.family}`), ["3/auto", "3/semi", "4/auto", "4/semi", "6/auto", "6/semi", "7/auto", "7/semi", "8/auto", "8/semi", "9/auto", "9/semi"], "12 new invoices: 3, 4, 6, 7, 8 and 9 stops, automatic and semi-automatic");
+  equal(stopInvoices.map((i) => `${i.stops}/${i.family}`), ["3/auto", "3/semi", "4/auto", "4/semi", "6/auto", "6/semi", "7/auto", "7/semi", "8/auto", "8/semi", "9/auto", "9/semi", "10/auto", "10/semi"], "14 new invoices: 3, 4, 6, 7, 8, 9 and 10 stops, automatic and semi-automatic");
   equal(INITIAL_SETTINGS.stops, 5, "Default is the fully specified 5-stop list");
-  equal(products.length, 84, "83 products plus placeholder");
+  equal(products.length, 85, "84 products plus placeholder");
   equal(new Set(products.map((p) => p.id)).size, products.length, "No duplicate catalog IDs");
   const railDemoPrice = { T5: 1000, T9: 2000, T16: 3000 };
   for (const product of products) equal(product.price, product.rail ? railDemoPrice[product.rail.type] : DEMO_BASE_PRICE, `${product.id}: demo base price (rail parts: one distinct price per type)`);
@@ -117,7 +117,7 @@ async function run() {
   equal(semiIds.slice(2, 5), ["R030", "R031", "R032"], "Semi wiring order");
   equal(getPackageProductIds("auto", config()).slice(2, 5), ["R031", "R032", "R030"], "Automatic wiring order");
   equal(semiIds.includes("P-SEMI-CAM"), false, "No mechanical cam in the newest semi list");
-  // Printed quantity of every standard row ("slot") of the 14 client lists: 5 stops (17784 / 19381) and the 12 new invoices.
+  // Printed quantity of every standard row ("slot") of the 14 client lists: 5 stops (17784 / 19381) and the 14 new invoices.
   const slotName = (productId) => {
     const part = /^P-(RAIL|BRACKET|CLIP)-T(5|9)$/.exec(productId);
     if (part) return `RAIL:T${part[2]}:${{ RAIL: "rail", BRACKET: "bracket", CLIP: "clip" }[part[1]]}`;
@@ -130,7 +130,7 @@ async function run() {
     : Object.fromEntries(stopInvoices.find((i) => i.stops === stops && i.family === family).rows.map((r) => [r.slot, r.printedQuantity]));
   const standardRow = Object.fromEntries(Object.entries(membership.stopVariants).flatMap(([row, variants]) => variants.map((id) => [id, row])));
   // Client rules by capacity (1405/08/12): rope 10 is 4 x (8 persons: 5 x) the number in its description; fixed counts for three mechanic rows.
-  const ROPE_LENGTH = { 3: 14, 4: 18, 5: 21, 6: 24, 7: 28, 8: 32, 9: 35 };
+  const ROPE_LENGTH = { 3: 14, 4: 18, 5: 21, 6: 24, 7: 28, 8: 32, 9: 35, 10: 40 };
   const CAPACITY_COUNTS = { "4-6": { M009: 8, M006: 24, M011: 780 }, "8": { M009: 10, M006: 32, M011: 1000, "P-PULLEY-40X5": 1 } };
   /** Independent expectation of one quantity: printed list + client rules. */
   const expectedQuantity = (stops, family, capacity, product) => {
@@ -183,7 +183,7 @@ async function run() {
     equal(Object.values(quote.subtotals).reduce((a, b) => a + b, 0), quote.total, "Category totals reconcile");
     for (const id of membership.workbookOnly) equal(quote.rows.some((r) => r.product.id === id), false, "Workbook-only items are not silently assigned to a PDF package");
   }
-  equal(combinations, 224, "8 packages x 7 stops (3-9) x 2 capacities x 2 drive types");
+  equal(combinations, 256, "8 packages x 8 stops (3-10) x 2 capacities x 2 drive types");
   for (const id of ["P-CABIN-DOOR", "P-DOOR-MOTOR", "P-RAIL-FASTEN"]) equal(byId.has(id), false, "Remove duplicate/invented legacy rows");
   equal(selectProducts(products, { ...INITIAL_SETTINGS, pack: "semi" }).some((p) => p.id === "R020"), false, "Automatic cabin door must not appear in semi package");
 
@@ -214,7 +214,7 @@ async function run() {
   equal(calculateRow(product, updateNumericSetting(manual, "quantities", "M001", null)).quantity, 96, "Clear override restores the printed quantity");
   equal(calculateRow(product, updateNumericSetting(manual, "quantities", "M001", 0)).total, 0, "Manual zero");
   equal(calculateRow(product, { ...manual, excluded: ["M001"] }).total, null, "Excluded line not charged");
-  for (const stops of [1, 2, 10, 11, 12, 13]) equal(calculateRow(product, { ...INITIAL_SETTINGS, stops }).quantity, null, "Never extrapolate unsupported stops");
+  for (const stops of [1, 2, 11, 12, 13, 14]) equal(calculateRow(product, { ...INITIAL_SETTINGS, stops }).quantity, null, "Never extrapolate unsupported stops");
   const legacy = { pack: "mechanic", stops: 7, capacity: "4-6", motor: "gearbox", prices: { M001: 5555 }, quantities: { M001: 23 }, rate: 0 };
   const migrated = parseSettings(legacy);
   equal(migrated.prices.M001, 5555, "Preserve customized master prices");
@@ -375,7 +375,7 @@ async function run() {
   equal(parseSettings({ ...legacy, railTypes: ["T16", "T9"] }).railTypes, ["T16", "T9"], "Rail choice is saved");
   equal(parseSettings({ ...legacy, railTypes: ["T9", "T9"] }).railTypes, ["T5", "T9"], "Saved duplicate rails are repaired");
 
-  // 4e. The 12 new invoices (3, 4, 6, 7, 8, 9 stops): row set and quantities of the full packages equal the printed rows.
+  // 4e. The 14 new invoices (3, 4, 6, 7, 8, 9, 10 stops): row set and quantities of the full packages equal the printed rows.
   // Only the client's capacity rules (rope 10, serbokosl, krapi 10, weight) may differ from a printed value.
   const RULE_SLOTS = new Set(["M001", "M009", "M006", "M011"]);
   const IGNORED_SLOTS = new Set(["CAM", "MDF"]); // retired mechanical cam, MDF cabin (replaced by the all-steel cabin)
