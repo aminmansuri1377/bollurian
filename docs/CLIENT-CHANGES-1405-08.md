@@ -65,7 +65,7 @@ full automatic 58, full semi 61.
 * One-per-elevator items (motor, controller, earth wire, semi cabin door, 40x5 pulley, steel cabin)
   also have quantity 1 at 6-8 stops, like their Excel analogues.
 
-## Revision 3: rail types (T5 / T9 / T16)
+## Revision 3: rail types (T5 / T9 / T16, see revision 6)
 
 * The two "ریل چین سرد ... درجه یک" rows are selectable like brands. The menu "نوع ریل" offers T5, T9 and T16;
   the type used by the other rail is hidden, so the two rails can never be the same (choosing it from the other
@@ -115,6 +115,12 @@ full automatic 58, full semi 61.
 * Both files print "براکت T9" twice; the second one (unit price 150,000, after the T5 clip) is the clip T9.
 * The semi list prints the mechanical cam (stays retired) and serbokosl "آسان شایان"; names follow the standard product.
 * Printed counts replaced by the client rules: weight 950 -> 780 / 1000.
+
+## Revision 6: brand lists and T16.T89 / T16.T90
+
+- 22 multi-brand products now carry the client's brand lists (first brand = default, each brand has its own price). The row shows the base name + the chosen brand. Cabin buttons: Media / Azartabesh for every stop count; doors: Ravankar Full / Hariri / Yaran.
+- There is no plain T16 any more: the third rail type is `T16.T89` or `T16.T90`. Both behave exactly like T16 in every formula (quantities, bracket and clip follow, T9 + T16.x merges the rail bolts into bolts 12). Their prices are separate master prices.
+- Saved choices of the old plain `T16` fall back to the default rails (T5 / T9); the old `P-*-T16` master prices are no longer used.
 
 ## Still open
 

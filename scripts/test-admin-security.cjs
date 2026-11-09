@@ -46,7 +46,7 @@ function verifyWithNode(password, verifier) {
   const actual = crypto.pbkdf2Sync(normalizePassword(password), Buffer.from(match[2], "base64"), Number(match[1]), 32, "sha256");
   return crypto.timingSafeEqual(actual, Buffer.from(match[3], "base64"));
 }
-const initial = () => ({ prices: { "M001|brand": 1000 }, previousPrices: {}, customer: "client", stops: 10, capacity: "8", railTypes: ["T9", "T16"] });
+const initial = () => ({ prices: { "M001|brand": 1000 }, previousPrices: {}, customer: "client", stops: 10, capacity: "8", railTypes: ["T9", "T16.T89"] });
 function deferred() { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
 
 /* A deterministic hook unit harness. This is NOT a substitute for a real React/WebView UI test. */

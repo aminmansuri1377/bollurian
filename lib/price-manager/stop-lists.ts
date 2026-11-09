@@ -1,7 +1,8 @@
 import stopData from "../../data/stop-quantities.json";
 import membership from "../../data/reference/package-membership.json";
 import { formatNumber } from "./format";
-import type { Capacity, Product, RailKind, RailType } from "./types";
+import { getRailFamily } from "./rail-rules";
+import type { Capacity, Product, RailFamily, RailKind } from "./types";
 
 export type StartupFamily = "auto" | "semi";
 
@@ -13,8 +14,8 @@ export interface StopList {
   ropeLength: number;
   /** Quantity by product ID. A product that is missing here is not part of this list. */
   quantities: Record<string, number>;
-  /** Rails, brackets and clips by rail type. */
-  rails: Record<RailType, Record<RailKind, number>>;
+  /** Rails, brackets and clips by rail family. */
+  rails: Record<RailFamily, Record<RailKind, number>>;
   /** Products that replace a standard row at this stop count (cabin button, gold floor buttons). */
   variants: Record<string, string>;
 }
@@ -57,7 +58,7 @@ export interface ListQuantity {
  * rope 10 is 4 (or 5 for 8 persons) x the printed length, and a few mechanic rows have fixed counts.
  */
 export function getListQuantity(list: StopList, product: Product, capacity: Capacity): ListQuantity | null {
-  if (product.rail) return { value: list.rails[product.rail.type][product.rail.kind], note: "" };
+  if (product.rail) return { value: list.rails[getRailFamily(product.rail.type)][product.rail.kind], note: "" };
   const fixed = CAPACITY_RULES.quantities[capacity][product.id];
   if (fixed !== undefined) return { value: fixed, note: capacity === "8" ? " (ویژهٔ ۸ نفر)" : "" };
   if (product.id === ROPE_ID) {

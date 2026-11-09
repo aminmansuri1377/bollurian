@@ -1,6 +1,6 @@
-import type { RailKind, RailSelection, RailType } from "./types";
+import type { RailFamily, RailKind, RailSelection, RailType } from "./types";
 
-export const RAIL_TYPES: readonly RailType[] = ["T5", "T9", "T16"];
+export const RAIL_TYPES: readonly RailType[] = ["T5", "T9", "T16.T89", "T16.T90"];
 export const DEFAULT_RAIL_SELECTION: RailSelection = ["T5", "T9"];
 
 export function isRailType(value: unknown): value is RailType {
@@ -30,9 +30,15 @@ export function getRailChoices(current: RailSelection, slot: 0 | 1): RailType[] 
   return RAIL_TYPES.filter((type) => type !== other);
 }
 
-/** Client rule: only when BOTH T9 and T16 are chosen, the rail bolts 10 and 8 become bolts 12. */
+/** T16.T89 and T16.T90 behave exactly like T16 in every formula. */
+export function getRailFamily(type: RailType): RailFamily {
+  return type.startsWith("T16") ? "T16" : (type as RailFamily);
+}
+
+/** Client rule: only when BOTH a T9 and a T16 (T89 or T90) rail are chosen, the rail bolts 10 and 8 become bolts 12. */
 export function shouldMergeRailBolts(selection: RailSelection): boolean {
-  return selection.includes("T9") && selection.includes("T16");
+  const families = selection.map(getRailFamily);
+  return families.includes("T9") && families.includes("T16");
 }
 
 /** Row order of the rail block: rails, then brackets, then clips, each in the order of the two selected types. */

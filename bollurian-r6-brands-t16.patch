@@ -1,0 +1,1144 @@
+diff --git a/data/catalog.json b/data/catalog.json
+index 7b5b9fe..bf7e9b2 100644
+--- a/data/catalog.json
++++ b/data/catalog.json
+@@ -1,7 +1,7 @@
+ [
+   {
+     "id": "M001",
+-    "name": "سیم بکسل 10 گوستاولف نواردار",
++    "name": "سیم بکسل 10",
+     "group": "mechanic",
+     "unit": "متر",
+     "price": 1000,
+@@ -12,15 +12,20 @@
+       "8": 120.0
+     },
+     "brands": [
+-      "گوستاولف"
++      "گوستاولف نواردار",
++      "کنف آلمان"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 2
++    "workbookRow": 2,
++    "brandPrices": {
++      "گوستاولف نواردار": 1000,
++      "کنف آلمان": 2000
++    }
+   },
+   {
+     "id": "M002",
+-    "name": "سیم بکسل 6 سفید",
++    "name": "سیم بکسل 6",
+     "group": "mechanic",
+     "unit": "متر",
+     "price": 1000,
+@@ -30,10 +35,17 @@
+       "7": 54.0,
+       "8": 60.0
+     },
+-    "brands": [],
++    "brands": [
++      "سفید",
++      "خودرنگ"
++    ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 3
++    "workbookRow": 3,
++    "brandPrices": {
++      "سفید": 1000,
++      "خودرنگ": 2000
++    }
+   },
+   {
+     "id": "M003",
+@@ -105,7 +117,7 @@
+   },
+   {
+     "id": "M007",
+-    "name": "گاورنر آسان شایان یک متر",
++    "name": "گاورنر",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -116,15 +128,20 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "شایان"
++      "آسان شایان یک متر",
++      "آرمیتاژ"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 8
++    "workbookRow": 8,
++    "brandPrices": {
++      "آسان شایان یک متر": 1000,
++      "آرمیتاژ": 2000
++    }
+   },
+   {
+     "id": "M008",
+-    "name": "فلکه 40×4 پرهام",
++    "name": "فلکه 40×4",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -135,11 +152,18 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "پرهام"
++      "پرهام",
++      "بهران",
++      "پارس آسا"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 9
++    "workbookRow": 9,
++    "brandPrices": {
++      "پرهام": 1000,
++      "بهران": 2000,
++      "پارس آسا": 3000
++    }
+   },
+   {
+     "id": "P-PULLEY-40X5",
+@@ -153,13 +177,22 @@
+       "7": 1,
+       "8": 1
+     },
+-    "brands": [],
++    "brands": [
++      "پرهام",
++      "بهران",
++      "پارس آسا"
++    ],
+     "source": "pdf",
+-    "notes": "فلکه آسانسور ۸ نفره به‌جای فلکه ۴۰×۴ (M008). یک عدد برای هر آسانسور."
++    "notes": "فلکه آسانسور ۸ نفره به‌جای فلکه ۴۰×۴ (M008). یک عدد برای هر آسانسور.",
++    "brandPrices": {
++      "پرهام": 1000,
++      "بهران": 2000,
++      "پارس آسا": 3000
++    }
+   },
+   {
+     "id": "M009",
+-    "name": "سربکسل 10 پرشیا",
++    "name": "سربکسل 10",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -170,11 +203,18 @@
+       "8": 8.0
+     },
+     "brands": [
+-      "پرشیا"
++      "آسان شایان",
++      "پرشیا",
++      "آسا"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 10
++    "workbookRow": 10,
++    "brandPrices": {
++      "آسان شایان": 1000,
++      "پرشیا": 2000,
++      "آسا": 3000
++    }
+   },
+   {
+     "id": "M010",
+@@ -229,7 +269,7 @@
+   },
+   {
+     "id": "R002",
+-    "name": "اورلود زیر کابینی توربوسل",
++    "name": "اورلود",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -240,15 +280,20 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "توربوسل"
++      "زیرکابینی توربوسل",
++      "مگنتی تکسل"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 14
++    "workbookRow": 14,
++    "brandPrices": {
++      "زیرکابینی توربوسل": 1000,
++      "مگنتی تکسل": 2000
++    }
+   },
+   {
+     "id": "R003",
+-    "name": "بافر ایستا 1500",
++    "name": "بافر",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -259,15 +304,20 @@
+       "8": 2.0
+     },
+     "brands": [
+-      "ایستا"
++      "آلسن 1500",
++      "ایستا 1500"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 15
++    "workbookRow": 15,
++    "brandPrices": {
++      "آلسن 1500": 1000,
++      "ایستا 1500": 2000
++    }
+   },
+   {
+     "id": "R004",
+-    "name": "بست کمربندی 20 سانت",
++    "name": "بست کمربندی",
+     "group": "startup",
+     "unit": "بسته",
+     "price": 1000,
+@@ -277,14 +327,21 @@
+       "7": 1.0,
+       "8": 1.0
+     },
+-    "brands": [],
++    "brands": [
++      "20 سانت",
++      "30 سانت"
++    ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 16
++    "workbookRow": 16,
++    "brandPrices": {
++      "20 سانت": 1000,
++      "30 سانت": 2000
++    }
+   },
+   {
+     "id": "R005",
+-    "name": "بست تراول کابل یاشار",
++    "name": "بست تراول کابل",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -295,11 +352,16 @@
+       "8": 4.0
+     },
+     "brands": [
+-      "یاشار"
++      "یاشار",
++      "فلزی"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 17
++    "workbookRow": 17,
++    "brandPrices": {
++      "یاشار": 1000,
++      "فلزی": 2000
++    }
+   },
+   {
+     "id": "R006",
+@@ -456,7 +518,7 @@
+   },
+   {
+     "id": "R015",
+-    "name": "روغندان یاشار",
++    "name": "روغندان",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -467,15 +529,20 @@
+       "8": 4.0
+     },
+     "brands": [
+-      "یاشار"
++      "یاشار",
++      "راینو"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 27
++    "workbookRow": 27,
++    "brandPrices": {
++      "یاشار": 1000,
++      "راینو": 2000
++    }
+   },
+   {
+     "id": "R016",
+-    "name": "سنسور پیشرو پلاستیکی با آهنربا",
++    "name": "سنسور",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -485,14 +552,21 @@
+       "7": 1.0,
+       "8": 1.0
+     },
+-    "brands": [],
++    "brands": [
++      "پیشرو پلاستیکی با آهنربا",
++      "فلزی راینو"
++    ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 28
++    "workbookRow": 28,
++    "brandPrices": {
++      "پیشرو پلاستیکی با آهنربا": 1000,
++      "فلزی راینو": 2000
++    }
+   },
+   {
+     "id": "R017",
+-    "name": "لیمیت شهاب",
++    "name": "لیمیت",
+     "group": "startup",
+     "unit": "بسته",
+     "price": 1000,
+@@ -503,11 +577,16 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "شهاب"
++      "شهاب",
++      "یاشار"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 29
++    "workbookRow": 29,
++    "brandPrices": {
++      "شهاب": 1000,
++      "یاشار": 2000
++    }
+   },
+   {
+     "id": "R018",
+@@ -547,7 +626,7 @@
+   },
+   {
+     "id": "R020",
+-    "name": "درب یاران فول کابین 80 چپ دو لته",
++    "name": "درب کابین 80 چپ دو لته",
+     "group": "auto",
+     "unit": "دستگاه",
+     "price": 1000,
+@@ -558,11 +637,18 @@
+       "8": 1.0
+     },
+     "brands": [
++      "روانکار فول",
++      "حریری",
+       "یاران"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 32
++    "workbookRow": 32,
++    "brandPrices": {
++      "روانکار فول": 1000,
++      "حریری": 2000,
++      "یاران": 3000
++    }
+   },
+   {
+     "id": "R021",
+@@ -583,7 +669,7 @@
+   },
+   {
+     "id": "R022",
+-    "name": "شستی کابین آذرتابش 5 توقف یک متری نقره‌ای",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -594,15 +680,20 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "آذرتابش"
++      "مدیا 5 یک متری نور قرمز",
++      "آذرتابش 5 یک متری نقره‌ای"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 34
++    "workbookRow": 34,
++    "brandPrices": {
++      "مدیا 5 یک متری نور قرمز": 1000,
++      "آذرتابش 5 یک متری نقره‌ای": 2000
++    }
+   },
+   {
+     "id": "R023",
+-    "name": "شستی طبقه آذرتابش پلکسی نقره‌ای نور آبی",
++    "name": "شستی طبقه",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -613,109 +704,149 @@
+       "8": 8.0
+     },
+     "brands": [
+-      "آذرتابش"
++      "G07 مدیا نور آبی",
++      "آذرتابش پلکسی نقره‌ای نور آبی"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 35
++    "workbookRow": 35,
++    "brandPrices": {
++      "G07 مدیا نور آبی": 1000,
++      "آذرتابش پلکسی نقره‌ای نور آبی": 2000
++    }
+   },
+   {
+     "id": "P-CAB-BTN-3",
+-    "name": "شستی کابین آذرتابش 3 توقف یک متری نقره‌ای",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
+-      "آذرتابش"
++      "مدیا 3 یک متری نور قرمز",
++      "آذرتابش 3 یک متری نقره‌ای"
+     ],
+     "source": "pdf",
+-    "notes": "ردیف شستی کابین پیش‌فاکتور 3 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد."
++    "notes": "ردیف شستی کابین پیش‌فاکتور 3 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد.",
++    "brandPrices": {
++      "مدیا 3 یک متری نور قرمز": 1000,
++      "آذرتابش 3 یک متری نقره‌ای": 2000
++    }
+   },
+   {
+     "id": "P-CAB-BTN-4",
+-    "name": "شستی کابین آذرتابش 4 توقف یک متری نقره‌ای",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
+-      "آذرتابش"
++      "مدیا 4 یک متری نور قرمز",
++      "آذرتابش 4 یک متری نقره‌ای"
+     ],
+     "source": "pdf",
+-    "notes": "ردیف شستی کابین پیش‌فاکتور 4 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد."
++    "notes": "ردیف شستی کابین پیش‌فاکتور 4 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد.",
++    "brandPrices": {
++      "مدیا 4 یک متری نور قرمز": 1000,
++      "آذرتابش 4 یک متری نقره‌ای": 2000
++    }
+   },
+   {
+     "id": "P-CAB-BTN-6",
+-    "name": "شستی کابین آذرتابش 6 توقف یک متری نقره‌ای",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
+-      "آذرتابش"
++      "مدیا 6 یک متری نور قرمز",
++      "آذرتابش 6 یک متری نقره‌ای"
+     ],
+     "source": "pdf",
+-    "notes": "ردیف شستی کابین پیش‌فاکتور 6 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد."
++    "notes": "ردیف شستی کابین پیش‌فاکتور 6 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد.",
++    "brandPrices": {
++      "مدیا 6 یک متری نور قرمز": 1000,
++      "آذرتابش 6 یک متری نقره‌ای": 2000
++    }
+   },
+   {
+     "id": "P-CAB-BTN-7",
+-    "name": "شستی کابین آذرتابش 7 توقف یک متری نقره‌ای",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
+-      "آذرتابش"
++      "مدیا 7 یک متری نور قرمز",
++      "آذرتابش 7 یک متری نقره‌ای"
+     ],
+     "source": "pdf",
+-    "notes": "ردیف شستی کابین پیش‌فاکتور 7 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد."
++    "notes": "ردیف شستی کابین پیش‌فاکتور 7 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد.",
++    "brandPrices": {
++      "مدیا 7 یک متری نور قرمز": 1000,
++      "آذرتابش 7 یک متری نقره‌ای": 2000
++    }
+   },
+   {
+     "id": "P-CAB-BTN-8",
+-    "name": "شستی کابین آذرتابش 8 توقف یک متری نقره‌ای",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
+-      "آذرتابش"
++      "مدیا 8 یک متری نور قرمز",
++      "آذرتابش 8 یک متری نقره‌ای"
+     ],
+     "source": "pdf",
+-    "notes": "ردیف شستی کابین پیش‌فاکتور 8 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد."
++    "notes": "ردیف شستی کابین پیش‌فاکتور 8 توقف؛ هر تعداد توقف قیمت مادر جداگانه دارد.",
++    "brandPrices": {
++      "مدیا 8 یک متری نور قرمز": 1000,
++      "آذرتابش 8 یک متری نقره‌ای": 2000
++    }
+   },
+   {
+     "id": "P-CAB-BTN-9",
+-    "name": "شستی کابین آذرتابش 9 توقف دومتری طلایی",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
+-      "آذرتابش"
++      "مدیا 9 دومتری نور قرمز",
++      "آذرتابش 9 دومتری طلایی"
+     ],
+     "source": "pdf",
+-    "notes": "ردیف شستی کابین پیش‌فاکتور ۹ توقف؛ قیمت مادر جداگانه دارد."
++    "notes": "ردیف شستی کابین پیش‌فاکتور ۹ توقف؛ قیمت مادر جداگانه دارد.",
++    "brandPrices": {
++      "مدیا 9 دومتری نور قرمز": 1000,
++      "آذرتابش 9 دومتری طلایی": 2000
++    }
+   },
+   {
+     "id": "P-CAB-BTN-10",
+-    "name": "شستی کابین آذرتابش 10 توقف دو متری نقره‌ای",
++    "name": "شستی کابین",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
+-      "آذرتابش"
++      "مدیا 10 دو متری نور قرمز",
++      "آذرتابش 10 دو متری نقره‌ای"
+     ],
+     "source": "pdf",
+-    "notes": "ردیف شستی کابین پیش‌فاکتور ۱۰ توقف؛ قیمت مادر جداگانه دارد."
++    "notes": "ردیف شستی کابین پیش‌فاکتور ۱۰ توقف؛ قیمت مادر جداگانه دارد.",
++    "brandPrices": {
++      "مدیا 10 دو متری نور قرمز": 1000,
++      "آذرتابش 10 دو متری نقره‌ای": 2000
++    }
+   },
+   {
+     "id": "P-FLOOR-BTN-GOLD-BLUE",
+@@ -747,7 +878,7 @@
+   },
+   {
+     "id": "R024",
+-    "name": "چراغ تونلی 18 وات LED",
++    "name": "چراغ تونلی",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -757,10 +888,17 @@
+       "7": 9.0,
+       "8": 10.0
+     },
+-    "brands": [],
++    "brands": [
++      "18 وات LED",
++      "راینو"
++    ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 36
++    "workbookRow": 36,
++    "brandPrices": {
++      "18 وات LED": 1000,
++      "راینو": 2000
++    }
+   },
+   {
+     "id": "R025",
+@@ -774,10 +912,17 @@
+       "7": 1.0,
+       "8": 1.0
+     },
+-    "brands": [],
++    "brands": [
++      "معمولی",
++      "اعلا"
++    ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 37
++    "workbookRow": 37,
++    "brandPrices": {
++      "معمولی": 1000,
++      "اعلا": 2000
++    }
+   },
+   {
+     "id": "R026",
+@@ -834,7 +979,7 @@
+   },
+   {
+     "id": "R029",
+-    "name": "تراول 24 رشته هدسان",
++    "name": "تراول 24 رشته",
+     "group": "startup",
+     "unit": "متر",
+     "price": 1000,
+@@ -845,15 +990,22 @@
+       "8": 38.0
+     },
+     "brands": [
++      "آسیا پلاس سیم بکسل دار",
++      "تمام مس فوجی تک",
+       "هدسان"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 41
++    "workbookRow": 41,
++    "brandPrices": {
++      "آسیا پلاس سیم بکسل دار": 1000,
++      "تمام مس فوجی تک": 2000,
++      "هدسان": 3000
++    }
+   },
+   {
+     "id": "R030",
+-    "name": "سیم تلفنی 6 زوج معمولی",
++    "name": "سیم تلفنی 6 زوج",
+     "group": "startup",
+     "unit": "متر",
+     "price": 1000,
+@@ -863,14 +1015,21 @@
+       "7": 40.0,
+       "8": 45.0
+     },
+-    "brands": [],
++    "brands": [
++      "معمولی",
++      "تمام مس"
++    ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 42
++    "workbookRow": 42,
++    "brandPrices": {
++      "معمولی": 1000,
++      "تمام مس": 2000
++    }
+   },
+   {
+     "id": "R031",
+-    "name": "سیم 0.75 ایمان",
++    "name": "سیم 0.75",
+     "group": "startup",
+     "unit": "حلقه",
+     "price": 1000,
+@@ -881,11 +1040,16 @@
+       "8": 8.0
+     },
+     "brands": [
+-      "ایمان"
++      "ایمان",
++      "2رشته"
+     ],
+     "source": "excel",
+     "notes": "",
+-    "workbookRow": 43
++    "workbookRow": 43,
++    "brandPrices": {
++      "ایمان": 1000,
++      "2رشته": 2000
++    }
+   },
+   {
+     "id": "R032",
+@@ -1039,8 +1203,8 @@
+     }
+   },
+   {
+-    "id": "P-RAIL-T16",
+-    "name": "ریل چین سرد T16 درجه یک",
++    "id": "P-RAIL-T16.T89",
++    "name": "ریل چین سرد T16.T89 درجه یک",
+     "group": "rail",
+     "unit": "واحد",
+     "price": 3000,
+@@ -1051,7 +1215,23 @@
+     "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
+     "rail": {
+       "kind": "rail",
+-      "type": "T16"
++      "type": "T16.T89"
++    }
++  },
++  {
++    "id": "P-RAIL-T16.T90",
++    "name": "ریل چین سرد T16.T90 درجه یک",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 4000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "rail",
++      "type": "T16.T90"
+     }
+   },
+   {
+@@ -1087,8 +1267,8 @@
+     }
+   },
+   {
+-    "id": "P-BRACKET-T16",
+-    "name": "براکت T16",
++    "id": "P-BRACKET-T16.T89",
++    "name": "براکت T16.T89",
+     "group": "rail",
+     "unit": "واحد",
+     "price": 3000,
+@@ -1099,7 +1279,23 @@
+     "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
+     "rail": {
+       "kind": "bracket",
+-      "type": "T16"
++      "type": "T16.T89"
++    }
++  },
++  {
++    "id": "P-BRACKET-T16.T90",
++    "name": "براکت T16.T90",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 4000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "bracket",
++      "type": "T16.T90"
+     }
+   },
+   {
+@@ -1135,8 +1331,8 @@
+     }
+   },
+   {
+-    "id": "P-CLIP-T16",
+-    "name": "لقمه T16",
++    "id": "P-CLIP-T16.T89",
++    "name": "لقمه T16.T89",
+     "group": "rail",
+     "unit": "واحد",
+     "price": 3000,
+@@ -1147,7 +1343,23 @@
+     "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
+     "rail": {
+       "kind": "clip",
+-      "type": "T16"
++      "type": "T16.T89"
++    }
++  },
++  {
++    "id": "P-CLIP-T16.T90",
++    "name": "لقمه T16.T90",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 4000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "clip",
++      "type": "T16.T90"
+     }
+   },
+   {
+@@ -1292,17 +1504,24 @@
+   },
+   {
+     "id": "P-LANDING-DOOR",
+-    "name": "درب یاران طبقه 80 چپ دو لته",
++    "name": "درب طبقه 80 چپ دو لته",
+     "group": "auto",
+     "unit": "واحد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+     "brands": [
++      "روانکار فول",
++      "حریری",
+       "یاران"
+     ],
+     "source": "pdf",
+-    "notes": "تعداد هر توقف از پیش‌فاکتور همان توقف خوانده می‌شود."
++    "notes": "تعداد هر توقف از پیش‌فاکتور همان توقف خوانده می‌شود.",
++    "brandPrices": {
++      "روانکار فول": 1000,
++      "حریری": 2000,
++      "یاران": 3000
++    }
+   },
+   {
+     "id": "P-SEMI-DOOR",
+@@ -1318,7 +1537,7 @@
+   },
+   {
+     "id": "P-EARTH-WIRE",
+-    "name": "سیم نمره 4 هادی نور",
++    "name": "سیم نمره 4",
+     "group": "startup",
+     "unit": "واحد",
+     "price": 1000,
+@@ -1329,10 +1548,17 @@
+       "8": 1
+     },
+     "brands": [
+-      "هادی نور"
++      "هادی نور",
++      "استاندارد",
++      "خراسان"
+     ],
+     "source": "pdf",
+-    "notes": "یک عدد برای هر آسانسور؛ تعداد از پیش‌فاکتور همان توقف خوانده می‌شود."
++    "notes": "یک عدد برای هر آسانسور؛ تعداد از پیش‌فاکتور همان توقف خوانده می‌شود.",
++    "brandPrices": {
++      "هادی نور": 1000,
++      "استاندارد": 2000,
++      "خراسان": 3000
++    }
+   },
+   {
+     "id": "P-STARTUP-BOLT10",
+diff --git a/docs/CLIENT-CHANGES-1405-08.md b/docs/CLIENT-CHANGES-1405-08.md
+index 7ea937b..f6b1f27 100644
+--- a/docs/CLIENT-CHANGES-1405-08.md
++++ b/docs/CLIENT-CHANGES-1405-08.md
+@@ -65,7 +65,7 @@ full automatic 58, full semi 61.
+ * One-per-elevator items (motor, controller, earth wire, semi cabin door, 40x5 pulley, steel cabin)
+   also have quantity 1 at 6-8 stops, like their Excel analogues.
+ 
+-## Revision 3: rail types (T5 / T9 / T16)
++## Revision 3: rail types (T5 / T9 / T16, see revision 6)
+ 
+ * The two "ریل چین سرد ... درجه یک" rows are selectable like brands. The menu "نوع ریل" offers T5, T9 and T16;
+   the type used by the other rail is hidden, so the two rails can never be the same (choosing it from the other
+@@ -116,6 +116,12 @@ full automatic 58, full semi 61.
+ * The semi list prints the mechanical cam (stays retired) and serbokosl "آسان شایان"; names follow the standard product.
+ * Printed counts replaced by the client rules: weight 950 -> 780 / 1000.
+ 
++## Revision 6: brand lists and T16.T89 / T16.T90
++
++- 22 multi-brand products now carry the client's brand lists (first brand = default, each brand has its own price). The row shows the base name + the chosen brand. Cabin buttons: Media / Azartabesh for every stop count; doors: Ravankar Full / Hariri / Yaran.
++- There is no plain T16 any more: the third rail type is `T16.T89` or `T16.T90`. Both behave exactly like T16 in every formula (quantities, bracket and clip follow, T9 + T16.x merges the rail bolts into bolts 12). Their prices are separate master prices.
++- Saved choices of the old plain `T16` fall back to the default rails (T5 / T9); the old `P-*-T16` master prices are no longer used.
++
+ ## Still open
+ 
+ * Quantities at 6/7/8 stops of landing doors, startup bolts 10/8, semi doors/dictator/lock/spring and all rail items
+diff --git a/lib/price-manager/brand-rules.ts b/lib/price-manager/brand-rules.ts
+index 26ce087..b12ed9d 100644
+--- a/lib/price-manager/brand-rules.ts
++++ b/lib/price-manager/brand-rules.ts
+@@ -27,7 +27,8 @@ export const SINGLE_BRAND_PRODUCT_IDS: ReadonlySet<string> = new Set([
+   "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (ریل)
+   "P-SEMI-DOOR", // درب لولایی ۸۰ چپ کرم
+   "P-SEMI-SPRING", // فنر درب (در پیام کارفرما «فلز درب»)
+-  "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16", "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16", // براکت و لقمه (همنوع ریل)
++  "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16.T89", "P-BRACKET-T16.T90", // براکت و لقمه (همنوع ریل)
++  "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16.T89", "P-CLIP-T16.T90",
+   "P-STEEL-CABIN", // کابین تمام استیل
+ ]);
+ 
+diff --git a/lib/price-manager/rail-rules.ts b/lib/price-manager/rail-rules.ts
+index 6081c73..def0b16 100644
+--- a/lib/price-manager/rail-rules.ts
++++ b/lib/price-manager/rail-rules.ts
+@@ -1,6 +1,6 @@
+-import type { RailKind, RailSelection, RailType } from "./types";
++import type { RailFamily, RailKind, RailSelection, RailType } from "./types";
+ 
+-export const RAIL_TYPES: readonly RailType[] = ["T5", "T9", "T16"];
++export const RAIL_TYPES: readonly RailType[] = ["T5", "T9", "T16.T89", "T16.T90"];
+ export const DEFAULT_RAIL_SELECTION: RailSelection = ["T5", "T9"];
+ 
+ export function isRailType(value: unknown): value is RailType {
+@@ -30,9 +30,15 @@ export function getRailChoices(current: RailSelection, slot: 0 | 1): RailType[]
+   return RAIL_TYPES.filter((type) => type !== other);
+ }
+ 
+-/** Client rule: only when BOTH T9 and T16 are chosen, the rail bolts 10 and 8 become bolts 12. */
++/** T16.T89 and T16.T90 behave exactly like T16 in every formula. */
++export function getRailFamily(type: RailType): RailFamily {
++  return type.startsWith("T16") ? "T16" : (type as RailFamily);
++}
++
++/** Client rule: only when BOTH a T9 and a T16 (T89 or T90) rail are chosen, the rail bolts 10 and 8 become bolts 12. */
+ export function shouldMergeRailBolts(selection: RailSelection): boolean {
+-  return selection.includes("T9") && selection.includes("T16");
++  const families = selection.map(getRailFamily);
++  return families.includes("T9") && families.includes("T16");
+ }
+ 
+ /** Row order of the rail block: rails, then brackets, then clips, each in the order of the two selected types. */
+diff --git a/lib/price-manager/stop-lists.ts b/lib/price-manager/stop-lists.ts
+index e9432eb..42039e5 100644
+--- a/lib/price-manager/stop-lists.ts
++++ b/lib/price-manager/stop-lists.ts
+@@ -1,7 +1,8 @@
+ import stopData from "../../data/stop-quantities.json";
+ import membership from "../../data/reference/package-membership.json";
+ import { formatNumber } from "./format";
+-import type { Capacity, Product, RailKind, RailType } from "./types";
++import { getRailFamily } from "./rail-rules";
++import type { Capacity, Product, RailFamily, RailKind } from "./types";
+ 
+ export type StartupFamily = "auto" | "semi";
+ 
+@@ -13,8 +14,8 @@ export interface StopList {
+   ropeLength: number;
+   /** Quantity by product ID. A product that is missing here is not part of this list. */
+   quantities: Record<string, number>;
+-  /** Rails, brackets and clips by rail type. */
+-  rails: Record<RailType, Record<RailKind, number>>;
++  /** Rails, brackets and clips by rail family. */
++  rails: Record<RailFamily, Record<RailKind, number>>;
+   /** Products that replace a standard row at this stop count (cabin button, gold floor buttons). */
+   variants: Record<string, string>;
+ }
+@@ -57,7 +58,7 @@ export interface ListQuantity {
+  * rope 10 is 4 (or 5 for 8 persons) x the printed length, and a few mechanic rows have fixed counts.
+  */
+ export function getListQuantity(list: StopList, product: Product, capacity: Capacity): ListQuantity | null {
+-  if (product.rail) return { value: list.rails[product.rail.type][product.rail.kind], note: "" };
++  if (product.rail) return { value: list.rails[getRailFamily(product.rail.type)][product.rail.kind], note: "" };
+   const fixed = CAPACITY_RULES.quantities[capacity][product.id];
+   if (fixed !== undefined) return { value: fixed, note: capacity === "8" ? " (ویژهٔ ۸ نفر)" : "" };
+   if (product.id === ROPE_ID) {
+diff --git a/lib/price-manager/types.ts b/lib/price-manager/types.ts
+index 22ce6de..45fe1d5 100644
+--- a/lib/price-manager/types.ts
++++ b/lib/price-manager/types.ts
+@@ -6,7 +6,10 @@ export type PackageId =
+   | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
+ export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi" | "cabin";
+ export type QuantitySource = "workbook" | "invoice" | "manual" | "catalog" | "missing";
+-export type RailType = "T5" | "T9" | "T16";
++/** T16 exists only as T16.T89 or T16.T90 (the client has no plain T16). */
++export type RailType = "T5" | "T9" | "T16.T89" | "T16.T90";
++/** Rails of one family share their quantities and rules. */
++export type RailFamily = "T5" | "T9" | "T16";
+ export type RailKind = "rail" | "bracket" | "clip";
+ /** The two rails of a quote: always two different types. */
+ export type RailSelection = [RailType, RailType];
+diff --git a/scripts/test-admin-security.cjs b/scripts/test-admin-security.cjs
+index 4911b6f..6f7c021 100644
+--- a/scripts/test-admin-security.cjs
++++ b/scripts/test-admin-security.cjs
+@@ -46,7 +46,7 @@ function verifyWithNode(password, verifier) {
+   const actual = crypto.pbkdf2Sync(normalizePassword(password), Buffer.from(match[2], "base64"), Number(match[1]), 32, "sha256");
+   return crypto.timingSafeEqual(actual, Buffer.from(match[3], "base64"));
+ }
+-const initial = () => ({ prices: { "M001|brand": 1000 }, previousPrices: {}, customer: "client", stops: 10, capacity: "8", railTypes: ["T9", "T16"] });
++const initial = () => ({ prices: { "M001|brand": 1000 }, previousPrices: {}, customer: "client", stops: 10, capacity: "8", railTypes: ["T9", "T16.T89"] });
+ function deferred() { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
+ 
+ /* A deterministic hook unit harness. This is NOT a substitute for a real React/WebView UI test. */
+diff --git a/scripts/test-pricing.cjs b/scripts/test-pricing.cjs
+index f1b30c4..69673d8 100644
+--- a/scripts/test-pricing.cjs
++++ b/scripts/test-pricing.cjs
+@@ -33,7 +33,7 @@ async function run() {
+   const { calculateRow, calculateLineTotal, buildQuote, buildWorkbookComparison, selectProducts } = load("calculations");
+   const { isBrandSelectable, resolveBrand, getPriceKey, SINGLE_BRAND_PRODUCT_IDS } = load("brand-rules");
+   const { getPackageProductIds } = load("package-rules");
+-  const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds } = load("rail-rules");
++  const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds, getRailFamily } = load("rail-rules");
+   const { getQuantityOverrideKey, resolveWorkbookQuantity } = load("quantity-rules");
+   const { getMasterPrice, comparePrices } = load("master-price");
+   const { parseSettings, updateNumericSetting, createDemoSettings } = load("settings");
+@@ -59,9 +59,9 @@ async function run() {
+   equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns (kept as evidence)");
+   equal(stopInvoices.map((i) => `${i.stops}/${i.family}`), ["3/auto", "3/semi", "4/auto", "4/semi", "6/auto", "6/semi", "7/auto", "7/semi", "8/auto", "8/semi", "9/auto", "9/semi", "10/auto", "10/semi"], "14 new invoices: 3, 4, 6, 7, 8, 9 and 10 stops, automatic and semi-automatic");
+   equal(INITIAL_SETTINGS.stops, 5, "Default is the fully specified 5-stop list");
+-  equal(products.length, 85, "84 products plus placeholder");
++  equal(products.length, 88, "87 products plus placeholder");
+   equal(new Set(products.map((p) => p.id)).size, products.length, "No duplicate catalog IDs");
+-  const railDemoPrice = { T5: 1000, T9: 2000, T16: 3000 };
++  const railDemoPrice = { T5: 1000, T9: 2000, "T16.T89": 3000, "T16.T90": 4000 };
+   for (const product of products) equal(product.price, product.rail ? railDemoPrice[product.rail.type] : DEMO_BASE_PRICE, `${product.id}: demo base price (rail parts: one distinct price per type)`);
+ 
+   // Literal source-cell comparisons: no linear extrapolation or five-stop substitution.
+@@ -104,7 +104,7 @@ async function run() {
+   for (const number of ["17784", "19381"]) {
+     const invoice = invoices.find((i) => i.invoiceNumber === number);
+     for (const row of invoice.rows) {
+-      if (/^P-(MOTOR|CONTROL)/.test(row.productId)) continue; // brand-dependent names
++      if (isBrandSelectable(byId.get(row.productId))) continue; // brand-dependent names (base name + chosen brand)
+       equal(byId.get(row.productId).name, row.printedName, `Invoice ${number}/${row.row}: catalog name is the printed name`);
+     }
+     equal(getPackageProductIds(invoice.packageId, config()), adapt(invoice.rows.map((r) => r.productId), "4-6", invoice.packageId), `Invoice ${number}: exact row order`);
+@@ -135,7 +135,7 @@ async function run() {
+   /** Independent expectation of one quantity: printed list + client rules. */
+   const expectedQuantity = (stops, family, capacity, product) => {
+     const printed = printedSlots(stops, family);
+-    if (product.rail) return printed[`RAIL:${product.rail.type === "T16" ? "T9" : product.rail.type}:${product.rail.kind}`];
++    if (product.rail) return printed[`RAIL:${getRailFamily(product.rail.type) === "T16" ? "T9" : product.rail.type}:${product.rail.kind}`];
+     if (product.id === "M001") return (capacity === "8" ? 5 : 4) * ROPE_LENGTH[stops];
+     const fixed = CAPACITY_COUNTS[capacity][product.id];
+     if (fixed !== undefined) return fixed;
+@@ -273,6 +273,23 @@ async function run() {
+     equal(Object.keys(item.brandPrices), brandList, `${id}: no price without a brand`);
+   }
+   for (const p of products) if (p.brands.length > 1 && !SINGLE_BRAND_PRODUCT_IDS.has(p.id)) equal(new Set(Object.values(p.brandPrices)).size, p.brands.length, `${p.id}: every multi-brand product has distinct brand prices`);
++  // Client brand lists (1405/08/18): product name -> brands; the first brand is the default.
++  const CLIENT_BRANDS = {
++    M001: ["گوستاولف نواردار", "کنف آلمان"], M002: ["سفید", "خودرنگ"], M008: ["پرهام", "بهران", "پارس آسا"], "P-PULLEY-40X5": ["پرهام", "بهران", "پارس آسا"],
++    M009: ["آسان شایان", "پرشیا", "آسا"], M007: ["آسان شایان یک متر", "آرمیتاژ"], R029: ["آسیا پلاس سیم بکسل دار", "تمام مس فوجی تک", "هدسان"],
++    "P-EARTH-WIRE": ["هادی نور", "استاندارد", "خراسان"], R031: ["ایمان", "2رشته"], R030: ["معمولی", "تمام مس"], R002: ["زیرکابینی توربوسل", "مگنتی تکسل"],
++    R016: ["پیشرو پلاستیکی با آهنربا", "فلزی راینو"], R017: ["شهاب", "یاشار"], R003: ["آلسن 1500", "ایستا 1500"], R025: ["معمولی", "اعلا"],
++    R023: ["G07 مدیا نور آبی", "آذرتابش پلکسی نقره‌ای نور آبی"], R005: ["یاشار", "فلزی"], R004: ["20 سانت", "30 سانت"], R015: ["یاشار", "راینو"], R024: ["18 وات LED", "راینو"],
++    "P-LANDING-DOOR": ["روانکار فول", "حریری", "یاران"], R020: ["روانکار فول", "حریری", "یاران"],
++  };
++  for (const [id, list] of Object.entries(CLIENT_BRANDS)) {
++    const item = byId.get(id);
++    equal([item.brands, isBrandSelectable(item), resolveBrand(item, undefined)], [list, true, list[0]], `${id}: client brand list, first brand is the default`);
++    equal(list.map((brand) => item.brandPrices[brand]), list.map((_, index) => 1000 * (index + 1)), `${id}: every brand has its own price`);
++  }
++  const cabinButtons = products.filter((p) => p.id === "R022" || p.id.startsWith("P-CAB-BTN-"));
++  equal(cabinButtons.length, 8, "Cabin button exists for 3 to 10 stops");
++  for (const item of cabinButtons) equal([item.name, item.brands.length, isBrandSelectable(item), item.brands[0].startsWith("مدیا")], ["شستی کابین", 2, true, true], `${item.id}: cabin button brands, Media first`);
+   const twoBrand = { ...byId.get("M001"), brands: ["A", "B"] };
+   const brandPrices = { "M001::A": 4000, "M001::B": 5000 };
+   equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, stops: 6, prices: brandPrices, brands: { M001: "B" } }).total, 96 * 5000, "Quantity x price of the chosen brand");
+@@ -320,27 +337,30 @@ async function run() {
+   equal(semi5.quantityReference.includes("19381") && auto5.quantityReference.includes("17784"), true, "Quantity reference names the invoice");
+ 
+   // 4d. Rails: two different types out of T5 / T9 / T16; brackets and clips follow; T9 + T16 merge the rail bolts.
+-  equal(RAIL_TYPES, ["T5", "T9", "T16"], "Three rail types");
++  equal(RAIL_TYPES, ["T5", "T9", "T16.T89", "T16.T90"], "T16 exists only as T16.T89 or T16.T90");
++  equal(RAIL_TYPES.map(getRailFamily), ["T5", "T9", "T16", "T16"], "T16.T89 and T16.T90 are the T16 family");
+   equal(DEFAULT_RAIL_SELECTION, ["T5", "T9"], "Default rails match the printed lists");
+   const railParts = products.filter((p) => p.rail);
+-  equal(railParts.length, 9, "Rail, bracket and clip exist for T5, T9 and T16");
+-  equal(new Set(railParts.map((p) => p.price)).size >= 3, true, "Rail parts have their own prices");
+-  for (const kind of ["rail", "bracket", "clip"]) equal(new Set(railParts.filter((p) => p.rail.kind === kind).map((p) => p.price)).size, 3, `${kind}: one different price per type`);
+-  for (const id of ["P-BRACKET-T16", "P-CLIP-T16", "P-BRACKET-T5", "P-CLIP-T9"]) equal(isBrandSelectable(byId.get(id)), false, `${id}: static row, follows the rail`);
++  equal(railParts.length, 12, "Rail, bracket and clip exist for T5, T9, T16.T89 and T16.T90");
++  equal(byId.has("P-RAIL-T16"), false, "There is no plain T16");
++  equal(new Set(railParts.map((p) => p.price)).size >= 4, true, "Rail parts have their own prices");
++  for (const kind of ["rail", "bracket", "clip"]) equal(new Set(railParts.filter((p) => p.rail.kind === kind).map((p) => p.price)).size, 4, `${kind}: one different price per type`);
++  for (const id of ["P-BRACKET-T16.T89", "P-CLIP-T16.T90", "P-BRACKET-T5", "P-CLIP-T9"]) equal(isBrandSelectable(byId.get(id)), false, `${id}: static row, follows the rail`);
+   equal(normalizeRailSelection(["T9", "T9"]), ["T5", "T9"], "Duplicate rails are rejected");
+   equal(normalizeRailSelection(["T3", "T9"]), ["T5", "T9"], "Unknown rail type is rejected");
++  equal(normalizeRailSelection(["T16", "T9"]), ["T5", "T9"], "Plain T16 is no longer a rail type");
+   equal(normalizeRailSelection(undefined), ["T5", "T9"], "Missing selection falls back to the default");
+-  equal(normalizeRailSelection(["T16", "T5"]), ["T16", "T5"], "A valid selection is kept in order");
++  equal(normalizeRailSelection(["T16.T90", "T5"]), ["T16.T90", "T5"], "A valid selection is kept in order");
+   equal(selectRailType(["T5", "T9"], 0, "T9"), ["T9", "T5"], "Choosing the other rail's type swaps instead of repeating");
+-  equal(selectRailType(["T5", "T9"], 1, "T16"), ["T5", "T16"], "Free type is simply selected");
+-  equal(getRailChoices(["T5", "T9"], 0), ["T5", "T16"], "First menu hides the type of the second rail");
+-  equal(getRailChoices(["T5", "T9"], 1), ["T9", "T16"], "Second menu hides the type of the first rail");
++  equal(selectRailType(["T5", "T9"], 1, "T16.T89"), ["T5", "T16.T89"], "Free type is simply selected");
++  equal(getRailChoices(["T5", "T9"], 0), ["T5", "T16.T89", "T16.T90"], "First menu hides the type of the second rail");
++  equal(getRailChoices(["T5", "T9"], 1), ["T9", "T16.T89", "T16.T90"], "Second menu hides the type of the first rail");
+   const pairs = RAIL_TYPES.flatMap((a) => RAIL_TYPES.filter((b) => b !== a).map((b) => [a, b]));
+-  equal(pairs.length, 6, "Six ordered pairs of two different rails");
++  equal(pairs.length, 12, "Twelve ordered pairs of two different rails");
+   for (const pair of pairs) {
+     const [a, b] = pair;
+     equal(getRailProductIds(pair), [`P-RAIL-${a}`, `P-RAIL-${b}`, `P-BRACKET-${a}`, `P-BRACKET-${b}`, `P-CLIP-${a}`, `P-CLIP-${b}`], `${a}/${b}: brackets and clips follow the rails`);
+-    const merged = pair.includes("T9") && pair.includes("T16");
++    const merged = pair.includes("T9") && pair.some((t) => t.startsWith("T16"));
+     equal(shouldMergeRailBolts(pair), merged, `${a}/${b}: bolt merge rule`);
+     for (const pack of ["rail", "full-auto", "full-semi"]) for (const capacity of ["4-6", "8"]) {
+       const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack, capacity, railTypes: pair, stops: 5 });
+@@ -362,17 +382,17 @@ async function run() {
+       equal(quote.rows.length, base.rows.length - (merged ? 2 : 0), `${pack}/${a}/${b}: two rows less only when bolts merge`);
+     }
+   }
+-  const mergedSix = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T9", "T16"], stops: 6 });
++  const mergedSix = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T9", "T16.T89"], stops: 6 });
+   equal(mergedSix.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, 132 + 60 + 72, "6 stops: the merged bolt 12 is the sum of the printed 132 + 60 + 72");
+-  const mergedNine = buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-semi", railTypes: ["T16", "T9"], stops: 9 });
++  const mergedNine = buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-semi", railTypes: ["T16.T90", "T9"], stops: 9 });
+   equal(mergedNine.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, 200 + 80 + 104, "9 stops: 200 + 80 + 104");
+   const threeStops = (railTypes) => Object.fromEntries(buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes, stops: 3 }).rows.map((r) => [r.product.id, r.quantity]));
+   equal([threeStops(["T5", "T9"])["P-RAIL-T5"], threeStops(["T5", "T9"])["P-RAIL-T9"]], [8, 5], "3 stops automatic: the printed rail counts differ per type (T5 8, T9 5)");
+-  equal(threeStops(["T16", "T5"])["P-RAIL-T16"], 5, "T16 follows the T9 count until the client gives its own");
+-  const priced = { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T16", "T5"], stops: 5, prices: { "P-RAIL-T16": 111, "P-BRACKET-T16": 22, "P-CLIP-T16": 3 } };
++  equal(threeStops(["T16.T89", "T5"])["P-RAIL-T16.T89"], 5, "T16.T89 follows the T9 count until the client gives its own");
++  const priced = { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T16.T90", "T5"], stops: 5, prices: { "P-RAIL-T16.T90": 111, "P-BRACKET-T16.T90": 22, "P-CLIP-T16.T90": 3 } };
+   const pricedRows = Object.fromEntries(buildQuote(products, priced).rows.map((r) => [r.product.id, r.unitPrice]));
+-  equal([pricedRows["P-RAIL-T16"], pricedRows["P-BRACKET-T16"], pricedRows["P-CLIP-T16"], pricedRows["P-RAIL-T5"]], [111, 22, 3, 1000], "Each rail part has its own editable master price");
+-  equal(parseSettings({ ...legacy, railTypes: ["T16", "T9"] }).railTypes, ["T16", "T9"], "Rail choice is saved");
++  equal([pricedRows["P-RAIL-T16.T90"], pricedRows["P-BRACKET-T16.T90"], pricedRows["P-CLIP-T16.T90"], pricedRows["P-RAIL-T5"]], [111, 22, 3, 1000], "Each rail part has its own editable master price");
++  equal(parseSettings({ ...legacy, railTypes: ["T16.T89", "T9"] }).railTypes, ["T16.T89", "T9"], "Rail choice is saved");
+   equal(parseSettings({ ...legacy, railTypes: ["T9", "T9"] }).railTypes, ["T5", "T9"], "Saved duplicate rails are repaired");
+ 
+   // 4e. The 14 new invoices (3, 4, 6, 7, 8, 9, 10 stops): row set and quantities of the full packages equal the printed rows.
+@@ -397,12 +417,12 @@ async function run() {
+       equal(row.quantity, printed, `${invoice.invoiceNumber}/${printedRow.slot}: printed ${printedRow.printedName}`);
+     }
+     equal(engine.get("CABIN").quantity, 1, `${invoice.invoiceNumber}: one all-steel cabin`);
+-    equal(quote.rows.find((r) => r.product.id === "R022" || r.product.id.startsWith("P-CAB-BTN")).product.name.includes(`${invoice.stops} توقف`), true, `${invoice.invoiceNumber}: the cabin button is the one of this stop count`);
++    equal(quote.rows.find((r) => r.product.id === "R022" || r.product.id.startsWith("P-CAB-BTN")).product.brands.every((brand) => brand.split(" ").includes(String(invoice.stops))), true, `${invoice.invoiceNumber}: the cabin button is the one of this stop count`);
+   }
+   equal(printedCounts["15675"].M001, 5 * 35, "The 9-stop semi list prints 5 x 35");
+   const nine = (family) => buildQuote(products, { ...INITIAL_SETTINGS, pack: family === "semi" ? "full-semi" : "full-auto", stops: 9 }).rows.map((r) => r.product.name);
+   equal([nine("auto").includes("شستی طبقه آذرتابش پلکسی طلایی نور آبی"), nine("semi").includes("شستی طبقه آذرتابش پلکسی طلایی نور قرمز")], [true, true], "9 stops: gold floor buttons (blue light automatic, red light semi-automatic)");
+-  equal(nine("auto").includes("شستی کابین آذرتابش 9 توقف دومتری طلایی"), true, "9 stops: gold two-metre cabin button");
++  equal([nine("auto").includes("شستی کابین"), byId.get("P-CAB-BTN-9").brands[1]], [true, "آذرتابش 9 دومتری طلایی"], "9 stops: two-metre cabin button, Azartabesh is the gold one");
+ 
+   // 5. Real persistence functions, with mocked storage/IPC (not a native Rust test).
+   const values = new Map();

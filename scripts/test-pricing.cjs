@@ -33,7 +33,7 @@ async function run() {
   const { calculateRow, calculateLineTotal, buildQuote, buildWorkbookComparison, selectProducts } = load("calculations");
   const { isBrandSelectable, resolveBrand, getPriceKey, SINGLE_BRAND_PRODUCT_IDS } = load("brand-rules");
   const { getPackageProductIds } = load("package-rules");
-  const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds } = load("rail-rules");
+  const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds, getRailFamily } = load("rail-rules");
   const { getQuantityOverrideKey, resolveWorkbookQuantity } = load("quantity-rules");
   const { getMasterPrice, comparePrices } = load("master-price");
   const { parseSettings, updateNumericSetting, createDemoSettings } = load("settings");
@@ -59,9 +59,9 @@ async function run() {
   equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns (kept as evidence)");
   equal(stopInvoices.map((i) => `${i.stops}/${i.family}`), ["3/auto", "3/semi", "4/auto", "4/semi", "6/auto", "6/semi", "7/auto", "7/semi", "8/auto", "8/semi", "9/auto", "9/semi", "10/auto", "10/semi"], "14 new invoices: 3, 4, 6, 7, 8, 9 and 10 stops, automatic and semi-automatic");
   equal(INITIAL_SETTINGS.stops, 5, "Default is the fully specified 5-stop list");
-  equal(products.length, 85, "84 products plus placeholder");
+  equal(products.length, 88, "87 products plus placeholder");
   equal(new Set(products.map((p) => p.id)).size, products.length, "No duplicate catalog IDs");
-  const railDemoPrice = { T5: 1000, T9: 2000, T16: 3000 };
+  const railDemoPrice = { T5: 1000, T9: 2000, "T16.T89": 3000, "T16.T90": 4000 };
   for (const product of products) equal(product.price, product.rail ? railDemoPrice[product.rail.type] : DEMO_BASE_PRICE, `${product.id}: demo base price (rail parts: one distinct price per type)`);
 
   // Literal source-cell comparisons: no linear extrapolation or five-stop substitution.
@@ -104,7 +104,7 @@ async function run() {
   for (const number of ["17784", "19381"]) {
     const invoice = invoices.find((i) => i.invoiceNumber === number);
     for (const row of invoice.rows) {
-      if (/^P-(MOTOR|CONTROL)/.test(row.productId)) continue; // brand-dependent names
+      if (isBrandSelectable(byId.get(row.productId))) continue; // brand-dependent names (base name + chosen brand)
       equal(byId.get(row.productId).name, row.printedName, `Invoice ${number}/${row.row}: catalog name is the printed name`);
     }
     equal(getPackageProductIds(invoice.packageId, config()), adapt(invoice.rows.map((r) => r.productId), "4-6", invoice.packageId), `Invoice ${number}: exact row order`);
@@ -135,7 +135,7 @@ async function run() {
   /** Independent expectation of one quantity: printed list + client rules. */
   const expectedQuantity = (stops, family, capacity, product) => {
     const printed = printedSlots(stops, family);
-    if (product.rail) return printed[`RAIL:${product.rail.type === "T16" ? "T9" : product.rail.type}:${product.rail.kind}`];
+    if (product.rail) return printed[`RAIL:${getRailFamily(product.rail.type) === "T16" ? "T9" : product.rail.type}:${product.rail.kind}`];
     if (product.id === "M001") return (capacity === "8" ? 5 : 4) * ROPE_LENGTH[stops];
     const fixed = CAPACITY_COUNTS[capacity][product.id];
     if (fixed !== undefined) return fixed;
@@ -273,6 +273,23 @@ async function run() {
     equal(Object.keys(item.brandPrices), brandList, `${id}: no price without a brand`);
   }
   for (const p of products) if (p.brands.length > 1 && !SINGLE_BRAND_PRODUCT_IDS.has(p.id)) equal(new Set(Object.values(p.brandPrices)).size, p.brands.length, `${p.id}: every multi-brand product has distinct brand prices`);
+  // Client brand lists (1405/08/18): product name -> brands; the first brand is the default.
+  const CLIENT_BRANDS = {
+    M001: ["گوستاولف نواردار", "کنف آلمان"], M002: ["سفید", "خودرنگ"], M008: ["پرهام", "بهران", "پارس آسا"], "P-PULLEY-40X5": ["پرهام", "بهران", "پارس آسا"],
+    M009: ["آسان شایان", "پرشیا", "آسا"], M007: ["آسان شایان یک متر", "آرمیتاژ"], R029: ["آسیا پلاس سیم بکسل دار", "تمام مس فوجی تک", "هدسان"],
+    "P-EARTH-WIRE": ["هادی نور", "استاندارد", "خراسان"], R031: ["ایمان", "2رشته"], R030: ["معمولی", "تمام مس"], R002: ["زیرکابینی توربوسل", "مگنتی تکسل"],
+    R016: ["پیشرو پلاستیکی با آهنربا", "فلزی راینو"], R017: ["شهاب", "یاشار"], R003: ["آلسن 1500", "ایستا 1500"], R025: ["معمولی", "اعلا"],
+    R023: ["G07 مدیا نور آبی", "آذرتابش پلکسی نقره‌ای نور آبی"], R005: ["یاشار", "فلزی"], R004: ["20 سانت", "30 سانت"], R015: ["یاشار", "راینو"], R024: ["18 وات LED", "راینو"],
+    "P-LANDING-DOOR": ["روانکار فول", "حریری", "یاران"], R020: ["روانکار فول", "حریری", "یاران"],
+  };
+  for (const [id, list] of Object.entries(CLIENT_BRANDS)) {
+    const item = byId.get(id);
+    equal([item.brands, isBrandSelectable(item), resolveBrand(item, undefined)], [list, true, list[0]], `${id}: client brand list, first brand is the default`);
+    equal(list.map((brand) => item.brandPrices[brand]), list.map((_, index) => 1000 * (index + 1)), `${id}: every brand has its own price`);
+  }
+  const cabinButtons = products.filter((p) => p.id === "R022" || p.id.startsWith("P-CAB-BTN-"));
+  equal(cabinButtons.length, 8, "Cabin button exists for 3 to 10 stops");
+  for (const item of cabinButtons) equal([item.name, item.brands.length, isBrandSelectable(item), item.brands[0].startsWith("مدیا")], ["شستی کابین", 2, true, true], `${item.id}: cabin button brands, Media first`);
   const twoBrand = { ...byId.get("M001"), brands: ["A", "B"] };
   const brandPrices = { "M001::A": 4000, "M001::B": 5000 };
   equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, stops: 6, prices: brandPrices, brands: { M001: "B" } }).total, 96 * 5000, "Quantity x price of the chosen brand");
@@ -320,27 +337,30 @@ async function run() {
   equal(semi5.quantityReference.includes("19381") && auto5.quantityReference.includes("17784"), true, "Quantity reference names the invoice");
 
   // 4d. Rails: two different types out of T5 / T9 / T16; brackets and clips follow; T9 + T16 merge the rail bolts.
-  equal(RAIL_TYPES, ["T5", "T9", "T16"], "Three rail types");
+  equal(RAIL_TYPES, ["T5", "T9", "T16.T89", "T16.T90"], "T16 exists only as T16.T89 or T16.T90");
+  equal(RAIL_TYPES.map(getRailFamily), ["T5", "T9", "T16", "T16"], "T16.T89 and T16.T90 are the T16 family");
   equal(DEFAULT_RAIL_SELECTION, ["T5", "T9"], "Default rails match the printed lists");
   const railParts = products.filter((p) => p.rail);
-  equal(railParts.length, 9, "Rail, bracket and clip exist for T5, T9 and T16");
-  equal(new Set(railParts.map((p) => p.price)).size >= 3, true, "Rail parts have their own prices");
-  for (const kind of ["rail", "bracket", "clip"]) equal(new Set(railParts.filter((p) => p.rail.kind === kind).map((p) => p.price)).size, 3, `${kind}: one different price per type`);
-  for (const id of ["P-BRACKET-T16", "P-CLIP-T16", "P-BRACKET-T5", "P-CLIP-T9"]) equal(isBrandSelectable(byId.get(id)), false, `${id}: static row, follows the rail`);
+  equal(railParts.length, 12, "Rail, bracket and clip exist for T5, T9, T16.T89 and T16.T90");
+  equal(byId.has("P-RAIL-T16"), false, "There is no plain T16");
+  equal(new Set(railParts.map((p) => p.price)).size >= 4, true, "Rail parts have their own prices");
+  for (const kind of ["rail", "bracket", "clip"]) equal(new Set(railParts.filter((p) => p.rail.kind === kind).map((p) => p.price)).size, 4, `${kind}: one different price per type`);
+  for (const id of ["P-BRACKET-T16.T89", "P-CLIP-T16.T90", "P-BRACKET-T5", "P-CLIP-T9"]) equal(isBrandSelectable(byId.get(id)), false, `${id}: static row, follows the rail`);
   equal(normalizeRailSelection(["T9", "T9"]), ["T5", "T9"], "Duplicate rails are rejected");
   equal(normalizeRailSelection(["T3", "T9"]), ["T5", "T9"], "Unknown rail type is rejected");
+  equal(normalizeRailSelection(["T16", "T9"]), ["T5", "T9"], "Plain T16 is no longer a rail type");
   equal(normalizeRailSelection(undefined), ["T5", "T9"], "Missing selection falls back to the default");
-  equal(normalizeRailSelection(["T16", "T5"]), ["T16", "T5"], "A valid selection is kept in order");
+  equal(normalizeRailSelection(["T16.T90", "T5"]), ["T16.T90", "T5"], "A valid selection is kept in order");
   equal(selectRailType(["T5", "T9"], 0, "T9"), ["T9", "T5"], "Choosing the other rail's type swaps instead of repeating");
-  equal(selectRailType(["T5", "T9"], 1, "T16"), ["T5", "T16"], "Free type is simply selected");
-  equal(getRailChoices(["T5", "T9"], 0), ["T5", "T16"], "First menu hides the type of the second rail");
-  equal(getRailChoices(["T5", "T9"], 1), ["T9", "T16"], "Second menu hides the type of the first rail");
+  equal(selectRailType(["T5", "T9"], 1, "T16.T89"), ["T5", "T16.T89"], "Free type is simply selected");
+  equal(getRailChoices(["T5", "T9"], 0), ["T5", "T16.T89", "T16.T90"], "First menu hides the type of the second rail");
+  equal(getRailChoices(["T5", "T9"], 1), ["T9", "T16.T89", "T16.T90"], "Second menu hides the type of the first rail");
   const pairs = RAIL_TYPES.flatMap((a) => RAIL_TYPES.filter((b) => b !== a).map((b) => [a, b]));
-  equal(pairs.length, 6, "Six ordered pairs of two different rails");
+  equal(pairs.length, 12, "Twelve ordered pairs of two different rails");
   for (const pair of pairs) {
     const [a, b] = pair;
     equal(getRailProductIds(pair), [`P-RAIL-${a}`, `P-RAIL-${b}`, `P-BRACKET-${a}`, `P-BRACKET-${b}`, `P-CLIP-${a}`, `P-CLIP-${b}`], `${a}/${b}: brackets and clips follow the rails`);
-    const merged = pair.includes("T9") && pair.includes("T16");
+    const merged = pair.includes("T9") && pair.some((t) => t.startsWith("T16"));
     equal(shouldMergeRailBolts(pair), merged, `${a}/${b}: bolt merge rule`);
     for (const pack of ["rail", "full-auto", "full-semi"]) for (const capacity of ["4-6", "8"]) {
       const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack, capacity, railTypes: pair, stops: 5 });
@@ -362,17 +382,17 @@ async function run() {
       equal(quote.rows.length, base.rows.length - (merged ? 2 : 0), `${pack}/${a}/${b}: two rows less only when bolts merge`);
     }
   }
-  const mergedSix = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T9", "T16"], stops: 6 });
+  const mergedSix = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T9", "T16.T89"], stops: 6 });
   equal(mergedSix.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, 132 + 60 + 72, "6 stops: the merged bolt 12 is the sum of the printed 132 + 60 + 72");
-  const mergedNine = buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-semi", railTypes: ["T16", "T9"], stops: 9 });
+  const mergedNine = buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-semi", railTypes: ["T16.T90", "T9"], stops: 9 });
   equal(mergedNine.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, 200 + 80 + 104, "9 stops: 200 + 80 + 104");
   const threeStops = (railTypes) => Object.fromEntries(buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes, stops: 3 }).rows.map((r) => [r.product.id, r.quantity]));
   equal([threeStops(["T5", "T9"])["P-RAIL-T5"], threeStops(["T5", "T9"])["P-RAIL-T9"]], [8, 5], "3 stops automatic: the printed rail counts differ per type (T5 8, T9 5)");
-  equal(threeStops(["T16", "T5"])["P-RAIL-T16"], 5, "T16 follows the T9 count until the client gives its own");
-  const priced = { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T16", "T5"], stops: 5, prices: { "P-RAIL-T16": 111, "P-BRACKET-T16": 22, "P-CLIP-T16": 3 } };
+  equal(threeStops(["T16.T89", "T5"])["P-RAIL-T16.T89"], 5, "T16.T89 follows the T9 count until the client gives its own");
+  const priced = { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T16.T90", "T5"], stops: 5, prices: { "P-RAIL-T16.T90": 111, "P-BRACKET-T16.T90": 22, "P-CLIP-T16.T90": 3 } };
   const pricedRows = Object.fromEntries(buildQuote(products, priced).rows.map((r) => [r.product.id, r.unitPrice]));
-  equal([pricedRows["P-RAIL-T16"], pricedRows["P-BRACKET-T16"], pricedRows["P-CLIP-T16"], pricedRows["P-RAIL-T5"]], [111, 22, 3, 1000], "Each rail part has its own editable master price");
-  equal(parseSettings({ ...legacy, railTypes: ["T16", "T9"] }).railTypes, ["T16", "T9"], "Rail choice is saved");
+  equal([pricedRows["P-RAIL-T16.T90"], pricedRows["P-BRACKET-T16.T90"], pricedRows["P-CLIP-T16.T90"], pricedRows["P-RAIL-T5"]], [111, 22, 3, 1000], "Each rail part has its own editable master price");
+  equal(parseSettings({ ...legacy, railTypes: ["T16.T89", "T9"] }).railTypes, ["T16.T89", "T9"], "Rail choice is saved");
   equal(parseSettings({ ...legacy, railTypes: ["T9", "T9"] }).railTypes, ["T5", "T9"], "Saved duplicate rails are repaired");
 
   // 4e. The 14 new invoices (3, 4, 6, 7, 8, 9, 10 stops): row set and quantities of the full packages equal the printed rows.
@@ -397,12 +417,12 @@ async function run() {
       equal(row.quantity, printed, `${invoice.invoiceNumber}/${printedRow.slot}: printed ${printedRow.printedName}`);
     }
     equal(engine.get("CABIN").quantity, 1, `${invoice.invoiceNumber}: one all-steel cabin`);
-    equal(quote.rows.find((r) => r.product.id === "R022" || r.product.id.startsWith("P-CAB-BTN")).product.name.includes(`${invoice.stops} توقف`), true, `${invoice.invoiceNumber}: the cabin button is the one of this stop count`);
+    equal(quote.rows.find((r) => r.product.id === "R022" || r.product.id.startsWith("P-CAB-BTN")).product.brands.every((brand) => brand.split(" ").includes(String(invoice.stops))), true, `${invoice.invoiceNumber}: the cabin button is the one of this stop count`);
   }
   equal(printedCounts["15675"].M001, 5 * 35, "The 9-stop semi list prints 5 x 35");
   const nine = (family) => buildQuote(products, { ...INITIAL_SETTINGS, pack: family === "semi" ? "full-semi" : "full-auto", stops: 9 }).rows.map((r) => r.product.name);
   equal([nine("auto").includes("شستی طبقه آذرتابش پلکسی طلایی نور آبی"), nine("semi").includes("شستی طبقه آذرتابش پلکسی طلایی نور قرمز")], [true, true], "9 stops: gold floor buttons (blue light automatic, red light semi-automatic)");
-  equal(nine("auto").includes("شستی کابین آذرتابش 9 توقف دومتری طلایی"), true, "9 stops: gold two-metre cabin button");
+  equal([nine("auto").includes("شستی کابین"), byId.get("P-CAB-BTN-9").brands[1]], [true, "آذرتابش 9 دومتری طلایی"], "9 stops: two-metre cabin button, Azartabesh is the gold one");
 
   // 5. Real persistence functions, with mocked storage/IPC (not a native Rust test).
   const values = new Map();

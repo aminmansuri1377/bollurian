@@ -27,7 +27,8 @@ export const SINGLE_BRAND_PRODUCT_IDS: ReadonlySet<string> = new Set([
   "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (ریل)
   "P-SEMI-DOOR", // درب لولایی ۸۰ چپ کرم
   "P-SEMI-SPRING", // فنر درب (در پیام کارفرما «فلز درب»)
-  "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16", "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16", // براکت و لقمه (همنوع ریل)
+  "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16.T89", "P-BRACKET-T16.T90", // براکت و لقمه (همنوع ریل)
+  "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16.T89", "P-CLIP-T16.T90",
   "P-STEEL-CABIN", // کابین تمام استیل
 ]);
 

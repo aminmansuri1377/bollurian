@@ -6,7 +6,10 @@ export type PackageId =
   | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
 export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi" | "cabin";
 export type QuantitySource = "workbook" | "invoice" | "manual" | "catalog" | "missing";
-export type RailType = "T5" | "T9" | "T16";
+/** T16 exists only as T16.T89 or T16.T90 (the client has no plain T16). */
+export type RailType = "T5" | "T9" | "T16.T89" | "T16.T90";
+/** Rails of one family share their quantities and rules. */
+export type RailFamily = "T5" | "T9" | "T16";
 export type RailKind = "rail" | "bracket" | "clip";
 /** The two rails of a quote: always two different types. */
 export type RailSelection = [RailType, RailType];
