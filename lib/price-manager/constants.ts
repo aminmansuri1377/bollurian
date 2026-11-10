@@ -12,13 +12,13 @@ export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
   { value: "full-semi", label: "صفر تا صد نیمه اتومات" },
 ];
 
+/** Display order of the groups: list sections and PDF sections follow it. */
+export const GROUP_ORDER: readonly ProductGroup[] = ["mechanic", "startup", "rail", "cabin"];
+
 export const GROUP_LABELS: Record<ProductGroup, string> = {
-  rail: "ریل",
   mechanic: "مکانیک",
-  motor: "موتور",
   startup: "راه‌اندازی",
-  auto: "تمام اتومات",
-  semi: "نیمه اتومات",
+  rail: "ریل",
   cabin: "کابین",
 };
 

@@ -57,7 +57,7 @@ export function MasterPricesDialog({
         <thead>
           <tr>
             {[
-              "کد",
+              // "کد",
               "محصول",
               "دسته",
               "مبنا",
@@ -86,9 +86,9 @@ export function MasterPricesDialog({
               : product.name;
             return (
               <tr key={priceKey}>
-                <td className="px-2 py-2 text-[10px] font-light">
+                {/* <td className="px-2 py-2 text-[10px] font-light">
                   <bdi>{product.id}</bdi>
-                </td>
+                </td> */}
                 <td className="max-w-[250px] px-2 py-2">{title}</td>
                 <td className="px-2 py-2">{GROUP_LABELS[product.group]}</td>
                 <td className="whitespace-nowrap px-2 py-2 tabular-nums">

@@ -294,7 +294,7 @@
         {
           "row": 34,
           "page": 1,
-          "productId": "P-SEMI-CABIN-DOOR",
+          "productId": "R020",
           "printedQuantity": 1
         },
         {
@@ -306,7 +306,7 @@
         {
           "row": 36,
           "page": 1,
-          "productId": "P-SEMI-DOOR",
+          "productId": "P-LANDING-DOOR",
           "printedQuantity": 5
         },
         {
@@ -1610,14 +1610,14 @@
         {
           "row": 45,
           "page": 2,
-          "productId": "P-SEMI-CABIN-DOOR",
+          "productId": "R020",
           "printedQuantity": 1,
           "printedName": "درب یاران نیمه کابین 80 چپ دو لته"
         },
         {
           "row": 46,
           "page": 2,
-          "productId": "P-SEMI-DOOR",
+          "productId": "P-LANDING-DOOR",
           "printedQuantity": 5,
           "printedName": "درب لولایی 80 چپ کرم"
         },
@@ -1996,7 +1996,7 @@
         {
           "row": 45,
           "page": 2,
-          "productId": "P-SEMI-CABIN-DOOR",
+          "productId": "R020",
           "printedQuantity": 1
         },
         {
@@ -2008,7 +2008,7 @@
         {
           "row": 47,
           "page": 2,
-          "productId": "P-SEMI-DOOR",
+          "productId": "P-LANDING-DOOR",
           "printedQuantity": 5
         },
         {

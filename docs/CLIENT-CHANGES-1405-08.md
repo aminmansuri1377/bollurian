@@ -122,6 +122,14 @@ full automatic 58, full semi 61.
 - There is no plain T16 any more: the third rail type is `T16.T89` or `T16.T90`. Both behave exactly like T16 in every formula (quantities, bracket and clip follow, T9 + T16.x merges the rail bolts into bolts 12). Their prices are separate master prices.
 - Saved choices of the old plain `T16` fall back to the default rails (T5 / T9); the old `P-*-T16` master prices are no longer used.
 
+## Revision 7: price groups and doors
+
+- The list and the PDF are split into the four price groups (mechanic, startup, rail, cabin), in that order. Each group has a title bar and ends with its own subtotal row; the grand total stays at the end of the table. Row numbers continue across groups; a group with no rows is not shown.
+- `ProductGroup` is now exactly these four values (the old motor / auto / semi groups are gone); the motor / controller capacity rule no longer depends on the group.
+- Semi-automatic packages use the same two brand-selectable door rows as the automatic ones: cabin door, then landing door, right above the motor (brands: Ravankar Full, Hariri, Yaran). The old rows "درب لولایی 80 چپ کرم" and "درب یاران نیمه کابین" are retired; quantities are unchanged (1 and one per stop).
+
+- The hero uses the client's SVG logo (white, `components/price-manager/hero-logo.tsx`). A group with a single row (the all-steel cabin) shows no subtotal row, in the list and in the PDF.
+
 ## Still open
 
 * Quantities at 6/7/8 stops of landing doors, startup bolts 10/8, semi doors/dictator/lock/spring and all rail items

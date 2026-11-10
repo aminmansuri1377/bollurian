@@ -1,4 +1,5 @@
 import { isSingleModel } from "@/lib/price-manager/brand-rules";
+import { groupRowsByCategory } from "@/lib/price-manager/calculations";
 import { getRailChoices } from "@/lib/price-manager/rail-rules";
 import { formatMoney, formatNumber } from "@/lib/price-manager/format";
 import type { QuoteRow, RailSelection, RailType } from "@/lib/price-manager/types";
@@ -15,13 +16,15 @@ interface ProductTableProps {
 }
 
 const columns = "grid grid-cols-[1.85fr_0.43fr_1fr_1fr] gap-[14px]";
+const sectionBar = "flex h-[44px] items-center rounded-full bg-lavender px-6 text-[14px] font-medium";
 const cell = "flex h-[50px] min-w-0 items-center justify-center rounded-full border bg-white px-2 text-[13px] font-light tabular-nums";
 
 /** Quantity, unit price and total are read-only here; prices are changed only in the master-price dialog. */
 export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBrandChange, onToggle }: ProductTableProps) {
+  const sections = groupRowsByCategory(rows);
   return (
     <fieldset disabled={disabled} className="min-w-0">
-      <div role="table" aria-label="جدول تجهیزات و قیمت‌ها" aria-colcount={4} aria-rowcount={rows.length + 1}>
+      <div role="table" aria-label="جدول تجهیزات و قیمت‌ها" aria-colcount={4} aria-rowcount={rows.length + 1 + sections.length + sections.filter((s) => s.hasSubtotal).length}>
         <div role="rowgroup">
           <div role="row" className={`${columns} mb-[14px]`}>
             {["شرح کالا / انتخاب برند", "تعداد", "قیمت به ازای هر واحد", "قیمت کل"].map((label) => (
@@ -31,8 +34,11 @@ export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBr
             ))}
           </div>
         </div>
-        <div role="rowgroup" className="flex flex-col gap-[14px]">
-          {rows.map((row, index) => {
+        {sections.map((section) => (
+        <div key={section.category} role="rowgroup" aria-label={section.label} className="mb-[28px] flex flex-col gap-[14px] last:mb-0">
+          <div role="row"><div role="columnheader" aria-colspan={4} className={sectionBar}>{section.label}</div></div>
+          {section.rows.map((row, sectionIndex) => {
+            const index = section.firstRowNumber - 1 + sectionIndex;
             // Only the rows of the two rails have a type menu; brackets and clips just follow the choice.
             const slot = row.product.rail?.kind === "rail" ? (railTypes.indexOf(row.product.rail.type) as 0 | 1) : null;
             return (
@@ -55,6 +61,15 @@ export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBr
             </div>
             );
           })}
+          {section.hasSubtotal && (
+            <div role="row" className={columns}>
+              <div role="cell" aria-colspan={3} className="col-span-3 flex h-[44px] items-center justify-end px-6 text-[13px] font-medium">جمع {section.label}</div>
+              <div role="cell" className={`${cell} h-[44px] border-brand font-medium`} title="جمع گروه به تومان">{formatMoney(section.subtotal)}</div>
+            </div>
+          )}
+        </div>
+        ))}
+        <div role="rowgroup">
           {!rows.length && <p className="py-10 text-center text-sm text-caption">محصولی برای نمایش وجود ندارد.</p>}
         </div>
       </div>

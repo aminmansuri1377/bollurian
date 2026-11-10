@@ -1407,18 +1407,6 @@
     }
   },
   {
-    "id": "P-SEMI-DOOR",
-    "name": "درب لولایی 80 چپ کرم",
-    "group": "startup",
-    "unit": "واحد",
-    "price": 1000,
-    "previous": null,
-    "quantities": {},
-    "brands": [],
-    "source": "pdf",
-    "notes": "تعداد هر توقف از پیش‌فاکتور همان توقف خوانده می‌شود."
-  },
-  {
     "id": "P-EARTH-WIRE",
     "name": "سیم نمره 4",
     "group": "startup",
@@ -1462,22 +1450,6 @@
     "brands": [],
     "source": "pdf",
     "notes": "تعداد هر توقف از پیش‌فاکتور همان توقف خوانده می‌شود."
-  },
-  {
-    "id": "P-SEMI-CABIN-DOOR",
-    "name": "درب یاران نیمه کابین 80 چپ دو لته",
-    "group": "startup",
-    "unit": "واحد",
-    "price": 1000,
-    "previous": null,
-    "quantities": {
-      "6": 1,
-      "7": 1,
-      "8": 1
-    },
-    "brands": ["یاران"],
-    "source": "pdf",
-    "notes": "یک عدد برای هر آسانسور؛ تعداد از پیش‌فاکتور همان توقف خوانده می‌شود."
   },
   {
     "id": "P-SEMI-DICTATOR",

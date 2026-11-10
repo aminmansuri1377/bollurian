@@ -4,7 +4,8 @@ export type SupportedStop = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type PackageId =
   | "rail" | "mechanic" | "auto" | "semi"
   | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
-export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi" | "cabin";
+/** The four price groups, in the order they appear in the list and in the PDF. */
+export type ProductGroup = "mechanic" | "startup" | "rail" | "cabin";
 export type QuantitySource = "workbook" | "invoice" | "manual" | "catalog" | "missing";
 /** T16 exists only as T16.T89 or T16.T90 (the client has no plain T16). */
 export type RailType = "T5" | "T9" | "T16.T89" | "T16.T90";
@@ -13,7 +14,7 @@ export type RailFamily = "T5" | "T9" | "T16";
 export type RailKind = "rail" | "bracket" | "clip";
 /** The two rails of a quote: always two different types. */
 export type RailSelection = [RailType, RailType];
-export type TotalCategory = "mechanic" | "startup" | "rail" | "cabin";
+export type TotalCategory = ProductGroup;
 
 export interface Product {
   id: string;
@@ -64,6 +65,18 @@ export interface QuoteRow {
   total: number | null;
   enabled: boolean;
   brand: string;
+}
+
+/** One price group of the list: its rows and their subtotal (enabled rows only). */
+export interface QuoteSection {
+  category: TotalCategory;
+  label: string;
+  rows: QuoteRow[];
+  /** Number of the first row; numbering continues across groups. */
+  firstRowNumber: number;
+  subtotal: number;
+  /** A subtotal only means something for two or more rows (the all-steel cabin is a single row). */
+  hasSubtotal: boolean;
 }
 
 export interface QuoteSummary {

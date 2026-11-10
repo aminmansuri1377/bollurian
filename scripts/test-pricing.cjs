@@ -28,9 +28,9 @@ async function run() {
     fs.writeFileSync(path.join(temp, "lib/price-manager", name.replace(/\.ts$/, ".js")), compiled.outputText);
   }
 
-  const { INITIAL_SETTINGS, PACKAGE_OPTIONS, SUPPORTED_STOPS, WORKBOOK_STOPS, DEMO_BASE_PRICE } = load("constants");
+  const { INITIAL_SETTINGS, PACKAGE_OPTIONS, SUPPORTED_STOPS, WORKBOOK_STOPS, DEMO_BASE_PRICE, GROUP_ORDER } = load("constants");
   const { PRODUCTS: products } = load("catalog");
-  const { calculateRow, calculateLineTotal, buildQuote, buildWorkbookComparison, selectProducts } = load("calculations");
+  const { calculateRow, calculateLineTotal, groupRowsByCategory, buildQuote, buildWorkbookComparison, selectProducts } = load("calculations");
   const { isBrandSelectable, resolveBrand, getPriceKey, SINGLE_BRAND_PRODUCT_IDS } = load("brand-rules");
   const { getPackageProductIds } = load("package-rules");
   const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds, getRailFamily } = load("rail-rules");
@@ -59,7 +59,7 @@ async function run() {
   equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns (kept as evidence)");
   equal(stopInvoices.map((i) => `${i.stops}/${i.family}`), ["3/auto", "3/semi", "4/auto", "4/semi", "6/auto", "6/semi", "7/auto", "7/semi", "8/auto", "8/semi", "9/auto", "9/semi", "10/auto", "10/semi"], "14 new invoices: 3, 4, 6, 7, 8, 9 and 10 stops, automatic and semi-automatic");
   equal(INITIAL_SETTINGS.stops, 5, "Default is the fully specified 5-stop list");
-  equal(products.length, 88, "87 products plus placeholder");
+  equal(products.length, 86, "85 products plus placeholder");
   equal(new Set(products.map((p) => p.id)).size, products.length, "No duplicate catalog IDs");
   const railDemoPrice = { T5: 1000, T9: 2000, "T16.T89": 3000, "T16.T90": 4000 };
   for (const product of products) equal(product.price, product.rail ? railDemoPrice[product.rail.type] : DEMO_BASE_PRICE, `${product.id}: demo base price (rail parts: one distinct price per type)`);
@@ -113,7 +113,7 @@ async function run() {
   const fullAuto = invoices.find((i) => i.invoiceNumber === "17784");
   equal(getPackageProductIds("rail", config()), fullAuto.rows.slice(48, -1).map((r) => r.productId), "Rail-only is the rail block of the full-auto list (no cabin)");
   const semiIds = getPackageProductIds("semi", config());
-  equal(semiIds.indexOf("P-MOTOR-6.1") > semiIds.indexOf("P-SEMI-DOOR") && semiIds.indexOf("P-MOTOR-6.1") < semiIds.indexOf("P-SEMI-DICTATOR"), true, "Semi: motor and controller sit between the doors and the dictator");
+  equal(semiIds.indexOf("P-MOTOR-6.1") > semiIds.indexOf("P-LANDING-DOOR") && semiIds.indexOf("P-MOTOR-6.1") < semiIds.indexOf("P-SEMI-DICTATOR"), true, "Semi: motor and controller sit between the doors and the dictator");
   equal(semiIds.slice(2, 5), ["R030", "R031", "R032"], "Semi wiring order");
   equal(getPackageProductIds("auto", config()).slice(2, 5), ["R031", "R032", "R030"], "Automatic wiring order");
   equal(semiIds.includes("P-SEMI-CAM"), false, "No mechanical cam in the newest semi list");
@@ -142,7 +142,7 @@ async function run() {
     const slot = slotName(standardRow[product.id] ?? product.id);
     return ["CABIN", "MOTOR", "CONTROL"].includes(slot) ? 1 : printed[slot];
   };
-  const constantOne = new Set(["P-STEEL-CABIN", "P-MOTOR-6.1", "P-MOTOR-7.3", "P-CONTROL-7.5", "P-CONTROL-11", "P-EARTH-WIRE", "P-SEMI-CABIN-DOOR", "P-PULLEY-40X5"]);
+  const constantOne = new Set(["P-STEEL-CABIN", "P-MOTOR-6.1", "P-MOTOR-7.3", "P-CONTROL-7.5", "P-CONTROL-11", "P-EARTH-WIRE", "P-PULLEY-40X5"]);
   const counts = { rail: 9, mechanic: 11, auto: 37, semi: 40, "mech-auto": 49, "mech-semi": 52, "full-auto": 58, "full-semi": 61 };
   const motorBrands = ["\u0628\u0647\u0631\u0627\u0646", "\u0627\u0644\u06a9\u0648", "ABB"];
   const controlBrands = ["\u062f\u0627\u062a\u06cc\u0633", "\u067e\u0627\u06cc\u0627", "\u0622\u0631\u06cc\u0627\u0646"];
@@ -162,7 +162,7 @@ async function run() {
       equal(quote.rows.at(-1).product.id, "P-STEEL-CABIN", `${pack}: all-steel cabin is the last row`);
       equal(quote.rows.at(-1).quantity, 1, `${pack}: one all-steel cabin`);
     } else equal(quote.rows.some((r) => r.product.id === "P-STEEL-CABIN"), false, `${pack}: no all-steel cabin in this package`);
-    const motors = quote.rows.filter((r) => r.product.group === "motor");
+    const motors = quote.rows.filter((r) => r.product.id.startsWith("P-MOTOR-"));
     equal(motors.length, ["rail", "mechanic"].includes(pack) ? 0 : 1, `${pack}: motor only belongs to startup`);
     if (motors.length) {
       equal(motors[0].product.powerKw, capacity === "8" ? 7.3 : 6.1, "Client motor power rule: 6.1 kW for 4-6 persons, 7.3 kW for 8");
@@ -185,7 +185,31 @@ async function run() {
   }
   equal(combinations, 256, "8 packages x 8 stops (3-10) x 2 capacities x 2 drive types");
   for (const id of ["P-CABIN-DOOR", "P-DOOR-MOTOR", "P-RAIL-FASTEN"]) equal(byId.has(id), false, "Remove duplicate/invented legacy rows");
-  equal(selectProducts(products, { ...INITIAL_SETTINGS, pack: "semi" }).some((p) => p.id === "R020"), false, "Automatic cabin door must not appear in semi package");
+  // Client (1405/08/19): both families use the SAME two brand-selectable door rows (cabin door, then landing door) right above the motor.
+  for (const stops of SUPPORTED_STOPS) for (const pack of ["auto", "semi", "mech-auto", "mech-semi", "full-auto", "full-semi"]) {
+    const ids = selectProducts(products, { ...INITIAL_SETTINGS, pack, stops }).map((p) => p.id);
+    const motor = ids.indexOf("P-MOTOR-6.1");
+    equal(ids.slice(motor - 2, motor), ["R020", "P-LANDING-DOOR"], `${pack}/${stops}: cabin door and landing door sit right above the motor`);
+  }
+  for (const id of ["R020", "P-LANDING-DOOR"]) equal([isBrandSelectable(byId.get(id)), resolveBrand(byId.get(id), undefined)], [true, "روانکار فول"], `${id}: door brand can be chosen, first brand is the default`);
+  for (const id of ["P-SEMI-DOOR", "P-SEMI-CABIN-DOOR"]) equal(byId.has(id), false, `${id}: replaced by the shared door rows`);
+
+  // Price groups: mechanic, startup, rail, cabin appear in that order, each group contiguous, each with its own subtotal.
+  equal(GROUP_ORDER, ["mechanic", "startup", "rail", "cabin"], "Four price groups");
+  equal([...new Set(products.map((p) => p.group))].sort(), [...GROUP_ORDER].sort(), "Catalog uses only the four groups");
+  const expectedGroups = { rail: ["rail"], mechanic: ["mechanic"], auto: ["startup"], semi: ["startup"], "mech-auto": ["mechanic", "startup", "cabin"], "mech-semi": ["mechanic", "startup", "cabin"], "full-auto": ["mechanic", "startup", "rail", "cabin"], "full-semi": ["mechanic", "startup", "rail", "cabin"] };
+  for (const stops of SUPPORTED_STOPS) for (const capacity of ["4-6", "8"]) for (const [pack, groups] of Object.entries(expectedGroups)) {
+    const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack, stops, capacity });
+    const sections = groupRowsByCategory(quote.rows);
+    equal(sections.map((s) => s.category), groups, `${pack}/${stops}/${capacity}: groups in order`);
+    equal(sections.flatMap((s) => s.rows.map((r) => r.product.id)), quote.rows.map((r) => r.product.id), `${pack}/${stops}/${capacity}: grouping keeps the row order (groups are contiguous)`);
+    equal(sections.map((s) => s.firstRowNumber), sections.map((_, i) => 1 + sections.slice(0, i).reduce((n, s) => n + s.rows.length, 0)), `${pack}/${stops}/${capacity}: numbering continues across groups`);
+    equal(sections.map((s) => s.subtotal), sections.map((s) => quote.subtotals[s.category]), `${pack}/${stops}/${capacity}: group subtotal equals the category total`);
+    equal(sections.reduce((sum, s) => sum + s.subtotal, 0), quote.total, `${pack}/${stops}/${capacity}: group subtotals add up to the grand total`);
+  }
+  equal(groupRowsByCategory(buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-auto" }).rows).map((s) => s.hasSubtotal), [true, true, true, false], "Only the single-row cabin group has no subtotal");
+  const cabinOnly = groupRowsByCategory(buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-auto", excluded: ["P-STEEL-CABIN"] }).enabledRows);
+  equal(cabinOnly.map((s) => s.category), ["mechanic", "startup", "rail"], "A group whose rows are all excluded disappears from the PDF");
 
   // 3. Readable numeric rules, not formatting-driven rounding.
   equal(calculateLineTotal(3, 0.333), 0.9990000000000001, "No Math.round absent from Excel");
@@ -247,7 +271,7 @@ async function run() {
 
   // 4b. Brands: single-model products can never be switched; multi-brand products price per brand.
   const singleModel = ["M010", "M006", "M005", "M004", "M003", "M011", "R032", "R011", "R009", "R010", "R001", "R028", "R034", "R013", "R019", "R008", "R006", "R035",
-    "R007", "P-STARTUP-BOLT10", "P-STARTUP-BOLT8", "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", "P-SEMI-DOOR", "P-SEMI-SPRING",
+    "R007", "P-STARTUP-BOLT10", "P-STARTUP-BOLT8", "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", "P-SEMI-SPRING",
     "P-BRACKET-T5", "P-BRACKET-T9", "P-CLIP-T5", "P-CLIP-T9", "P-STEEL-CABIN"];
   for (const id of singleModel) {
     equal(byId.has(id), true, `${id}: single-model product exists`);

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { groupRowsByCategory } from "@/lib/price-manager/calculations";
 import { formatMoney } from "@/lib/price-manager/format";
 import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
 import { BrandWordmark } from "./brand-wordmark";
@@ -43,7 +44,7 @@ export function QuotePrintDocument({
           <span>تاریخ: {today}</span>
         </div>
       </header>
-      <table className="w-full table-fixed border-separate [border-spacing:5px_6px] text-[9px] leading-[14px]">
+      <table className="w-full table-fixed border-separate [border-spacing:5px_6px] text-[12px] leading-[14px]">
         <colgroup>
           <col className="w-[42%]" />
           <col className="w-[14%]" />
@@ -67,15 +68,38 @@ export function QuotePrintDocument({
             ))}
           </tr>
         </thead>
-        <tbody>
-          {quote.enabledRows.map((row, index) => (
-            <QuotePrintRow
-              key={row.product.id}
-              row={row}
-              rowNumber={index + 1}
-            />
-          ))}
-        </tbody>
+        {groupRowsByCategory(quote.enabledRows).map((section) => (
+          <tbody key={section.category}>
+            <tr className="break-after-avoid break-inside-avoid [page-break-after:avoid]">
+              <th
+                colSpan={4}
+                className="h-6 rounded-full bg-lavender px-3 py-1 text-right align-middle text-[10px] font-medium leading-[14px]"
+              >
+                {section.label}
+              </th>
+            </tr>
+            {section.rows.map((row, index) => (
+              <QuotePrintRow
+                key={row.product.id}
+                row={row}
+                rowNumber={section.firstRowNumber + index}
+              />
+            ))}
+            {section.hasSubtotal && (
+              <tr className="break-inside-avoid [page-break-inside:avoid]">
+                <td
+                  colSpan={3}
+                  className="px-3 py-1 text-left align-middle font-medium"
+                >
+                  جمع {section.label}
+                </td>
+                <td className="whitespace-nowrap rounded-[14px] border border-brand px-1 py-1 text-center align-middle font-medium tabular-nums">
+                  {formatMoney(section.subtotal)}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        ))}
       </table>
       <footer className="mt-4 break-inside-avoid">
         <div className="flex justify-end border-t border-outline/40 pt-4 text-[11px]">

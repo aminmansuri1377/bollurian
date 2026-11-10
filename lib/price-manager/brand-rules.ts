@@ -25,7 +25,6 @@ export const SINGLE_BRAND_PRODUCT_IDS: ReadonlySet<string> = new Set([
   "R035", // گوشی تلفن
   "R007", "P-STARTUP-BOLT10", "P-STARTUP-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (راه‌اندازی)
   "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (ریل)
-  "P-SEMI-DOOR", // درب لولایی ۸۰ چپ کرم
   "P-SEMI-SPRING", // فنر درب (در پیام کارفرما «فلز درب»)
   "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16.T89", "P-BRACKET-T16.T90", // براکت و لقمه (همنوع ریل)
   "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16.T89", "P-CLIP-T16.T90",

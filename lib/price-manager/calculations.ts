@@ -1,9 +1,9 @@
 import { resolveBrand } from "./brand-rules";
-import { OMITTED_PRODUCT_ID } from "./constants";
+import { GROUP_LABELS, GROUP_ORDER, OMITTED_PRODUCT_ID } from "./constants";
 import { getMasterPrice } from "./master-price";
 import { getPackageProductIds } from "./package-rules";
 import { resolveQuantity, resolveWorkbookQuantity, type ResolvedQuantity } from "./quantity-rules";
-import type { Product, QuoteRow, QuoteSettings, QuoteSummary, TotalCategory } from "./types";
+import type { Product, QuoteRow, QuoteSection, QuoteSettings, QuoteSummary, TotalCategory } from "./types";
 
 export { matchesCapacity } from "./package-rules";
 
@@ -43,10 +43,29 @@ export function calculateRow(product: Product, settings: QuoteSettings, quantity
 }
 
 export function getTotalCategory(product: Product): TotalCategory {
-  if (product.group === "mechanic") return "mechanic";
-  if (product.group === "rail") return "rail";
-  if (product.group === "cabin") return "cabin";
-  return "startup";
+  return product.group;
+}
+
+/**
+ * Splits rows into the price groups (mechanic, startup, rail, cabin) with the group subtotal.
+ * Empty groups are left out; row numbers continue across groups so the list numbering never restarts.
+ */
+export function groupRowsByCategory(rows: QuoteRow[]): QuoteSection[] {
+  let nextRowNumber = 1;
+  return GROUP_ORDER.flatMap((category) => {
+    const sectionRows = rows.filter((row) => getTotalCategory(row.product) === category);
+    if (!sectionRows.length) return [];
+    const section: QuoteSection = {
+      category,
+      label: GROUP_LABELS[category],
+      rows: sectionRows,
+      firstRowNumber: nextRowNumber,
+      subtotal: sectionRows.reduce((sum, row) => sum + (row.enabled ? row.total ?? 0 : 0), 0),
+      hasSubtotal: sectionRows.length > 1,
+    };
+    nextRowNumber += sectionRows.length;
+    return [section];
+  });
 }
 
 /** SUMIF-style category totals; never sum numeric-looking labels or placeholder rows. */

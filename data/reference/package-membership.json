@@ -63,8 +63,8 @@
     "P-LANDING-DOOR"
   ],
   "semiDoors": [
-    "P-SEMI-CABIN-DOOR",
-    "P-SEMI-DOOR"
+    "R020",
+    "P-LANDING-DOOR"
   ],
   "semiTail": [
     "P-SEMI-DICTATOR",

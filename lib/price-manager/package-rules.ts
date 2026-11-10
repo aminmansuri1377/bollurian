@@ -35,7 +35,8 @@ export function requiredControllerPower(capacity: Capacity): 7.5 | 11 {
 
 export function matchesCapacity(product: Product, capacity: Capacity): boolean {
   if (product.powerKw === undefined) return true;
-  return product.powerKw === (product.group === "motor" ? requiredMotorPower(capacity) : requiredControllerPower(capacity));
+  // Motors (6.1 / 7.3 kW) and controllers (7.5 / 11 kW) never share a power value, so the power alone identifies the right one.
+  return product.powerKw === requiredMotorPower(capacity) || product.powerKw === requiredControllerPower(capacity);
 }
 
 /** The startup family that decides which invoice a quantity comes from; packages without startup use the automatic list. */
