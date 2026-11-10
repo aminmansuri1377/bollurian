@@ -5,6 +5,7 @@ import { usePriceManager } from "@/hooks/use-price-manager";
 import { HeroSection } from "./hero-section";
 import { ManagementTools } from "./management-tools";
 import { ProductTable } from "./product-table";
+import { QuotePreview } from "./quote-preview";
 import { QuotePrintDocument } from "./quote-print-document";
 import { QuoteSheet } from "./quote-sheet";
 
@@ -40,7 +41,7 @@ export function PriceManager() {
           </div>
         )}
 
-        <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.printQuote}>
+        <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.openPreview}>
           <ProductTable
             rows={manager.quote.rows}
             railTypes={manager.settings.railTypes}
@@ -52,6 +53,16 @@ export function PriceManager() {
         </QuoteSheet>
       </main>
       <QuotePrintDocument settings={manager.settings} quote={manager.quote} today={manager.today} />
+      {manager.previewOpen && (
+        <QuotePreview
+          settings={manager.settings}
+          quote={manager.quote}
+          today={manager.today}
+          isPrinting={manager.isPrinting}
+          onPrint={manager.printQuote}
+          onClose={manager.closePreview}
+        />
+      )}
     </>
   );
 }

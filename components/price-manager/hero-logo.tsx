@@ -1,7 +1,11 @@
-/** The client's hero logo (vector, recoloured through currentColor so it can be white). */
+/**
+ * The client's hero logo (vector, recoloured through currentColor so it can be white).
+ * The viewBox is cropped to the drawn ink (original artboard: 0 0 401.28 159.12), so the logo
+ * has no empty margin and sits flush with the text blocks next to it.
+ */
 export function HeroLogo({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 401.28 159.12" role="img" aria-label="Bollourian Elevator — آسانسور بلوریان" focusable="false" className={className}>
+    <svg viewBox="35.4 20 330 119.6" role="img" aria-label="Bollourian Elevator — آسانسور بلوریان" focusable="false" className={className}>
       <path fill="currentColor" d="M65.6,59.89l13.45-14.65v-7.36c0-9.32-7.59-16.91-16.91-16.91h-26.04l-.03,30.27v22.07c0,12.29,10.01,22.3,22.3,22.3h25.07v-15.43c0-10.39-7.78-19.02-17.85-20.29ZM41.96,26.83h20.18c6.1,0,11.05,4.95,11.05,11.05v5.07l-19.02,20.72-12.24-13.55.03-23.28ZM77.58,89.75h-19.21c-9.06,0-16.44-7.37-16.44-16.44v-14.45l12.21,13.51,6.24-6.8h2.59c8.06,0,14.61,6.56,14.61,14.61v9.57Z"/>
       <path fill="currentColor" d="M123.42,95.37h-18.13c-8.87,0-16.06-7.19-16.06-16.06v-19.21c0-9.66,7.15-18.11,16.77-19.02,11.04-1.04,20.35,7.65,20.35,18.48v32.89c0,1.62-1.31,2.93-2.93,2.93ZM106.92,46.88c-6.74.45-11.83,6.35-11.83,13.11,0,5.37,0,13.12,0,19.32,0,5.63,4.57,10.2,10.2,10.2h15.2v-29.96c0-7.29-6.18-13.17-13.57-12.67Z"/>
       <path fill="currentColor" d="M196.69,95.37h-18.13c-8.87,0-16.06-7.19-16.06-16.06v-19.21c0-9.66,7.16-18.12,16.77-19.02,11.04-1.04,20.35,7.65,20.35,18.48v32.89c0,1.62-1.31,2.93-2.93,2.93ZM180.19,46.88c-6.74.45-11.83,6.35-11.83,13.11,0,5.37,0,13.12,0,19.32,0,5.63,4.57,10.2,10.2,10.2h15.2v-29.96c0-7.29-6.18-13.17-13.57-12.67Z"/>

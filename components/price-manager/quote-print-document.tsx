@@ -11,6 +11,8 @@ interface QuotePrintDocumentProps {
   settings: QuoteSettings;
   quote: QuoteSummary;
   today: string;
+  /** On-screen preview (inside the preview window) instead of the print-only copy. */
+  preview?: boolean;
 }
 
 /** A real paginated table: no hero, controls, screenshots, or clipped long lists. */
@@ -18,12 +20,13 @@ export function QuotePrintDocument({
   settings,
   quote,
   today,
+  preview = false,
 }: QuotePrintDocumentProps) {
   return (
     <section
       dir="rtl"
-      aria-label="نسخه چاپی پیش‌فاکتور"
-      className="hidden text-brand print:block"
+      aria-label={preview ? "پیش‌نمایش پیش‌فاکتور" : "نسخه چاپی پیش‌فاکتور"}
+      className={preview ? "block text-brand print:hidden" : "hidden text-brand print:block"}
     >
       <header className="mb-5 break-inside-avoid">
         <Image

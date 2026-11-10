@@ -21,6 +21,7 @@ export function usePriceManager() {
   const [message, setMessage] = useState("");
   const [databasePath, setDatabasePath] = useState("");
   const [isPrinting, setIsPrinting] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [today, setToday] = useState("");
 
   useEffect(() => {
@@ -105,14 +106,31 @@ export function usePriceManager() {
     }));
   }, []);
 
-  async function printQuote() {
-    if (status !== "ready" || isPrinting) return;
+  /** Shared by the "خروجی PDF" button and the print button of the preview. */
+  function checkQuoteIsPrintable(): boolean {
     if (quote.incompleteRows.length) {
       setMessage(`قیمت یا تعداد ${quote.incompleteRows.length} ردیف کامل نیست. پیش از صدور PDF آن‌ها را تکمیل کنید.`);
-      return;
+      return false;
     }
     if (!quote.enabledRows.length) {
       setMessage("حداقل یک محصول برای صدور پیش‌فاکتور انتخاب کنید.");
+      return false;
+    }
+    return true;
+  }
+
+  /** "خروجی PDF": opens the in-app preview, which has its own close (×) button. */
+  function openPreview() {
+    if (status !== "ready" || isPrinting) return;
+    if (checkQuoteIsPrintable()) setPreviewOpen(true);
+  }
+
+  const closePreview = useCallback(() => setPreviewOpen(false), []);
+
+  async function printQuote() {
+    if (status !== "ready" || isPrinting) return;
+    if (!checkQuoteIsPrintable()) {
+      setPreviewOpen(false);
       return;
     }
     setIsPrinting(true);
@@ -130,8 +148,8 @@ export function usePriceManager() {
 
   return {
     settings, status, quote, message, setMessage,
-    databasePath, today, isPrinting,
+    databasePath, today, isPrinting, previewOpen,
     updateSettings, updatePrice, updatePreviousPrice, updateBrand, updateRailType, toggleProduct, resetDemo,
-    printQuote,
+    openPreview, closePreview, printQuote,
   };
 }

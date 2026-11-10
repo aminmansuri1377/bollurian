@@ -35,11 +35,12 @@ export function HeroSection(props: HeroSectionProps) {
         className="grid h-full grid-cols-[596px_378px] gap-12 py-[35px] pr-10 pl-12"
       >
         <div dir="rtl" className="pt-[22px] text-right text-white">
-          <HeroLogo className="block h-[250px] w-auto text-white" />
-          <h1 className="mt-[28px] text-[30px] font-black leading-[43px]">
+          <HeroLogo className="block h-auto w-full text-white" />
+          {/* Left/right edges of logo, title and paragraph coincide with the column (596px). The title size is fitted to that width; -mr offsets the glyph side bearing. */}
+          <h1 className="mt-16 -mr-[1.5px] whitespace-nowrap text-3xl font-black leading-[1.25]">
             لیست قیمت آسانسور بلوریان
           </h1>
-          <p className="mt-[9px] text-[14px] font-light leading-[21px] text-white/95">
+          <p className="mt-[9px] -mx-px text-justify text-[14px] font-light leading-[21px] text-white/95 [text-align-last:justify] [text-justify:inter-word]">
             با انتخاب نوع موتور، تعداد توقف و ظرفیت آسانسور، لیست تجهیزات مورد
             نیاز را بسازید. قیمت‌ها و تعداد اقلام را بررسی کنید، برند دلخواه را
             انتخاب کنید و پیش‌فاکتور اختصاصی بلوریان را بدون نیاز به اینترنت
