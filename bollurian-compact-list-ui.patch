@@ -1,0 +1,4907 @@
+diff --git a/components/price-manager/management-tools.tsx b/components/price-manager/management-tools.tsx
+index 307c574..630efd7 100644
+--- a/components/price-manager/management-tools.tsx
++++ b/components/price-manager/management-tools.tsx
+@@ -10,8 +10,8 @@ interface ManagementToolsProps {
+   disabled: boolean;
+   databasePath: string;
+   onSettingsChange: (patch: Partial<QuoteSettings>) => void;
+-  onPriceChange: (id: string, value: number | null) => void;
+-  onPreviousPriceChange: (id: string, value: number | null) => void;
++  onPriceChange: (key: string, value: number | null) => void;
++  onPreviousPriceChange: (key: string, value: number | null) => void;
+   onResetDemo: () => void;
+ }
+ 
+@@ -45,7 +45,7 @@ export function ManagementTools({ settings, disabled, databasePath, onSettingsCh
+             <button type="button" onClick={() => setPricesOpen(true)} className={actionButton}>مدیریت قیمت مادر</button>
+             <button type="button" onClick={onResetDemo} className={actionButton}>بازنشانی نمونه ۱۰۰۰ تومانی (با پشتیبان)</button>
+           </div>
+-          <p className="mt-5 text-[11px] leading-6 text-caption">
++          <p className="mt-4 text-[11px] leading-6 text-caption">
+             {databasePath ? <>مسیر دیتابیس: <bdi className="select-all">{databasePath}</bdi></> : "نسخه مرورگر: ذخیره در همین مرورگر • نسخه دسکتاپ: ذخیره در SQLite"}
+           </p>
+         </fieldset>
+diff --git a/components/price-manager/master-prices-dialog.tsx b/components/price-manager/master-prices-dialog.tsx
+index d022076..332744b 100644
+--- a/components/price-manager/master-prices-dialog.tsx
++++ b/components/price-manager/master-prices-dialog.tsx
+@@ -1,43 +1,53 @@
+ import { Dialog } from "@/components/ui/dialog";
+ import { NumberInput } from "@/components/ui/number-input";
++import { getPriceKey, isBrandSelectable, resolveBrand } from "@/lib/price-manager/brand-rules";
+ import { PRODUCTS } from "@/lib/price-manager/catalog";
+ import { GROUP_LABELS, OMITTED_PRODUCT_ID } from "@/lib/price-manager/constants";
+ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+-import { comparePrices, getMasterPrice, getPreviousPrice } from "@/lib/price-manager/master-price";
++import { comparePrices, getBaseBrandPrice, getMasterPrice, getPreviousPrice } from "@/lib/price-manager/master-price";
+ import type { QuoteSettings } from "@/lib/price-manager/types";
+ 
+ interface MasterPricesDialogProps {
+   open: boolean;
+   settings: QuoteSettings;
+   onClose: () => void;
+-  onPriceChange: (id: string, value: number | null) => void;
+-  onPreviousPriceChange: (id: string, value: number | null) => void;
++  onPriceChange: (key: string, value: number | null) => void;
++  onPreviousPriceChange: (key: string, value: number | null) => void;
+ }
+ 
+ const priceInputClass = "h-10 w-[115px] rounded-full border border-outline px-2";
+ 
+ export function MasterPricesDialog({ open, settings, onClose, onPriceChange, onPreviousPriceChange }: MasterPricesDialogProps) {
++  // One row per brand for products whose brand can be chosen; every other product has a single row.
++  const entries = PRODUCTS.filter((product) => product.id !== OMITTED_PRODUCT_ID).flatMap((product) =>
++    isBrandSelectable(product) ? product.brands.map((brand) => ({ product, brand })) : [{ product, brand: resolveBrand(product, undefined) }],
++  );
++
+   return (
+     <Dialog open={open} title="مدیریت قیمت مادر" onClose={onClose}>
+-      <p className="mb-3 text-sm leading-7 text-caption">قیمت اولیه همه محصولات ۱۰۰۰ تومان و آزمایشی است. قیمت جدید در فرمول تعداد × قیمت واحد اعمال می‌شود. پاک‌کردن قیمت جدید، مبنای ۱۰۰۰ را برمی‌گرداند.</p>
++      <p className="mb-3 text-sm leading-7 text-caption">قیمت‌های اولیه آزمایشی‌اند (۱۰۰۰ تومان؛ برای محصولات چندبرندی به ترتیب ۱۰۰۰، ۲۰۰۰ و ۳۰۰۰). قیمت جدید در فرمول تعداد × قیمت واحد اعمال می‌شود. پاک‌کردن قیمت جدید، ستون «مبنا» را برمی‌گرداند. قیمت‌ها فقط از همین‌جا تغییر می‌کنند.</p>
++      <p className="mb-3 text-[12px] leading-6 text-caption">محصولاتی که چند برند دارند، برای هر برند یک ردیف و یک قیمت جداگانه دارند؛ با انتخاب برند در لیست اصلی، قیمت همان برند محاسبه می‌شود.</p>
+       <p className="mb-5 text-[12px] leading-6 text-caption">درصد تغییر، مطابق اکسل: (قیمت جدید ÷ قبلی − ۱) × ۱۰۰. قیمت قبلی خالی یعنی بدون مقایسه؛ با مبنای صفر، درصد تعریف نمی‌شود.</p>
+       <table className="w-full border-separate border-spacing-y-2 text-right text-[12px]">
+         <thead><tr>
+           {["کد", "محصول", "دسته", "مبنا", "قیمت جدید", "قیمت قبلی", "تغییر"].map((label) => <th key={label} className="bg-lavender px-2 py-3 font-medium first:rounded-r-full last:rounded-l-full">{label}</th>)}
+         </tr></thead>
+         <tbody>
+-          {PRODUCTS.filter((product) => product.id !== OMITTED_PRODUCT_ID).map((product) => {
+-            const current = getMasterPrice(product, settings);
+-            const previous = getPreviousPrice(product, settings);
++          {entries.map(({ product, brand }) => {
++            const selectable = isBrandSelectable(product);
++            const priceKey = getPriceKey(product, brand);
++            const current = getMasterPrice(product, settings, brand);
++            const previous = getPreviousPrice(product, settings, brand);
+             const change = comparePrices(current, previous);
++            const title = selectable ? `${product.name} - ${brand}` : product.name;
+             return (
+-              <tr key={product.id}>
++              <tr key={priceKey}>
+                 <td className="px-2 py-2 text-[10px] font-light"><bdi>{product.id}</bdi></td>
+-                <td className="max-w-[250px] px-2 py-2">{product.name}</td>
++                <td className="max-w-[250px] px-2 py-2">{title}</td>
+                 <td className="px-2 py-2">{GROUP_LABELS[product.group]}</td>
+-                <td className="whitespace-nowrap px-2 py-2 tabular-nums">{formatMoney(product.price)}</td>
+-                <td className="px-2 py-2"><NumberInput value={current} label={`قیمت مادر ${product.name}`} onChange={(value) => onPriceChange(product.id, value)} className={priceInputClass} /></td>
+-                <td className="px-2 py-2"><NumberInput value={previous} placeholder="اختیاری" label={`قیمت قبلی ${product.name}`} onChange={(value) => onPreviousPriceChange(product.id, value)} className={priceInputClass} /></td>
++                <td className="whitespace-nowrap px-2 py-2 tabular-nums">{formatMoney(getBaseBrandPrice(product, brand))}</td>
++                <td className="px-2 py-2"><NumberInput value={current} label={`قیمت مادر ${title}`} onChange={(value) => onPriceChange(priceKey, value)} className={priceInputClass} /></td>
++                <td className="px-2 py-2"><NumberInput value={previous} placeholder="اختیاری" label={`قیمت قبلی ${title}`} onChange={(value) => onPreviousPriceChange(priceKey, value)} className={priceInputClass} /></td>
+                 <td className="whitespace-nowrap px-2 py-2 text-center"><bdi>{change.ratio === null ? "—" : `${formatNumber(change.ratio * 100)}٪`}</bdi><small className="block text-caption">{change.status}</small></td>
+               </tr>
+             );
+diff --git a/components/price-manager/price-manager.tsx b/components/price-manager/price-manager.tsx
+index 915ef92..3ef316b 100644
+--- a/components/price-manager/price-manager.tsx
++++ b/components/price-manager/price-manager.tsx
+@@ -18,7 +18,7 @@ export function PriceManager() {
+ 
+   return (
+     <>
+-      <main className="mx-auto w-[1110px] pt-[14px] pb-8 print:hidden" aria-busy={manager.status === "loading"}>
++      <main className="mx-auto w-full max-w-[1560px] px-4 pt-[14px] pb-8 sm:px-6 print:hidden" aria-busy={manager.status === "loading"}>
+         <ManagementTools
+           settings={manager.settings}
+           disabled={disabled}
+@@ -43,7 +43,9 @@ export function PriceManager() {
+         <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.printQuote}>
+           <ProductTable
+             rows={manager.quote.rows}
++            railTypes={manager.settings.railTypes}
+             disabled={disabled}
++            onRailTypeChange={manager.updateRailType}
+             onBrandChange={manager.updateBrand}
+             onToggle={manager.toggleProduct}
+           />
+diff --git a/components/price-manager/pricing-source-notice.tsx b/components/price-manager/pricing-source-notice.tsx
+index 3b5158f..4c8f320 100644
+--- a/components/price-manager/pricing-source-notice.tsx
++++ b/components/price-manager/pricing-source-notice.tsx
+@@ -1,11 +1,14 @@
++import { hasRail } from "@/lib/price-manager/package-rules";
++import { shouldMergeRailBolts } from "@/lib/price-manager/rail-rules";
+ import type { QuoteSettings } from "@/lib/price-manager/types";
+ 
+ /** Keep assumptions visible; these files do not certify an engineering design. */
+ export function PricingSourceNotice({ settings }: { settings: QuoteSettings }) {
+   return (
+     <div className="mt-5 rounded-2xl bg-lavender/20 px-5 py-3 text-[11px] leading-6 text-brand">
+-      <p>نسخه آزمایشی: قیمت‌های اولیه ۱۰۰۰ تومان هستند، نه قیمت واقعی فروش. تعدادهای اکسل فقط به ۶، ۷ و ۸ توقف وابسته‌اند. برندهای موتور در این نمونه قیمت برابر دارند.</p>
+-      {settings.capacity === "8" && <p className="text-amber-800">ظرفیت ۸ نفر، موتور ۱۱ کیلووات را انتخاب می‌کند. اکسل ضریب یا تعداد جداگانه برای سایر اقلام ۸ نفره ندارد؛ مقادیر فعلی مبنای آزمایش‌اند، نه تأیید فنی.</p>}
++      <p>نسخه آزمایشی: قیمت‌های اولیه نمونه‌اند (۱۰۰۰ تومان؛ برندها ۱۰۰۰، ۲۰۰۰ و ۳۰۰۰ به ترتیب)، نه قیمت واقعی فروش. تعداد ۵ توقف دقیقاً از پیش‌فاکتورهای ۵ توقفی مشتری و تعداد ۶ تا ۸ توقف از اکسل خوانده می‌شود. هر برند در «مدیریت قیمت مادر» قیمت منحصربه‌فرد خودش را دارد.</p>
++      {settings.capacity === "8" && <p className="text-amber-800">ظرفیت ۸ نفر: موتور ۷٫۳ کیلووات، تابلو فرمان ۱۱ کیلووات و فلکه ۴۰×۵ انتخاب می‌شوند و تعداد اقلام مکانیک ۵ توقف ویژهٔ ۸ نفر است. تعداد سایر اقلام ۸ نفره هنوز از کارفرما تأیید نشده و مانند ۴ تا ۶ نفر است.</p>}
++      {hasRail(settings.pack) && shouldMergeRailBolts(settings.railTypes) && <p className="text-amber-800">با ریل T9 و T16، همهٔ پیچ و مهره‌های ریل «پیچ و مهره 12» هستند و تعداد پیچ و مهره 10 و 8 به آن اضافه شده است.</p>}
+       {settings.motor === "gearless" && <p className="text-amber-800">قوانین تفاوت تجهیزات گیرلس در فایل‌ها موجود نیست. انتخاب آن به معنی تأیید سازگاری این فهرست یا برندها نیست.</p>}
+     </div>
+   );
+diff --git a/components/price-manager/product-brand-menu.tsx b/components/price-manager/product-brand-menu.tsx
+index 474b282..5b34750 100644
+--- a/components/price-manager/product-brand-menu.tsx
++++ b/components/price-manager/product-brand-menu.tsx
+@@ -2,8 +2,9 @@
+ 
+ import { useEffect, useRef, useState } from "react";
+ import { ChevronIcon } from "@/components/ui/icons";
++import { isBrandSelectable } from "@/lib/price-manager/brand-rules";
+ import { formatNumber, formatMoney } from "@/lib/price-manager/format";
+-import type { QuoteRow } from "@/lib/price-manager/types";
++import type { QuoteRow, RailType } from "@/lib/price-manager/types";
+ import { RowNumberBadge } from "./row-number-badge";
+ 
+ interface ProductBrandMenuProps {
+@@ -11,9 +12,13 @@ interface ProductBrandMenuProps {
+   rowNumber: number;
+   onBrandChange: (id: string, brand: string) => void;
+   onToggle: (id: string) => void;
++  /** Present only for the two rail rows: the rail type replaces the brand selector. */
++  rail?: { type: RailType; choices: RailType[]; onChange: (type: RailType) => void };
++  /** Dense list layout: shorter row, smaller badge. */
++  compact?: boolean;
+ }
+ 
+-export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: ProductBrandMenuProps) {
++export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail, compact = false }: ProductBrandMenuProps) {
+   const [open, setOpen] = useState(false);
+   const containerRef = useRef<HTMLDivElement>(null);
+   const buttonRef = useRef<HTMLButtonElement>(null);
+@@ -30,7 +35,7 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
+   }, [open]);
+ 
+   return (
+-    <div ref={containerRef} className="relative h-[50px] min-w-0" onKeyDown={(event) => {
++    <div ref={containerRef} className={`relative min-w-0 ${compact ? "h-[34px]" : "h-[50px]"}`} onKeyDown={(event) => {
+       if (event.key === "Escape") { setOpen(false); buttonRef.current?.focus(); }
+     }}>
+       <button
+@@ -41,36 +46,52 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle }: Pr
+         aria-controls={panelId}
+         aria-label={`برند و جزئیات ${product.name}`}
+         onClick={() => setOpen((current) => !current)}
+-        className="relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white pr-[50px] text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
++        className={`relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25 ${compact ? "pr-[34px]" : "pr-[50px]"}`}
+         title={`${product.name}${row.brand ? ` - ${row.brand}` : ""}`}
+       >
+-        <RowNumberBadge value={rowNumber} className="absolute -top-px -right-px" />
++        <RowNumberBadge value={rowNumber} size={compact ? "compact" : "screen"} className="absolute -top-px -right-px" />
+         <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}{row.brand && !product.name.includes(row.brand) ? ` - ${row.brand}` : ""}</span>
+         <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+       </button>
+ 
+       {open && (
+-        <div id={panelId} className="absolute top-[58px] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
++        <div id={panelId} className="absolute top-[calc(100%+8px)] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
+           <p className="mb-2 text-[13px] font-bold">{product.name}</p>
+           <p className="mb-3 text-caption">کد: <bdi>{product.id}</bdi> · واحد: {product.unit}</p>
+-          <label htmlFor={`brand-${product.id}`} className="mb-1 block font-medium">برند / مدل</label>
+-          <select
+-            id={`brand-${product.id}`}
+-            value={row.brand}
+-            disabled={!product.brands.length}
+-            onChange={(event) => onBrandChange(product.id, event.target.value)}
+-            className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25 disabled:cursor-default disabled:text-caption"
+-          >
+-            <option value="">{product.brands.length ? "انتخاب برند" : "برند تأییدشده ثبت نشده است"}</option>
+-            {row.brand && !product.brands.includes(row.brand) && <option value={row.brand}>{row.brand}</option>}
+-            {product.brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
+-          </select>
++          {rail ? (
++            <>
++              <label htmlFor={`rail-type-${product.id}`} className="mb-1 block font-medium">نوع ریل</label>
++              <select
++                id={`rail-type-${product.id}`}
++                value={rail.type}
++                onChange={(event) => rail.onChange(event.target.value as RailType)}
++                className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
++              >
++                {rail.choices.map((type) => <option key={type} value={type}>{type}</option>)}
++              </select>
++              <p className="mt-1 text-[11px] text-caption">دو ریل نمی‌توانند هم‌نوع باشند. براکت و لقمه هم‌نوع ریل انتخاب‌شده تغییر می‌کنند و قیمت هر قلم از مدیریت قیمت مادر می‌آید.</p>
++            </>
++          ) : isBrandSelectable(product) ? (
++            <>
++              <label htmlFor={`brand-${product.id}`} className="mb-1 block font-medium">برند / مدل</label>
++              <select
++                id={`brand-${product.id}`}
++                value={row.brand}
++                onChange={(event) => onBrandChange(product.id, event.target.value)}
++                className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
++              >
++                {product.brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
++              </select>
++              <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند.</p>
++            </>
++          ) : (
++            <p className="font-medium">برند / مدل: <span className="font-light">{row.brand || "ثبت نشده"}</span></p>
++          )}
+ 
+           <div className="mt-3 rounded-xl bg-lavender/25 p-3 text-[11px] leading-6">
+-            <p>{row.quantitySource === "manual" ? "تعداد دستی" : row.quantitySource === "workbook" ? "تعداد اکسل" : "تعداد نامشخص"}: <bdi>{row.quantityReference}</bdi></p>
++            <p>{row.quantitySource === "manual" ? "تعداد دستی" : row.quantitySource === "workbook" ? "تعداد اکسل" : row.quantitySource === "invoice" ? "تعداد پیش‌فاکتور" : row.quantitySource === "catalog" ? "تعداد کاتالوگ" : "تعداد نامشخص"}: <bdi>{row.quantityReference}</bdi></p>
+             <p>فرمول مبنا: تعداد × قیمت مادر</p>
+             <p dir="ltr" className="text-center tabular-nums">{row.quantity === null ? "—" : formatNumber(row.quantity)} × {formatMoney(row.unitPrice)} = {formatMoney(row.baseTotal)}</p>
+-            {row.total !== row.baseTotal && row.enabled && <p>مبلغ با تعدیل اختیاری: {formatMoney(row.total)} تومان</p>}
+           </div>
+           {product.notes && <p className="mt-3 text-caption">{product.notes}</p>}
+           <label className="mt-4 flex cursor-pointer items-center gap-2 border-t border-outline/25 pt-3">
+diff --git a/components/price-manager/product-name-cell.tsx b/components/price-manager/product-name-cell.tsx
+new file mode 100644
+index 0000000..091e409
+--- /dev/null
++++ b/components/price-manager/product-name-cell.tsx
+@@ -0,0 +1,24 @@
++import type { QuoteRow } from "@/lib/price-manager/types";
++import { RowNumberBadge } from "./row-number-badge";
++
++interface ProductNameCellProps {
++  row: QuoteRow;
++  rowNumber: number;
++  /** Dense list layout: shorter row, smaller badge. */
++  compact?: boolean;
++}
++
++/** Single-model products: same look as the brand menu, but nothing happens on click. */
++export function ProductNameCell({ row, rowNumber, compact = false }: ProductNameCellProps) {
++  const { product, enabled } = row;
++  return (
++    <div
++      data-inactive={!enabled}
++      title={product.name}
++      className={`relative flex w-full min-w-0 items-center rounded-full border border-brand bg-white text-right data-[inactive=true]:opacity-45 ${compact ? "h-[34px] pr-[34px]" : "h-[50px] pr-[50px]"}`}
++    >
++      <RowNumberBadge value={rowNumber} size={compact ? "compact" : "screen"} className="absolute -top-px -right-px" />
++      <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}</span>
++    </div>
++  );
++}
+diff --git a/components/price-manager/product-table.tsx b/components/price-manager/product-table.tsx
+index d4f382f..c5ff031 100644
+--- a/components/price-manager/product-table.tsx
++++ b/components/price-manager/product-table.tsx
+@@ -1,63 +1,295 @@
+-import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+-import type { QuoteRow } from "@/lib/price-manager/types";
++"use client";
++
++import { useMemo, useState } from "react";
++import { SearchIcon } from "@/components/ui/icons";
++import { getTotalCategory } from "@/lib/price-manager/calculations";
++import { isSingleModel } from "@/lib/price-manager/brand-rules";
++import { formatMoney, formatNumber, normalizeDigits } from "@/lib/price-manager/format";
++import { getRailChoices } from "@/lib/price-manager/rail-rules";
++import type { QuoteRow, RailSelection, RailType, TotalCategory } from "@/lib/price-manager/types";
+ import { ProductBrandMenu } from "./product-brand-menu";
++import { ProductNameCell } from "./product-name-cell";
+ 
+ interface ProductTableProps {
+   rows: QuoteRow[];
++  railTypes: RailSelection;
+   disabled: boolean;
++  onRailTypeChange: (slot: 0 | 1, type: RailType) => void;
+   onBrandChange: (id: string, brand: string) => void;
+   onToggle: (id: string) => void;
+ }
+ 
+-const columns = "grid grid-cols-[1.85fr_0.43fr_1fr_1fr] gap-[14px]";
+-
+ /**
+- * Quantities and amounts are display-only on this screen. Unit prices are edited
+- * exclusively in the master price dialog; the workbook table is the only source
+- * of counts, so no count can be typed in here.
++ * The four invoice sections, in the exact order the PDFs print them. Each section is a
++ * contiguous run of rows, so folding the list into sections never reorders the quote.
+  */
+-export function ProductTable({ rows, disabled, onBrandChange, onToggle }: ProductTableProps) {
++const SECTIONS: readonly { id: TotalCategory; label: string }[] = [
++  { id: "mechanic", label: "مکانیک" },
++  { id: "startup", label: "راه‌اندازی" },
++  { id: "rail", label: "ریل" },
++  { id: "cabin", label: "کابین" },
++];
++
++/** Compact fits ~19 rows on a 1080p screen; comfortable keeps the original airy spacing. */
++const ROW_HEIGHT = { compact: 34, comfortable: 48 } as const;
++const HEADER_HEIGHT = { compact: 32, comfortable: 40 } as const;
++const COLUMN_WIDTHS = ["42%", "9%", "11%", "19%", "19%"] as const;
++
++const HEADERS = ["شرح کالا / انتخاب برند", "واحد", "تعداد", "قیمت به ازای هر واحد", "قیمت کل"] as const;
++
++type Density = keyof typeof ROW_HEIGHT;
++
++/** Quantities and amounts are display-only; unit prices change only in the master-price dialog. */
++export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBrandChange, onToggle }: ProductTableProps) {
++  const [query, setQuery] = useState("");
++  const [density, setDensity] = useState<Density>("compact");
++  const [folded, setFolded] = useState(false);
++  const [onlyIncomplete, setOnlyIncomplete] = useState(false);
++  const [collapsed, setCollapsed] = useState<readonly TotalCategory[]>([]);
++
++  const compact = density === "compact";
++  const rowHeight = ROW_HEIGHT[density];
++  const headerHeight = HEADER_HEIGHT[density];
++
++  /** Section subtotals and the grand total always describe the whole quote, never the filtered view. */
++  const totals = useMemo(() => {
++    const perSection = {} as Record<TotalCategory, number>;
++    for (const section of SECTIONS) perSection[section.id] = 0;
++    let grand = 0;
++    for (const row of rows) {
++      if (!row.enabled) continue;
++      const amount = row.total ?? 0;
++      perSection[getTotalCategory(row.product)] += amount;
++      grand += amount;
++    }
++    return { perSection, grand, incomplete: rows.filter((row) => row.enabled && row.total === null).length };
++  }, [rows]);
++
++  const filtered = useMemo(() => {
++    const needle = normalizeDigits(query).trim();
++    return rows.filter((row) => {
++      if (onlyIncomplete && row.total !== null) return false;
++      if (!needle) return true;
++      return normalizeDigits(`${row.product.name} ${row.product.id} ${row.brand}`).includes(needle);
++    });
++  }, [rows, query, onlyIncomplete]);
++
++  const sections = useMemo(
++    () =>
++      SECTIONS.map((section) => ({ ...section, rows: filtered.filter((row) => getTotalCategory(row.product) === section.id) })).filter(
++        (section) => section.rows.length > 0,
++      ),
++    [filtered],
++  );
++
++  const shown = folded
++    ? sections.reduce((sum, section) => sum + (collapsed.includes(section.id) ? 0 : section.rows.length), 0)
++    : filtered.length;
++
++  function toggleSection(id: TotalCategory) {
++    setCollapsed((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
++  }
++
++  function renderRow(row: QuoteRow, rowNumber: number) {
++    // Only the two rail rows carry a type menu; brackets and clips just follow the choice.
++    const slot = row.product.rail?.kind === "rail" ? (railTypes.indexOf(row.product.rail.type) as 0 | 1) : null;
++    const incomplete = row.enabled && row.total === null;
++    return (
++      <tr key={row.product.id} className="group">
++        <td className={`border-b border-outline/30 pr-2 pl-3 align-middle ${row.enabled ? "" : "opacity-45"}`} style={{ height: rowHeight }}>
++          {isSingleModel(row.product) ? (
++            <ProductNameCell row={row} rowNumber={rowNumber} compact={compact} />
++          ) : (
++            <ProductBrandMenu
++              row={row}
++              rowNumber={rowNumber}
++              compact={compact}
++              onBrandChange={onBrandChange}
++              onToggle={onToggle}
++              rail={
++                slot === null
++                  ? undefined
++                  : { type: railTypes[slot], choices: getRailChoices(railTypes, slot), onChange: (type) => onRailTypeChange(slot, type) }
++              }
++            />
++          )}
++        </td>
++        <td className="border-b border-outline/30 px-2 text-center align-middle text-[12px] font-light text-caption" style={{ height: rowHeight }}>
++          {row.product.unit}
++        </td>
++        <td
++          className={`border-b px-2 text-center align-middle tabular-nums ${incomplete ? "bg-amber-50 text-amber-900" : ""}`}
++          style={{ height: rowHeight }}
++          title={`واحد: ${row.product.unit} — تعداد فقط‌خواندنی است`}
++        >
++          {row.quantity === null ? "—" : formatNumber(row.quantity)}
++        </td>
++        <td
++          className={`border-b px-2 text-center align-middle tabular-nums ${incomplete ? "bg-amber-50 text-amber-900" : ""}`}
++          style={{ height: rowHeight }}
++          title="قیمت فقط در پنجره مدیریت قیمت مادر قابل تغییر است"
++        >
++          {formatMoney(row.unitPrice)}
++        </td>
++        <td
++          className="border-b border-outline/30 px-2 text-center align-middle font-light tabular-nums"
++          style={{ height: rowHeight }}
++          title="مبلغ به تومان"
++        >
++          {formatMoney(row.total)}
++        </td>
++      </tr>
++    );
++  }
++
+   return (
+     <fieldset disabled={disabled} className="min-w-0">
+-      <div role="table" aria-label="جدول تجهیزات و قیمت‌ها" aria-colcount={4} aria-rowcount={rows.length + 1}>
+-        <div role="rowgroup">
+-          <div role="row" className={`${columns} mb-[14px]`}>
+-            {["شرح کالا / انتخاب برند", "تعداد", "قیمت به ازای هر واحد", "قیمت کل"].map((label) => (
+-              <div key={label} role="columnheader" className="flex h-[50px] items-center justify-center rounded-full bg-lavender px-2 text-center text-[13px] font-light">
+-                {label}
+-              </div>
+-            ))}
+-          </div>
++      <div className="mb-3 flex flex-wrap items-center gap-2">
++        <div className="relative min-w-[210px] flex-1">
++          <SearchIcon className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-caption" />
++          <input
++            type="search"
++            value={query}
++            onChange={(event) => setQuery(event.target.value)}
++            aria-label="جستجو در اقلام پیش‌فاکتور"
++            placeholder="جستجو در نام، کد یا برند اقلام…"
++            className="h-9 w-full rounded-full border border-outline bg-white pr-9 pl-3 text-[13px] outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
++          />
+         </div>
+-        <div role="rowgroup" className="flex flex-col gap-[14px]">
+-          {rows.map((row, index) => (
+-            <div key={row.product.id} role="row" className={`${columns} ${row.enabled ? "" : "[&>div:not(:first-child)]:opacity-45"}`}>
+-              <div role="cell" className="min-w-0">
+-                <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle} />
+-              </div>
+-              <div
+-                role="cell"
+-                className={`flex h-[50px] min-w-0 flex-col items-center justify-center rounded-full border bg-white px-1 ${row.quantity === null && row.enabled ? "border-amber-500/75" : "border-outline"}`}
+-                title={`واحد: ${row.product.unit} — تعداد فقط‌خواندنی است`}
+-              >
+-                <span className="text-[13px] tabular-nums">{row.quantity === null ? "—" : formatNumber(row.quantity)}</span>
+-                <span className="text-[8px] leading-3 text-caption">{row.product.unit}</span>
+-              </div>
+-              <div
+-                role="cell"
+-                className={`flex h-[50px] min-w-0 items-center justify-center rounded-full border bg-white px-2 text-[13px] tabular-nums ${row.unitPrice === null && row.enabled ? "border-amber-500/75" : "border-outline"}`}
+-                title="قیمت فقط در پنجره مدیریت قیمت مادر قابل تغییر است"
+-              >
+-                {formatMoney(row.unitPrice)}
+-              </div>
+-              <div role="cell" className="flex h-[50px] min-w-0 items-center justify-center rounded-full border border-outline bg-white px-2 text-[13px] font-light tabular-nums" title="مبلغ به تومان">
+-                {formatMoney(row.total)}
+-              </div>
+-            </div>
++        <div className="flex rounded-full bg-lavender/50 p-1" role="group" aria-label="چگالی نمایش">
++          {(["compact", "comfortable"] as const).map((value) => (
++            <button
++              key={value}
++              type="button"
++              aria-pressed={density === value}
++              onClick={() => setDensity(value)}
++              className={`cursor-pointer rounded-full px-3 py-1 text-[12px] outline-none focus-visible:ring-2 focus-visible:ring-brand/25 ${
++                density === value ? "bg-white font-medium text-brand shadow-sm" : "text-caption"
++              }`}
++            >
++              {value === "compact" ? "فشرده" : "میل‌کرده"}
++            </button>
+           ))}
+-          {!rows.length && <p className="py-10 text-center text-sm text-caption">محصولی برای نمایش نیست.</p>}
+         </div>
++        <button
++          type="button"
++          aria-pressed={folded}
++          onClick={() => setFolded((current) => !current)}
++          className={`cursor-pointer rounded-full border px-3 py-1.5 text-[12px] outline-none focus-visible:ring-2 focus-visible:ring-brand/25 ${
++            folded ? "border-brand bg-lavender text-brand" : "border-outline bg-white text-caption"
++          }`}
++        >
++          دسته‌بندی‌شده
++        </button>
++        <button
++          type="button"
++          aria-pressed={onlyIncomplete}
++          onClick={() => setOnlyIncomplete((current) => !current)}
++          className={`cursor-pointer rounded-full border px-3 py-1.5 text-[12px] outline-none focus-visible:ring-2 focus-visible:ring-brand/25 ${
++            onlyIncomplete ? "border-amber-500 bg-amber-50 text-amber-900" : "border-outline bg-white text-caption"
++          }`}
++        >
++          فقط ناقص‌ها
++        </button>
++        <p className="text-[12px] text-caption tabular-nums" role="status">
++          {formatNumber(shown)} قلم از {formatNumber(rows.length)}
++        </p>
+       </div>
++
++      <div className="overflow-hidden rounded-[18px] border border-outline/50 bg-white">
++        <div className="max-h-[min(64vh,660px)] overflow-auto">
++          <table className="w-full min-w-[780px] table-fixed border-separate border-spacing-0 text-[13px]">
++            <caption className="sr-only">جدول تجهیزات و قیمت‌های پیش‌فاکتور</caption>
++            <colgroup>
++              {COLUMN_WIDTHS.map((width, index) => (
++                <col key={HEADERS[index]} style={{ width }} />
++              ))}
++            </colgroup>
++            <thead>
++              <tr>
++                {HEADERS.map((label, index) => (
++                  <th
++                    key={label}
++                    scope="col"
++                    style={{ height: headerHeight }}
++                    className={`sticky top-0 z-20 bg-lavender px-2 font-light text-[#22314e] ${
++                      index === 0 ? "pr-4 text-right" : "text-center"
++                    }`}
++                  >
++                    {label}
++                  </th>
++                ))}
++              </tr>
++            </thead>
++
++            {folded
++              ? sections.map((section) => {
++                  const open = !collapsed.includes(section.id);
++                  return (
++                    <tbody key={section.id}>
++                      <tr>
++                        <td colSpan={HEADERS.length} className="border-b border-outline/30 bg-[#eef3fb] p-0">
++                          <button
++                            type="button"
++                            aria-expanded={open}
++                            onClick={() => toggleSection(section.id)}
++                            className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-right text-[12.5px] font-medium text-brand outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
++                          >
++                            <span className={`inline-block transition-transform ${open ? "" : "-rotate-90"}`} aria-hidden="true">
++                              ▾
++                            </span>
++                            {section.label}
++                            <span className="mr-1 rounded-full border border-outline/50 bg-white px-2 py-0.5 text-[11px] font-light text-caption tabular-nums">
++                              {formatNumber(section.rows.length)} قلم
++                            </span>
++                            <span className="mr-auto rounded-full border border-outline/50 bg-white px-2 py-0.5 text-[11px] font-light text-caption tabular-nums">
++                              {formatMoney(totals.perSection[section.id])} تومان
++                            </span>
++                          </button>
++                        </td>
++                      </tr>
++                      {open && section.rows.map((row, index) => renderRow(row, index + 1))}
++                    </tbody>
++                  );
++                })
++              : (
++                <tbody>
++                  {filtered.map((row, index) => renderRow(row, index + 1))}
++                </tbody>
++              )}
++
++            {!filtered.length && (
++              <tbody>
++                <tr>
++                  <td colSpan={HEADERS.length} className="px-4 py-10 text-center text-[13px] text-caption">
++                    {rows.length ? "قسامی با این جستجو پیدا نشد." : "محصولی برای نمایش نیست."}
++                  </td>
++                </tr>
++              </tbody>
++            )}
++
++            <tfoot>
++              <tr>
++                <td
++                  colSpan={4}
++                  className="sticky bottom-0 z-20 border-t-2 border-brand bg-white pr-4 text-right text-[12.5px] font-medium"
++                  style={{ height: compact ? 44 : 52 }}
++                >
++                  {totals.incomplete ? `جمع اقلام تکمیل‌شده — ${formatNumber(totals.incomplete)} ردیف ناقص:` : "جمع کل:"}
++                </td>
++                <td
++                  className="sticky bottom-0 z-20 border-t-2 border-brand bg-white px-2 text-center text-[16px] font-medium text-brand tabular-nums"
++                  style={{ height: compact ? 44 : 52 }}
++                >
++                  {formatMoney(totals.grand)}
++                  <span className="mr-1 text-[11px] font-light text-caption">تومان</span>
++                </td>
++              </tr>
++            </tfoot>
++          </table>
++        </div>
++      </div>
++
+       <p className="mt-4 text-[12px] leading-6 text-caption">
+         تعداد و مبلغ کل فقط‌خواندنی هستند و قیمت هر قلم تنها در پنجره «مدیریت قیمت مادر» قابل تغییر است.
+       </p>
+diff --git a/components/price-manager/quote-print-document.tsx b/components/price-manager/quote-print-document.tsx
+index 1f0e0e5..f889a91 100644
+--- a/components/price-manager/quote-print-document.tsx
++++ b/components/price-manager/quote-print-document.tsx
+@@ -1,5 +1,5 @@
+ import Image from "next/image";
+-import { formatMoney, formatNumber } from "@/lib/price-manager/format";
++import { formatMoney } from "@/lib/price-manager/format";
+ import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
+ import { BrandWordmark } from "./brand-wordmark";
+ import { QuotePrintRow } from "./quote-print-row";
+@@ -43,8 +43,7 @@ export function QuotePrintDocument({ settings, quote, today }: QuotePrintDocumen
+         </tbody>
+       </table>
+       <footer className="mt-4 break-inside-avoid">
+-        <div className="flex justify-between border-t border-outline/40 pt-4 text-[11px]">
+-          <span>تعدیل اختیاری (خارج از اکسل): {formatNumber(settings.rate)}٪</span>
++        <div className="flex justify-end border-t border-outline/40 pt-4 text-[11px]">
+           <strong>جمع کل: {formatMoney(quote.total)} تومان</strong>
+         </div>
+         <div className="mt-10 flex justify-around text-[10px]"><span>مهر و امضای فروشنده</span><span>امضای خریدار</span></div>
+diff --git a/components/price-manager/quote-sheet.tsx b/components/price-manager/quote-sheet.tsx
+index f18bcf3..0b0ec7c 100644
+--- a/components/price-manager/quote-sheet.tsx
++++ b/components/price-manager/quote-sheet.tsx
+@@ -20,15 +20,15 @@ export function QuoteSheet({ settings, quote, disabled, isPrinting, onPrint, chi
+ 
+   return (
+     <section id="results" aria-label="پیش‌فاکتور بلوریان" className="mt-[48px] scroll-mt-5 rounded-[28px] border border-outline bg-white">
+-      <div className="px-[82px] pt-[40px]">
+-        <header className="mb-[42px] flex justify-center">
++      <div className="px-6 pt-8 sm:px-10">
++        <header className="mb-8 flex justify-center">
+           <Image src="/logo.png" alt="Bollourian Elevator — آسانسور بلوریان" width={350} height={120} className="h-[120px] w-[350px] object-contain" />
+         </header>
+         <QuoteMetadata settings={settings} />
+         <PricingSourceNotice settings={settings} />
+-        <div className="mt-[40px]">{children}</div>
++        <div className="mt-8">{children}</div>
+ 
+-        <div className="mt-[38px] flex items-center justify-between gap-6">
++        <div className="mt-8 flex flex-wrap items-center justify-between gap-6">
+           <button
+             type="button"
+             onClick={onPrint}
+diff --git a/components/price-manager/row-number-badge.tsx b/components/price-manager/row-number-badge.tsx
+index e098bcf..1cf8bf2 100644
+--- a/components/price-manager/row-number-badge.tsx
++++ b/components/price-manager/row-number-badge.tsx
+@@ -1,11 +1,13 @@
+ interface RowNumberBadgeProps {
+   value: number;
+-  size?: "screen" | "print";
++  /** `compact` is the dense list layout; `print` is the PDF sheet. */
++  size?: "screen" | "compact" | "print";
+   className?: string;
+ }
+ 
+ const sizeClasses = {
+   screen: "size-[50px] text-[18px]",
++  compact: "size-[30px] text-[13px]",
+   print: "size-[28px] text-[11px]",
+ } as const;
+ 
+diff --git a/components/ui/icons.tsx b/components/ui/icons.tsx
+index a0a5f5c..ad2015c 100644
+--- a/components/ui/icons.tsx
++++ b/components/ui/icons.tsx
+@@ -46,3 +46,12 @@ export function MetaIcon({ kind, ...props }: IconProps & { kind: "motor" | "pack
+     </svg>
+   );
+ }
++
++export function SearchIcon(props: IconProps) {
++  return (
++    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" {...props}>
++      <circle cx="11" cy="11" r="6.5" />
++      <path d="M20 20l-4.2-4.2" />
++    </svg>
++  );
++}
+diff --git a/data/catalog.json b/data/catalog.json
+index 34f2687..8b2f706 100644
+--- a/data/catalog.json
++++ b/data/catalog.json
+@@ -1,7 +1,7 @@
+ [
+   {
+     "id": "M001",
+-    "name": "سیم بکسل 10 چین نواردار طلایی | خرده",
++    "name": "سیم بکسل 10 گوستاولف نواردار",
+     "group": "mechanic",
+     "unit": "متر",
+     "price": 1000,
+@@ -11,14 +11,16 @@
+       "7": 108.0,
+       "8": 120.0
+     },
+-    "brands": [],
++    "brands": [
++      "گوستاولف"
++    ],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 2
+   },
+   {
+     "id": "M002",
+-    "name": "سیم بکسل 6 خودرنگ چین | خرده",
++    "name": "سیم بکسل 6 سفید",
+     "group": "mechanic",
+     "unit": "متر",
+     "price": 1000,
+@@ -35,7 +37,7 @@
+   },
+   {
+     "id": "M003",
+-    "name": "لاستیک تخت مرغوب | المپیک",
++    "name": "لاستیک تخت",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -45,16 +47,14 @@
+       "7": 4.0,
+       "8": 4.0
+     },
+-    "brands": [
+-      "المپیک"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 4
+   },
+   {
+     "id": "M004",
+-    "name": "پیچ موتور 16 (موتور) | 7.5 سانت متر",
++    "name": "پیچ پایه موتور 16",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -71,7 +71,7 @@
+   },
+   {
+     "id": "M005",
+-    "name": "کرپی 6 فولادی | طلایی",
++    "name": "کرپی 6",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -88,7 +88,7 @@
+   },
+   {
+     "id": "M006",
+-    "name": "کرپی 10 فولادی | طلایی",
++    "name": "کرپی 10",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -105,7 +105,7 @@
+   },
+   {
+     "id": "M007",
+-    "name": "گاورنر آسانبر بیهق + وزنه",
++    "name": "گاورنر آسان شایان یک متر",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -116,7 +116,7 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "آسانبر بیهق"
++      "شایان"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -124,7 +124,7 @@
+   },
+   {
+     "id": "M008",
+-    "name": "فلکه هرزگرد 4 شیار آریا + شفت",
++    "name": "فلکه 40×4 پرهام",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -135,12 +135,28 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "آریا"
++      "پرهام"
+     ],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 9
+   },
++  {
++    "id": "P-PULLEY-40X5",
++    "name": "فلکه 40×5",
++    "group": "mechanic",
++    "unit": "عدد",
++    "price": 1000,
++    "previous": null,
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
++    "brands": [],
++    "source": "pdf",
++    "notes": "فلکه آسانسور ۸ نفره به‌جای فلکه ۴۰×۴ (M008). یک عدد برای هر آسانسور."
++  },
+   {
+     "id": "M009",
+     "name": "سربکسل 10 پرشیا",
+@@ -162,7 +178,7 @@
+   },
+   {
+     "id": "M010",
+-    "name": "اشکی بکسل گاورنر",
++    "name": "اشکی گاورنر استیل",
+     "group": "mechanic",
+     "unit": "عدد",
+     "price": 1000,
+@@ -179,7 +195,7 @@
+   },
+   {
+     "id": "M011",
+-    "name": "وزنه گالوانیزه آسانسور 77",
++    "name": "وزنه فلزی 87 +",
+     "group": "mechanic",
+     "unit": "قالب",
+     "price": 1000,
+@@ -196,7 +212,7 @@
+   },
+   {
+     "id": "R001",
+-    "name": "استپ قارچی + جعبه | ماهان الکتریک",
++    "name": "استپ قارچی",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -206,16 +222,14 @@
+       "7": 3.0,
+       "8": 3.0
+     },
+-    "brands": [
+-      "ماهان الکتریک"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 13
+   },
+   {
+     "id": "R002",
+-    "name": "اورلود دیجیتال - ناسیس",
++    "name": "اورلود زیر کابینی توربوسل",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -226,7 +240,7 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "ناسیس"
++      "توربوسل"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -234,7 +248,7 @@
+   },
+   {
+     "id": "R003",
+-    "name": "بافر آلسن - 1500 kg",
++    "name": "بافر ایستا 1500",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -245,7 +259,7 @@
+       "8": 2.0
+     },
+     "brands": [
+-      "آلسن"
++      "ایستا"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -253,7 +267,7 @@
+   },
+   {
+     "id": "R004",
+-    "name": "بست کمربندی 20 سانتی",
++    "name": "بست کمربندی 20 سانت",
+     "group": "startup",
+     "unit": "بسته",
+     "price": 1000,
+@@ -270,7 +284,7 @@
+   },
+   {
+     "id": "R005",
+-    "name": "بست تراول کابل - یاشار لیفت",
++    "name": "بست تراول کابل یاشار",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -289,7 +303,7 @@
+   },
+   {
+     "id": "R006",
+-    "name": "پریز بارانی روکار - پارت الکتریک",
++    "name": "پریز بارانی",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -299,16 +313,14 @@
+       "7": 1.0,
+       "8": 1.0
+     },
+-    "brands": [
+-      "پارت الکتریک"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 18
+   },
+   {
+     "id": "R007",
+-    "name": "پیچ و مهره 12 جهت نصب پایه لیمیت",
++    "name": "پیچ و مهره 12",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -325,7 +337,7 @@
+   },
+   {
+     "id": "R008",
+-    "name": "پیچ و رولپلاک - 50 تایی",
++    "name": "پیچ و رولپلاک",
+     "group": "startup",
+     "unit": "بسته",
+     "price": 1000,
+@@ -342,7 +354,7 @@
+   },
+   {
+     "id": "R009",
+-    "name": "داکت 3 پلاستیکی - دودمان",
++    "name": "داکت نمره 3 پلاستیکی",
+     "group": "startup",
+     "unit": "شاخه",
+     "price": 1000,
+@@ -352,16 +364,14 @@
+       "7": 17.0,
+       "8": 19.0
+     },
+-    "brands": [
+-      "دودمان"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 21
+   },
+   {
+     "id": "R010",
+-    "name": "داکت 9 پلاستیکی - سفید - دودمان",
++    "name": "داکت نمره 9 پلاستیکی",
+     "group": "startup",
+     "unit": "شاخه",
+     "price": 1000,
+@@ -371,16 +381,14 @@
+       "7": 2.0,
+       "8": 2.0
+     },
+-    "brands": [
+-      "دودمان"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 22
+   },
+   {
+     "id": "R011",
+-    "name": "داکت 10 فلزی",
++    "name": "داکت فلزی 10",
+     "group": "startup",
+     "unit": "شاخه",
+     "price": 1000,
+@@ -397,7 +405,7 @@
+   },
+   {
+     "id": "R012",
+-    "name": "خرطومی فلزی",
++    "name": "لوله خرطومی فلزی 13",
+     "group": "startup",
+     "unit": "متر",
+     "price": 1000,
+@@ -414,7 +422,7 @@
+   },
+   {
+     "id": "R013",
+-    "name": "خرطومی پلاستیکی",
++    "name": "لوله خرطومی پلاستیکی",
+     "group": "startup",
+     "unit": "حلقه",
+     "price": 1000,
+@@ -448,7 +456,7 @@
+   },
+   {
+     "id": "R015",
+-    "name": "روغندان طرح ترک ENP",
++    "name": "روغندان یاشار",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -458,14 +466,16 @@
+       "7": 4.0,
+       "8": 4.0
+     },
+-    "brands": [],
++    "brands": [
++      "یاشار"
++    ],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 27
+   },
+   {
+     "id": "R016",
+-    "name": "سنسور پیشرو پلاستیکی + آهنربا 40 عدد",
++    "name": "سنسور پیشرو پلاستیکی با آهنربا",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -482,7 +492,7 @@
+   },
+   {
+     "id": "R017",
+-    "name": "لیمیت سوئیچ یاشار",
++    "name": "لیمیت شهاب",
+     "group": "startup",
+     "unit": "بسته",
+     "price": 1000,
+@@ -493,7 +503,7 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "یاشار"
++      "شهاب"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -520,7 +530,7 @@
+   },
+   {
+     "id": "R019",
+-    "name": "کلید تک پل تبدیل - پارت الکتریک",
++    "name": "کلید تبدیل",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -530,16 +540,14 @@
+       "7": 2.0,
+       "8": 2.0
+     },
+-    "brands": [
+-      "پارت الکتریک"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 31
+   },
+   {
+     "id": "R020",
+-    "name": "درب تلسکوپی روانکار کابین فول 80 دولته",
++    "name": "درب یاران فول کابین 80 چپ دو لته",
+     "group": "auto",
+     "unit": "دستگاه",
+     "price": 1000,
+@@ -550,7 +558,7 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "روانکار"
++      "یاران"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -575,7 +583,7 @@
+   },
+   {
+     "id": "R022",
+-    "name": "شاسی کابین 1 متری - RLift",
++    "name": "شستی کابین آذرتابش 5 توقف یک متری نقره‌ای",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -586,7 +594,7 @@
+       "8": 1.0
+     },
+     "brands": [
+-      "RLift"
++      "آذرتابش"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -594,7 +602,7 @@
+   },
+   {
+     "id": "R023",
+-    "name": "شاسی طبقه روکار - RLift",
++    "name": "شستی طبقه آذرتابش پلکسی نقره‌ای نور آبی",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -605,7 +613,7 @@
+       "8": 8.0
+     },
+     "brands": [
+-      "RLift"
++      "آذرتابش"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -613,7 +621,7 @@
+   },
+   {
+     "id": "R024",
+-    "name": "چراغ تونلی W 16 LED | راینو",
++    "name": "چراغ تونلی 18 وات LED",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -623,16 +631,14 @@
+       "7": 9.0,
+       "8": 10.0
+     },
+-    "brands": [
+-      "راینو"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 36
+   },
+   {
+     "id": "R025",
+-    "name": "جعبه 3 فاز",
++    "name": "تابلو 3 فاز",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -685,7 +691,7 @@
+   },
+   {
+     "id": "R028",
+-    "name": "چسب برق دیاموند",
++    "name": "نوار چسب",
+     "group": "startup",
+     "unit": "حلقه",
+     "price": 1000,
+@@ -695,16 +701,14 @@
+       "7": 10.0,
+       "8": 12.0
+     },
+-    "brands": [
+-      "دیاموند"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 40
+   },
+   {
+     "id": "R029",
+-    "name": "تراول کابل 24 رشته روکش مس بکسلدار - 3G - آسمان وایلر",
++    "name": "تراول 24 رشته هدسان",
+     "group": "startup",
+     "unit": "متر",
+     "price": 1000,
+@@ -715,7 +719,7 @@
+       "8": 38.0
+     },
+     "brands": [
+-      "آسمان وایلر"
++      "هدسان"
+     ],
+     "source": "excel",
+     "notes": "",
+@@ -723,7 +727,7 @@
+   },
+   {
+     "id": "R030",
+-    "name": "سیم 6 زوج",
++    "name": "سیم تلفنی 6 زوج معمولی",
+     "group": "startup",
+     "unit": "متر",
+     "price": 1000,
+@@ -740,7 +744,7 @@
+   },
+   {
+     "id": "R031",
+-    "name": "سیم 75 - CC",
++    "name": "سیم 0.75 ایمان",
+     "group": "startup",
+     "unit": "حلقه",
+     "price": 1000,
+@@ -750,14 +754,16 @@
+       "7": 6.0,
+       "8": 8.0
+     },
+-    "brands": [],
++    "brands": [
++      "ایمان"
++    ],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 43
+   },
+   {
+     "id": "R032",
+-    "name": "کابل 1*4 (جهت سیم کشی)",
++    "name": "کابل 1×4",
+     "group": "startup",
+     "unit": "متر",
+     "price": 1000,
+@@ -808,7 +814,7 @@
+   },
+   {
+     "id": "R035",
+-    "name": "تلفن دیواری - pashaophone",
++    "name": "گوشی تلفن",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -825,7 +831,7 @@
+   },
+   {
+     "id": "R036",
+-    "name": "پک حفاظ | موتور + هرزگرد + گاورنر | مهتا",
++    "name": "پک محافظ سه تیکه",
+     "group": "startup",
+     "unit": "بسته",
+     "price": 1000,
+@@ -835,16 +841,14 @@
+       "7": 1.0,
+       "8": 1.0
+     },
+-    "brands": [
+-      "مهتا"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 48
+   },
+   {
+     "id": "R037",
+-    "name": "حفاظ کادر وزنه 84 - مهتا",
++    "name": "محافظ کادر وزنه 87",
+     "group": "startup",
+     "unit": "عدد",
+     "price": 1000,
+@@ -854,9 +858,7 @@
+       "7": 1.0,
+       "8": 1.0
+     },
+-    "brands": [
+-      "مهتا"
+-    ],
++    "brands": [],
+     "source": "excel",
+     "notes": "",
+     "workbookRow": 49
+@@ -888,19 +890,43 @@
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "rail",
++      "type": "T5"
++    }
+   },
+   {
+     "id": "P-RAIL-T9",
+     "name": "ریل چین سرد T9 درجه یک",
+     "group": "rail",
+     "unit": "واحد",
+-    "price": 1000,
++    "price": 2000,
+     "previous": null,
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "rail",
++      "type": "T9"
++    }
++  },
++  {
++    "id": "P-RAIL-T16",
++    "name": "ریل چین سرد T16 درجه یک",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 3000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "rail",
++      "type": "T16"
++    }
+   },
+   {
+     "id": "P-BRACKET-T5",
+@@ -912,19 +938,43 @@
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "bracket",
++      "type": "T5"
++    }
+   },
+   {
+     "id": "P-BRACKET-T9",
+     "name": "براکت T9",
+     "group": "rail",
+     "unit": "واحد",
+-    "price": 1000,
++    "price": 2000,
+     "previous": null,
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "bracket",
++      "type": "T9"
++    }
++  },
++  {
++    "id": "P-BRACKET-T16",
++    "name": "براکت T16",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 3000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "bracket",
++      "type": "T16"
++    }
+   },
+   {
+     "id": "P-CLIP-T5",
+@@ -936,23 +986,47 @@
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "clip",
++      "type": "T5"
++    }
+   },
+   {
+     "id": "P-CLIP-T9",
+     "name": "لقمه T9",
+     "group": "rail",
+     "unit": "واحد",
+-    "price": 1000,
++    "price": 2000,
+     "previous": null,
+     "quantities": {},
+     "brands": [],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "clip",
++      "type": "T9"
++    }
++  },
++  {
++    "id": "P-CLIP-T16",
++    "name": "لقمه T16",
++    "group": "rail",
++    "unit": "واحد",
++    "price": 3000,
++    "previous": null,
++    "quantities": {},
++    "brands": [],
++    "source": "pdf",
++    "notes": "نوع ریل در لیست اصلی از منوی ردیف «ریل چین سرد» انتخاب می‌شود؛ براکت و لقمه هم‌نوع ریل انتخاب‌شده‌اند. قیمت این قلم فقط در مدیریت قیمت مادر تغییر می‌کند.",
++    "rail": {
++      "kind": "clip",
++      "type": "T16"
++    }
+   },
+   {
+     "id": "P-RAIL-BOLT12",
+-    "name": "پیچ و مهره ۱۲ ریل",
++    "name": "پیچ و مهره 12",
+     "group": "rail",
+     "unit": "واحد",
+     "price": 1000,
+@@ -964,7 +1038,7 @@
+   },
+   {
+     "id": "P-RAIL-BOLT10",
+-    "name": "پیچ و مهره ۱۰ ریل",
++    "name": "پیچ و مهره 10",
+     "group": "rail",
+     "unit": "واحد",
+     "price": 1000,
+@@ -976,7 +1050,7 @@
+   },
+   {
+     "id": "P-RAIL-BOLT8",
+-    "name": "پیچ و مهره ۸ ریل",
++    "name": "پیچ و مهره 8",
+     "group": "rail",
+     "unit": "واحد",
+     "price": 1000,
+@@ -987,86 +1061,126 @@
+     "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
+   },
+   {
+-    "id": "P-MOTOR-7.5",
+-    "name": "موتور آسانسور ۷٫۵ کیلووات",
++    "id": "P-MOTOR-6.1",
++    "name": "موتور 6.1 کیلووات تک‌سرعته (4 تا 6 نفر)",
+     "group": "motor",
+     "unit": "دستگاه",
+     "price": 1000,
++    "brandPrices": {
++      "بهران": 1000,
++      "الکو": 2000,
++      "ABB": 3000
++    },
+     "previous": null,
+-    "quantities": {},
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
+     "brands": [
+-      "داتیس",
+-      "آرین",
+-      "پایا",
+       "بهران",
+       "الکو",
+       "ABB"
+     ],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود.",
+-    "powerKw": 7.5
++    "notes": "یک دستگاه برای هر آسانسور. هر برند قیمت مادر جداگانه دارد.",
++    "powerKw": 6.1
+   },
+   {
+-    "id": "P-MOTOR-11",
+-    "name": "موتور آسانسور ۱۱ کیلووات",
++    "id": "P-MOTOR-7.3",
++    "name": "موتور 7.3 کیلووات تک‌سرعته (8 نفر)",
+     "group": "motor",
+     "unit": "دستگاه",
+     "price": 1000,
++    "brandPrices": {
++      "بهران": 1000,
++      "الکو": 2000,
++      "ABB": 3000
++    },
+     "previous": null,
+-    "quantities": {},
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
+     "brands": [
+-      "داتیس",
+-      "آرین",
+-      "پایا",
+       "بهران",
+       "الکو",
+       "ABB"
+     ],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود.",
+-    "powerKw": 11
++    "notes": "یک دستگاه برای هر آسانسور. هر برند قیمت مادر جداگانه دارد.",
++    "powerKw": 7.3
+   },
+   {
+     "id": "P-CONTROL-7.5",
+-    "name": "تابلو فرمان ۷٫۵ کیلووات",
++    "name": "تابلو فرمان 7.5 کیلووات (4 تا 6 نفر)",
+     "group": "startup",
+     "unit": "دستگاه",
+     "price": 1000,
+     "previous": null,
+-    "quantities": {},
+-    "brands": [],
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
++    "brands": [
++      "داتیس",
++      "پایا",
++      "آریان"
++    ],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود.",
+-    "powerKw": 7.5
++    "notes": "یک دستگاه برای هر آسانسور. هر برند قیمت مادر جداگانه دارد.",
++    "powerKw": 7.5,
++    "brandPrices": {
++      "داتیس": 1000,
++      "پایا": 2000,
++      "آریان": 3000
++    }
+   },
+   {
+     "id": "P-CONTROL-11",
+-    "name": "تابلو فرمان ۱۱ کیلووات",
++    "name": "تابلو فرمان 11 کیلووات (8 نفر)",
+     "group": "startup",
+     "unit": "دستگاه",
+     "price": 1000,
+     "previous": null,
+-    "quantities": {},
+-    "brands": [],
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
++    "brands": [
++      "داتیس",
++      "پایا",
++      "آریان"
++    ],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود.",
+-    "powerKw": 11
++    "notes": "یک دستگاه برای هر آسانسور. هر برند قیمت مادر جداگانه دارد.",
++    "powerKw": 11,
++    "brandPrices": {
++      "داتیس": 1000,
++      "پایا": 2000,
++      "آریان": 3000
++    }
+   },
+   {
+     "id": "P-LANDING-DOOR",
+-    "name": "درب طبقات اتوماتیک",
++    "name": "درب یاران طبقه 80 چپ دو لته",
+     "group": "auto",
+     "unit": "واحد",
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+-    "brands": [],
++    "brands": [
++      "یاران"
++    ],
+     "source": "pdf",
+     "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
+   },
+   {
+     "id": "P-SEMI-DOOR",
+-    "name": "درب لولایی طبقه ۸۰ چپ کرم",
++    "name": "درب لولایی 80 چپ کرم",
+     "group": "semi",
+     "unit": "واحد",
+     "price": 1000,
+@@ -1078,19 +1192,25 @@
+   },
+   {
+     "id": "P-EARTH-WIRE",
+-    "name": "سیم نمره ۴ هادی نور",
++    "name": "سیم نمره 4 هادی نور",
+     "group": "startup",
+     "unit": "واحد",
+     "price": 1000,
+     "previous": null,
+-    "quantities": {},
+-    "brands": [],
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
++    "brands": [
++      "هادی نور"
++    ],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "یک عدد برای هر آسانسور (مانند اکسل: سیم ۴ و درب کابین)؛ تعداد ۵ توقف از پیش‌فاکتور خوانده می‌شود."
+   },
+   {
+     "id": "P-STARTUP-BOLT10",
+-    "name": "پیچ و مهره ۱۰ راه‌اندازی",
++    "name": "پیچ و مهره 10",
+     "group": "startup",
+     "unit": "واحد",
+     "price": 1000,
+@@ -1102,7 +1222,7 @@
+   },
+   {
+     "id": "P-STARTUP-BOLT8",
+-    "name": "پیچ و مهره ۸ راه‌اندازی",
++    "name": "پیچ و مهره 8",
+     "group": "startup",
+     "unit": "واحد",
+     "price": 1000,
+@@ -1114,27 +1234,21 @@
+   },
+   {
+     "id": "P-SEMI-CABIN-DOOR",
+-    "name": "درب کابین نیمه‌اتومات یاران ۸۰ چپ دولته",
++    "name": "درب یاران نیمه کابین 80 چپ دو لته",
+     "group": "semi",
+     "unit": "واحد",
+     "price": 1000,
+     "previous": null,
+-    "quantities": {},
+-    "brands": [],
+-    "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
+-  },
+-  {
+-    "id": "P-SEMI-CAM",
+-    "name": "کمان مکانیکی یاران",
+-    "group": "semi",
+-    "unit": "واحد",
+-    "price": 1000,
+-    "previous": null,
+-    "quantities": {},
+-    "brands": [],
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
++    "brands": [
++      "یاران"
++    ],
+     "source": "pdf",
+-    "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++    "notes": "یک عدد برای هر آسانسور (مانند اکسل: سیم ۴ و درب کابین)؛ تعداد ۵ توقف از پیش‌فاکتور خوانده می‌شود."
+   },
+   {
+     "id": "P-SEMI-DICTATOR",
+@@ -1144,7 +1258,9 @@
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+-    "brands": [],
++    "brands": [
++      "I&T"
++    ],
+     "source": "pdf",
+     "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
+   },
+@@ -1156,7 +1272,9 @@
+     "price": 1000,
+     "previous": null,
+     "quantities": {},
+-    "brands": [],
++    "brands": [
++      "تاپ لیفت"
++    ],
+     "source": "pdf",
+     "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
+   },
+@@ -1171,5 +1289,21 @@
+     "brands": [],
+     "source": "pdf",
+     "notes": "تعداد ۶، ۷ و ۸ توقف در اکسل برای این قلم وجود ندارد؛ مقدار باید دستی تأیید شود."
++  },
++  {
++    "id": "P-STEEL-CABIN",
++    "name": "کابین تمام استیل",
++    "group": "cabin",
++    "unit": "دستگاه",
++    "price": 1000,
++    "previous": null,
++    "quantities": {
++      "6": 1,
++      "7": 1,
++      "8": 1
++    },
++    "brands": [],
++    "source": "pdf",
++    "notes": "آخرین ردیف همه پکیج‌ها (درخواست کارفرما، ۱۴۰۵/۰۸/۱۰). تعداد یک دستگاه به ازای هر آسانسور و طبق پیش‌فاکتورهای ۱۷۷۸۴ و ۱۹۳۸۱ ثبت شده است و به تعداد توقف وابسته نیست."
+   }
+-]
++]
+\ No newline at end of file
+diff --git a/data/five-stop-quantities.json b/data/five-stop-quantities.json
+new file mode 100644
+index 0000000..9322f51
+--- /dev/null
++++ b/data/five-stop-quantities.json
+@@ -0,0 +1,149 @@
++{
++  "stops": 5,
++  "notes": [
++    "Exact printed quantities of the client's 5-stop lists: invoice 17784 (automatic, 4-6 persons) and 19381 (semi-automatic, 4-6 persons).",
++    "Rail-only and mechanic-only packages use the automatic list. The all-steel cabin is 1 in every package.",
++    "8 persons: only the items in capacity8 differ (client message 1405/08/10); all other quantities follow the 4-6 list.",
++    "Rail, bracket and clip quantities are per kind, the same for T5, T9 and T16 (the two printed lists give identical counts for T5 and T9; T16 follows them until the client says otherwise). The rail bolts 12/10/8 are summed into bolt 12 when T9 and T16 are both chosen."
++  ],
++  "sources": {
++    "auto": "17784",
++    "semi": "19381"
++  },
++  "quantities": {
++    "auto": {
++      "M001": 84,
++      "M002": 45,
++      "M008": 1,
++      "M009": 8,
++      "M010": 2,
++      "M006": 24,
++      "M005": 6,
++      "M004": 4,
++      "M007": 1,
++      "M003": 4,
++      "M011": 780,
++      "R029": 30,
++      "P-EARTH-WIRE": 1,
++      "R031": 6,
++      "R032": 35,
++      "R030": 35,
++      "R011": 1,
++      "R009": 24,
++      "R010": 4,
++      "R002": 1,
++      "R016": 1,
++      "R001": 3,
++      "R017": 1,
++      "R003": 2,
++      "R025": 1,
++      "R022": 1,
++      "R023": 5,
++      "R028": 10,
++      "R034": 1,
++      "R005": 4,
++      "R004": 1,
++      "R013": 1,
++      "R012": 5,
++      "R015": 4,
++      "R008": 1,
++      "R019": 2,
++      "R006": 1,
++      "R035": 3,
++      "R024": 9,
++      "R037": 1,
++      "R036": 1,
++      "R007": 10,
++      "P-STARTUP-BOLT10": 10,
++      "P-STARTUP-BOLT8": 10,
++      "R020": 1,
++      "P-LANDING-DOOR": 5,
++      "P-MOTOR-6.1": 1,
++      "P-CONTROL-7.5": 1,
++      "P-RAIL-BOLT12": 105,
++      "P-RAIL-BOLT10": 50,
++      "P-RAIL-BOLT8": 60,
++      "P-STEEL-CABIN": 1,
++      "P-MOTOR-7.3": 1,
++      "P-CONTROL-11": 1
++    },
++    "semi": {
++      "M001": 84,
++      "M002": 45,
++      "M008": 1,
++      "M009": 8,
++      "M010": 2,
++      "M006": 24,
++      "M005": 6,
++      "M004": 4,
++      "M007": 1,
++      "M003": 4,
++      "M011": 780,
++      "R029": 27,
++      "P-EARTH-WIRE": 1,
++      "R030": 35,
++      "R031": 6,
++      "R032": 35,
++      "R011": 1,
++      "R009": 24,
++      "R010": 4,
++      "R002": 1,
++      "R016": 1,
++      "R001": 3,
++      "R017": 1,
++      "R003": 2,
++      "R025": 1,
++      "R022": 1,
++      "R023": 5,
++      "R028": 10,
++      "R034": 1,
++      "R005": 4,
++      "R004": 1,
++      "R013": 1,
++      "R012": 5,
++      "R015": 4,
++      "R008": 1,
++      "R019": 2,
++      "R006": 1,
++      "R035": 3,
++      "R024": 9,
++      "R037": 1,
++      "R036": 1,
++      "R007": 10,
++      "P-STARTUP-BOLT10": 10,
++      "P-STARTUP-BOLT8": 10,
++      "P-SEMI-CABIN-DOOR": 1,
++      "P-SEMI-DOOR": 5,
++      "P-MOTOR-6.1": 1,
++      "P-CONTROL-7.5": 1,
++      "P-SEMI-DICTATOR": 5,
++      "P-SEMI-LOCK": 5,
++      "P-SEMI-SPRING": 5,
++      "P-RAIL-BOLT12": 104,
++      "P-RAIL-BOLT10": 50,
++      "P-RAIL-BOLT8": 56,
++      "P-MOTOR-7.3": 1,
++      "P-CONTROL-11": 1,
++      "P-STEEL-CABIN": 1
++    }
++  },
++  "capacity8": {
++    "M001": 105,
++    "M009": 10,
++    "M006": 32,
++    "M011": 1000,
++    "P-PULLEY-40X5": 1
++  },
++  "railKinds": {
++    "auto": {
++      "rail": 7,
++      "bracket": 22,
++      "clip": 44
++    },
++    "semi": {
++      "rail": 7,
++      "bracket": 24,
++      "clip": 48
++    }
++  }
++}
+\ No newline at end of file
+diff --git a/data/reference/invoices.json b/data/reference/invoices.json
+index c383a5b..5b9aa80 100644
+--- a/data/reference/invoices.json
++++ b/data/reference/invoices.json
+@@ -3,7 +3,10 @@
+     "Visual row-family audit of all eight uploaded PDFs. This is not a verbatim transcription of brand/model names.",
+     "Printed quantities are observations only and are NEVER used as 6/7/8-stop quantities. PDF amounts are in rial, workbook prices in toman.",
+     "18948 filename says five stops and eight persons; its floor-door/button quantities are eight. Do not infer a capacity multiplier or a new stop count from this conflict.",
+-    "Workbook units/models may differ from PDF models (notably M011). ProductId means corresponding equipment family, not a certified interchangeable model."
++    "Workbook units/models may differ from PDF models (notably M011). ProductId means corresponding equipment family, not a certified interchangeable model.",
++    "1405/08/10: invoices 17784 (full automatic, now 58 rows incl. the all-steel cabin) and 19381 (full semi-automatic, 60 rows; replaces 15533) are the client's newest lists. They supersede 17784/15533 and define the row ORDER: mechanic, startup, doors/motor/controller, rail. The older 15527/15528/15529/15530/18948/19040 files remain as evidence of the family sets only.",
++    "The newest semi-automatic list has no mechanical cam (P-SEMI-CAM, present in older semi files 15529/15533/19040). It is retired from the package rules. The client asked for the all-steel cabin (P-STEEL-CABIN) as the last row of EVERY package, including those whose PDF does not print it.",
++    "1405/08/10 (r2): motors are 6.1 kW (4-6 persons) and 7.3 kW (8 persons) with brands Behran/Elco/ABB; the controller is 7.5 kW (4-6) or 11 kW (8) with brands Datis/Paya/Aryan. Evidence rows were renamed P-MOTOR-7.5 -> P-MOTOR-6.1 and P-MOTOR-11 -> P-MOTOR-7.3 (the printed 'Behran 6/1KW' is 6.1 kW). Invoice 18948 is another customer's order with different quantities; it is NOT used for 8-person quantities."
+   ],
+   "invoices": [
+     {
+@@ -309,7 +312,7 @@
+         {
+           "row": 37,
+           "page": 2,
+-          "productId": "P-MOTOR-7.5",
++          "productId": "P-MOTOR-6.1",
+           "printedQuantity": 1
+         },
+         {
+@@ -559,7 +562,7 @@
+         {
+           "row": 36,
+           "page": 1,
+-          "productId": "P-MOTOR-7.5",
++          "productId": "P-MOTOR-6.1",
+           "printedQuantity": 1
+         },
+         {
+@@ -857,7 +860,7 @@
+         {
+           "row": 47,
+           "page": 2,
+-          "productId": "P-MOTOR-7.5",
++          "productId": "P-MOTOR-6.1",
+           "printedQuantity": 1
+         },
+         {
+@@ -870,729 +873,851 @@
+     },
+     {
+       "invoiceNumber": "17784",
+-      "file": "177845 توقف تمام اتومات صفر تاصد(1).pdf",
+-      "sha256": "c989345f771d4653549868f5f15bec8a8f2c5c1710ab49bfcec3f95289297b78",
++      "file": "5 توقف تمام اتومات صفر تا صد.pdf",
++      "sha256": "3632eba8f1f89be09b2f4bc435991ca19eb6f893ce62f8d6a0b8b0ee01b27841",
+       "packageId": "full-auto",
+       "stopsInFilename": 5,
+       "capacity": null,
++      "issuedAt": "1405/08/09-16:22",
++      "supersedes": "177845 توقف تمام اتومات صفر تاصد(1).pdf",
+       "rows": [
+         {
+           "row": 1,
+           "page": 1,
+           "productId": "M001",
+-          "printedQuantity": 84
++          "printedQuantity": 84,
++          "printedName": "سیم بکسل 10 گوستاولف نواردار"
+         },
+         {
+           "row": 2,
+           "page": 1,
+           "productId": "M002",
+-          "printedQuantity": 45
++          "printedQuantity": 45,
++          "printedName": "سیم بکسل 6 سفید"
+         },
+         {
+           "row": 3,
+           "page": 1,
+           "productId": "M008",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "فلکه 40×4 پرهام"
+         },
+         {
+           "row": 4,
+           "page": 1,
+           "productId": "M009",
+-          "printedQuantity": 8
++          "printedQuantity": 8,
++          "printedName": "سربکسل 10 پرشیا"
+         },
+         {
+           "row": 5,
+           "page": 1,
+           "productId": "M010",
+-          "printedQuantity": 2
++          "printedQuantity": 2,
++          "printedName": "اشکی گاورنر استیل"
+         },
+         {
+           "row": 6,
+           "page": 1,
+           "productId": "M006",
+-          "printedQuantity": 24
++          "printedQuantity": 24,
++          "printedName": "کرپی 10"
+         },
+         {
+           "row": 7,
+           "page": 1,
+           "productId": "M005",
+-          "printedQuantity": 6
++          "printedQuantity": 6,
++          "printedName": "کرپی 6"
+         },
+         {
+           "row": 8,
+           "page": 1,
+           "productId": "M004",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "پیچ پایه موتور 16"
+         },
+         {
+           "row": 9,
+           "page": 1,
+           "productId": "M007",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "گاورنر آسان شایان یک متر"
+         },
+         {
+           "row": 10,
+           "page": 1,
+           "productId": "M003",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "لاستیک تخت"
+         },
+         {
+           "row": 11,
+           "page": 1,
+           "productId": "M011",
+-          "printedQuantity": 780
++          "printedQuantity": 780,
++          "printedName": "وزنه فلزی 87 +"
+         },
+         {
+           "row": 12,
+           "page": 1,
+           "productId": "R029",
+-          "printedQuantity": 30
++          "printedQuantity": 30,
++          "printedName": "تراول 24 رشته هدسان"
+         },
+         {
+           "row": 13,
+           "page": 1,
+           "productId": "P-EARTH-WIRE",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "سیم نمره 4 هادی نور"
+         },
+         {
+           "row": 14,
+           "page": 1,
+           "productId": "R031",
+-          "printedQuantity": 6
++          "printedQuantity": 6,
++          "printedName": "سیم 0.75 ایمان"
+         },
+         {
+           "row": 15,
+           "page": 1,
+           "productId": "R032",
+-          "printedQuantity": 35
++          "printedQuantity": 35,
++          "printedName": "کابل 1×4"
+         },
+         {
+           "row": 16,
+           "page": 1,
+           "productId": "R030",
+-          "printedQuantity": 35
++          "printedQuantity": 35,
++          "printedName": "سیم تلفنی 6 زوج معمولی"
+         },
+         {
+           "row": 17,
+           "page": 1,
+           "productId": "R011",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "داکت فلزی 10"
+         },
+         {
+           "row": 18,
+           "page": 1,
+           "productId": "R009",
+-          "printedQuantity": 24
++          "printedQuantity": 24,
++          "printedName": "داکت نمره 3 پلاستیکی"
+         },
+         {
+           "row": 19,
+           "page": 1,
+           "productId": "R010",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "داکت نمره 9 پلاستیکی"
+         },
+         {
+           "row": 20,
+           "page": 1,
+           "productId": "R002",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "اورلود زیر کابینی توربوسل"
+         },
+         {
+           "row": 21,
+           "page": 1,
+           "productId": "R016",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "سنسور پیشرو پلاستیکی با آهنربا"
+         },
+         {
+           "row": 22,
+           "page": 1,
+           "productId": "R001",
+-          "printedQuantity": 3
++          "printedQuantity": 3,
++          "printedName": "استپ قارچی"
+         },
+         {
+           "row": 23,
+           "page": 1,
+           "productId": "R017",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "لیمیت شهاب"
+         },
+         {
+           "row": 24,
+           "page": 1,
+           "productId": "R003",
+-          "printedQuantity": 2
++          "printedQuantity": 2,
++          "printedName": "بافر ایستا 1500"
+         },
+         {
+           "row": 25,
+           "page": 1,
+           "productId": "R025",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "تابلو 3 فاز"
+         },
+         {
+           "row": 26,
+           "page": 1,
+           "productId": "R022",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "شستی کابین آذرتابش 5 توقف یک متری نقره‌ای"
+         },
+         {
+           "row": 27,
+           "page": 1,
+           "productId": "R023",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "شستی طبقه آذرتابش پلکسی نقره‌ای نور آبی"
+         },
+         {
+           "row": 28,
+           "page": 1,
+           "productId": "R028",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "نوار چسب"
+         },
+         {
+           "row": 29,
+           "page": 1,
+           "productId": "R034",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "علائم استاندارد"
+         },
+         {
+           "row": 30,
+           "page": 1,
+           "productId": "R005",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "بست تراول کابل یاشار"
+         },
+         {
+           "row": 31,
+           "page": 1,
+           "productId": "R004",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "بست کمربندی 20 سانت"
+         },
+         {
+           "row": 32,
+           "page": 1,
+           "productId": "R013",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "لوله خرطومی پلاستیکی"
+         },
+         {
+           "row": 33,
+           "page": 1,
+           "productId": "R012",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "لوله خرطومی فلزی 13"
+         },
+         {
+           "row": 34,
+           "page": 1,
+           "productId": "R015",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "روغندان یاشار"
+         },
+         {
+           "row": 35,
+-          "page": 1,
++          "page": 2,
+           "productId": "R008",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "پیچ و رولپلاک"
+         },
+         {
+           "row": 36,
+-          "page": 1,
++          "page": 2,
+           "productId": "R019",
+-          "printedQuantity": 2
++          "printedQuantity": 2,
++          "printedName": "کلید تبدیل"
+         },
+         {
+           "row": 37,
+           "page": 2,
+           "productId": "R006",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "پریز بارانی"
+         },
+         {
+           "row": 38,
+           "page": 2,
+           "productId": "R035",
+-          "printedQuantity": 3
++          "printedQuantity": 3,
++          "printedName": "گوشی تلفن"
+         },
+         {
+           "row": 39,
+           "page": 2,
+           "productId": "R024",
+-          "printedQuantity": 9
++          "printedQuantity": 9,
++          "printedName": "چراغ تونلی 18 وات LED"
+         },
+         {
+           "row": 40,
+           "page": 2,
+           "productId": "R037",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "محافظ کادر وزنه 87"
+         },
+         {
+           "row": 41,
+           "page": 2,
+           "productId": "R036",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "پک محافظ سه تیکه"
+         },
+         {
+           "row": 42,
+           "page": 2,
+           "productId": "R007",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "پیچ و مهره 12"
+         },
+         {
+           "row": 43,
+           "page": 2,
+           "productId": "P-STARTUP-BOLT10",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "پیچ و مهره 10"
+         },
+         {
+           "row": 44,
+           "page": 2,
+           "productId": "P-STARTUP-BOLT8",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "پیچ و مهره 8"
+         },
+         {
+           "row": 45,
+           "page": 2,
+           "productId": "R020",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "درب یاران فول کابین 80 چپ دو لته"
+         },
+         {
+           "row": 46,
+           "page": 2,
+           "productId": "P-LANDING-DOOR",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "درب یاران طبقه 80 چپ دو لته"
+         },
+         {
+           "row": 47,
+           "page": 2,
+-          "productId": "P-MOTOR-7.5",
+-          "printedQuantity": 1
++          "productId": "P-MOTOR-6.1",
++          "printedQuantity": 1,
++          "printedName": "موتور بهران 6.1KW تک سرعته"
+         },
+         {
+           "row": 48,
+           "page": 2,
+           "productId": "P-CONTROL-7.5",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "تابلو داتیس زیما 7.5KW بدون نجات"
+         },
+         {
+           "row": 49,
+           "page": 2,
+           "productId": "P-RAIL-T5",
+-          "printedQuantity": 7
++          "printedQuantity": 7,
++          "printedName": "ریل چین سرد T5 درجه یک"
+         },
+         {
+           "row": 50,
+           "page": 2,
+           "productId": "P-RAIL-T9",
+-          "printedQuantity": 7
++          "printedQuantity": 7,
++          "printedName": "ریل چین سرد T9 درجه یک"
+         },
+         {
+           "row": 51,
+           "page": 2,
+           "productId": "P-BRACKET-T5",
+-          "printedQuantity": 22
++          "printedQuantity": 22,
++          "printedName": "براکت T5"
+         },
+         {
+           "row": 52,
+           "page": 2,
+           "productId": "P-BRACKET-T9",
+-          "printedQuantity": 22
++          "printedQuantity": 22,
++          "printedName": "براکت T9"
+         },
+         {
+           "row": 53,
+           "page": 2,
+           "productId": "P-CLIP-T5",
+-          "printedQuantity": 44
++          "printedQuantity": 44,
++          "printedName": "لقمه T5"
+         },
+         {
+           "row": 54,
+           "page": 2,
+           "productId": "P-CLIP-T9",
+-          "printedQuantity": 44
++          "printedQuantity": 44,
++          "printedName": "لقمه T9"
+         },
+         {
+           "row": 55,
+           "page": 2,
+           "productId": "P-RAIL-BOLT12",
+-          "printedQuantity": 105
++          "printedQuantity": 105,
++          "printedName": "پیچ و مهره 12"
+         },
+         {
+           "row": 56,
+           "page": 2,
+           "productId": "P-RAIL-BOLT10",
+-          "printedQuantity": 50
++          "printedQuantity": 50,
++          "printedName": "پیچ و مهره 10"
+         },
+         {
+           "row": 57,
+           "page": 2,
+           "productId": "P-RAIL-BOLT8",
+-          "printedQuantity": 60
++          "printedQuantity": 60,
++          "printedName": "پیچ و مهره 8"
++        },
++        {
++          "row": 58,
++          "page": 2,
++          "productId": "P-STEEL-CABIN",
++          "printedQuantity": 1,
++          "printedName": "کابین تمام استیل"
+         }
+       ]
+     },
+     {
+-      "invoiceNumber": "15533",
+-      "file": "15533 5 توقف نیمه صفر تاصد(1).pdf",
+-      "sha256": "cedefa145f02a450678b46d59a19beecd13196dd037fa54c810e811837f78f85",
++      "invoiceNumber": "19381",
++      "file": "5 توقف نیمه اتومات صفر تا صد.pdf",
++      "sha256": "9af3a430c943c2531aa37371b2a5bfdd7693d956e24dc98954c1ce6baf55d7ab",
+       "packageId": "full-semi",
+       "stopsInFilename": 5,
+       "capacity": null,
++      "issuedAt": "1405/08/09-10:06",
++      "supersedes": "15533 5 توقف نیمه صفر تاصد(1).pdf",
+       "rows": [
+         {
+           "row": 1,
+           "page": 1,
+           "productId": "M001",
+-          "printedQuantity": 84
++          "printedQuantity": 84,
++          "printedName": "سیم بکسل 10 گوستاولف نواردار"
+         },
+         {
+           "row": 2,
+           "page": 1,
+           "productId": "M002",
+-          "printedQuantity": 45
++          "printedQuantity": 45,
++          "printedName": "سیم بکسل 6 سفید"
+         },
+         {
+           "row": 3,
+           "page": 1,
+           "productId": "M008",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "فلکه 40×4 پرهام"
+         },
+         {
+           "row": 4,
+           "page": 1,
+           "productId": "M009",
+-          "printedQuantity": 8
++          "printedQuantity": 8,
++          "printedName": "سربکسل 10 پرشیا"
+         },
+         {
+           "row": 5,
+           "page": 1,
+           "productId": "M010",
+-          "printedQuantity": 2
++          "printedQuantity": 2,
++          "printedName": "اشکی گاورنر استیل"
+         },
+         {
+           "row": 6,
+           "page": 1,
+           "productId": "M006",
+-          "printedQuantity": 24
++          "printedQuantity": 24,
++          "printedName": "کرپی 10"
+         },
+         {
+           "row": 7,
+           "page": 1,
+           "productId": "M005",
+-          "printedQuantity": 6
++          "printedQuantity": 6,
++          "printedName": "کرپی 6"
+         },
+         {
+           "row": 8,
+           "page": 1,
+           "productId": "M004",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "پیچ پایه موتور 16"
+         },
+         {
+           "row": 9,
+           "page": 1,
+           "productId": "M007",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "گاورنر آسان شایان یک متر"
+         },
+         {
+           "row": 10,
+           "page": 1,
+           "productId": "M003",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "لاستیک تخت"
+         },
+         {
+           "row": 11,
+           "page": 1,
+           "productId": "M011",
+-          "printedQuantity": 780
++          "printedQuantity": 780,
++          "printedName": "وزنه فلزی 87 +"
+         },
+         {
+           "row": 12,
+           "page": 1,
+           "productId": "R029",
+-          "printedQuantity": 27
++          "printedQuantity": 27,
++          "printedName": "تراول 24 رشته هدسان"
+         },
+         {
+           "row": 13,
+           "page": 1,
+           "productId": "P-EARTH-WIRE",
+-          "printedQuantity": 6
++          "printedQuantity": 1,
++          "printedName": "سیم نمره 4 هادی نور"
+         },
+         {
+           "row": 14,
+           "page": 1,
+           "productId": "R030",
+-          "printedQuantity": 35
++          "printedQuantity": 35,
++          "printedName": "سیم تلفنی 6 زوج معمولی"
+         },
+         {
+           "row": 15,
+           "page": 1,
+           "productId": "R031",
+-          "printedQuantity": 6
++          "printedQuantity": 6,
++          "printedName": "سیم 0.75 ایمان"
+         },
+         {
+           "row": 16,
+           "page": 1,
+           "productId": "R032",
+-          "printedQuantity": 35
++          "printedQuantity": 35,
++          "printedName": "کابل 1×4"
+         },
+         {
+           "row": 17,
+           "page": 1,
+           "productId": "R011",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "داکت فلزی 10"
+         },
+         {
+           "row": 18,
+           "page": 1,
+           "productId": "R009",
+-          "printedQuantity": 24
++          "printedQuantity": 24,
++          "printedName": "داکت نمره 3 پلاستیکی"
+         },
+         {
+           "row": 19,
+           "page": 1,
+           "productId": "R010",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "داکت نمره 9 پلاستیکی"
+         },
+         {
+           "row": 20,
+           "page": 1,
+           "productId": "R002",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "اورلود زیر کابینی توربوسل"
+         },
+         {
+           "row": 21,
+           "page": 1,
+           "productId": "R016",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "سنسور پیشرو پلاستیکی با آهنربا"
+         },
+         {
+           "row": 22,
+           "page": 1,
+           "productId": "R001",
+-          "printedQuantity": 3
++          "printedQuantity": 3,
++          "printedName": "استپ قارچی"
+         },
+         {
+           "row": 23,
+           "page": 1,
+           "productId": "R017",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "لیمیت شهاب"
+         },
+         {
+           "row": 24,
+           "page": 1,
+           "productId": "R003",
+-          "printedQuantity": 2
++          "printedQuantity": 2,
++          "printedName": "بافر ایستا 1500"
+         },
+         {
+           "row": 25,
+           "page": 1,
+           "productId": "R025",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "تابلو 3 فاز"
+         },
+         {
+           "row": 26,
+           "page": 1,
+           "productId": "R022",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "شستی کابین آذرتابش 5 توقف یک متری نقره‌ای"
+         },
+         {
+           "row": 27,
+           "page": 1,
+           "productId": "R023",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "شستی طبقه آذرتابش پلکسی نقره‌ای نور آبی"
+         },
+         {
+           "row": 28,
+           "page": 1,
+           "productId": "R028",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "نوار چسب"
+         },
+         {
+           "row": 29,
+           "page": 1,
+           "productId": "R034",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "علائم استاندارد"
+         },
+         {
+           "row": 30,
+           "page": 1,
+           "productId": "R005",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "بست تراول کابل یاشار"
+         },
+         {
+           "row": 31,
+           "page": 1,
+           "productId": "R004",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "بست کمربندی 20 سانت"
+         },
+         {
+           "row": 32,
+           "page": 1,
+           "productId": "R013",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "لوله خرطومی پلاستیکی"
+         },
+         {
+           "row": 33,
+           "page": 1,
+           "productId": "R012",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "لوله خرطومی فلزی 13"
+         },
+         {
+           "row": 34,
+           "page": 1,
+           "productId": "R015",
+-          "printedQuantity": 4
++          "printedQuantity": 4,
++          "printedName": "روغندان یاشار"
+         },
+         {
+           "row": 35,
+           "page": 1,
+           "productId": "R008",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "پیچ و رولپلاک"
+         },
+         {
+           "row": 36,
+           "page": 1,
+           "productId": "R019",
+-          "printedQuantity": 2
++          "printedQuantity": 2,
++          "printedName": "کلید تبدیل"
+         },
+         {
+           "row": 37,
+           "page": 2,
+           "productId": "R006",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "پریز بارانی"
+         },
+         {
+           "row": 38,
+           "page": 2,
+           "productId": "R035",
+-          "printedQuantity": 3
++          "printedQuantity": 3,
++          "printedName": "گوشی تلفن"
+         },
+         {
+           "row": 39,
+           "page": 2,
+           "productId": "R024",
+-          "printedQuantity": 9
++          "printedQuantity": 9,
++          "printedName": "چراغ تونلی 18 وات LED"
+         },
+         {
+           "row": 40,
+           "page": 2,
+           "productId": "R037",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "محافظ کادر وزنه 87"
+         },
+         {
+           "row": 41,
+           "page": 2,
+           "productId": "R036",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "پک محافظ سه تیکه"
+         },
+         {
+           "row": 42,
+           "page": 2,
+           "productId": "R007",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "پیچ و مهره 12"
+         },
+         {
+           "row": 43,
+           "page": 2,
+           "productId": "P-STARTUP-BOLT10",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "پیچ و مهره 10"
+         },
+         {
+           "row": 44,
+           "page": 2,
+           "productId": "P-STARTUP-BOLT8",
+-          "printedQuantity": 10
++          "printedQuantity": 10,
++          "printedName": "پیچ و مهره 8"
+         },
+         {
+           "row": 45,
+           "page": 2,
+           "productId": "P-SEMI-CABIN-DOOR",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "درب یاران نیمه کابین 80 چپ دو لته"
+         },
+         {
+           "row": 46,
+           "page": 2,
+-          "productId": "P-SEMI-CAM",
+-          "printedQuantity": 1
++          "productId": "P-SEMI-DOOR",
++          "printedQuantity": 5,
++          "printedName": "درب لولایی 80 چپ کرم"
+         },
+         {
+           "row": 47,
+           "page": 2,
+-          "productId": "P-SEMI-DOOR",
+-          "printedQuantity": 5
++          "productId": "P-MOTOR-6.1",
++          "printedQuantity": 1,
++          "printedName": "موتور بهران 6.1KW تک سرعته"
+         },
+         {
+           "row": 48,
+           "page": 2,
+-          "productId": "P-MOTOR-7.5",
+-          "printedQuantity": 1
+-        },
+-        {
+-          "row": 49,
+-          "page": 2,
+           "productId": "P-CONTROL-7.5",
+-          "printedQuantity": 1
++          "printedQuantity": 1,
++          "printedName": "تابلو فرمان پایا کنترل 7.5"
+         },
+         {
+-          "row": 50,
++          "row": 49,
+           "page": 2,
+           "productId": "P-SEMI-DICTATOR",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "دیکتاتور I&T"
+         },
+         {
+-          "row": 51,
++          "row": 50,
+           "page": 2,
+           "productId": "P-SEMI-LOCK",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "قفل چپ تاپ لیفت"
+         },
+         {
+-          "row": 52,
++          "row": 51,
+           "page": 2,
+           "productId": "P-SEMI-SPRING",
+-          "printedQuantity": 5
++          "printedQuantity": 5,
++          "printedName": "فنر درب"
+         },
+         {
+-          "row": 53,
++          "row": 52,
+           "page": 2,
+           "productId": "P-RAIL-T5",
+-          "printedQuantity": 7
++          "printedQuantity": 7,
++          "printedName": "ریل چین سرد T5 درجه یک"
+         },
+         {
+-          "row": 54,
++          "row": 53,
+           "page": 2,
+           "productId": "P-RAIL-T9",
+-          "printedQuantity": 7
++          "printedQuantity": 7,
++          "printedName": "ریل چین سرد T9 درجه یک"
+         },
+         {
+-          "row": 55,
++          "row": 54,
+           "page": 2,
+           "productId": "P-BRACKET-T5",
+-          "printedQuantity": 24
++          "printedQuantity": 24,
++          "printedName": "براکت T5"
+         },
+         {
+-          "row": 56,
++          "row": 55,
+           "page": 2,
+           "productId": "P-BRACKET-T9",
+-          "printedQuantity": 24
++          "printedQuantity": 24,
++          "printedName": "براکت T9"
+         },
+         {
+-          "row": 57,
++          "row": 56,
+           "page": 2,
+           "productId": "P-CLIP-T5",
+-          "printedQuantity": 48
++          "printedQuantity": 48,
++          "printedName": "لقمه T5"
+         },
+         {
+-          "row": 58,
++          "row": 57,
+           "page": 2,
+           "productId": "P-CLIP-T9",
+-          "printedQuantity": 48
++          "printedQuantity": 48,
++          "printedName": "لقمه T9"
+         },
+         {
+-          "row": 59,
++          "row": 58,
+           "page": 2,
+           "productId": "P-RAIL-BOLT12",
+-          "printedQuantity": 104
++          "printedQuantity": 104,
++          "printedName": "پیچ و مهره 12"
+         },
+         {
+-          "row": 60,
++          "row": 59,
+           "page": 2,
+           "productId": "P-RAIL-BOLT10",
+-          "printedQuantity": 50
++          "printedQuantity": 50,
++          "printedName": "پیچ و مهره 10"
+         },
+         {
+-          "row": 61,
++          "row": 60,
+           "page": 2,
+           "productId": "P-RAIL-BOLT8",
+-          "printedQuantity": 56
++          "printedQuantity": 56,
++          "printedName": "پیچ و مهره 8"
+         }
+       ]
+     },
+@@ -1889,7 +2014,7 @@
+         {
+           "row": 48,
+           "page": 2,
+-          "productId": "P-MOTOR-7.5",
++          "productId": "P-MOTOR-6.1",
+           "printedQuantity": 1
+         },
+         {
+@@ -2205,7 +2330,7 @@
+         {
+           "row": 47,
+           "page": 3,
+-          "productId": "P-MOTOR-11",
++          "productId": "P-MOTOR-7.3",
+           "printedQuantity": 1
+         },
+         {
+@@ -2271,4 +2396,4 @@
+       ]
+     }
+   ]
+-}
++}
+\ No newline at end of file
+diff --git a/data/reference/package-membership.json b/data/reference/package-membership.json
+index 59173ae..4f53a05 100644
+--- a/data/reference/package-membership.json
++++ b/data/reference/package-membership.json
+@@ -12,12 +12,23 @@
+     "M003",
+     "M011"
+   ],
+-  "startupCommon": [
++  "startupHead": [
+     "R029",
+-    "P-EARTH-WIRE",
+-    "R031",
+-    "R032",
+-    "R030",
++    "P-EARTH-WIRE"
++  ],
++  "startupWiring": {
++    "auto": [
++      "R031",
++      "R032",
++      "R030"
++    ],
++    "semi": [
++      "R030",
++      "R031",
++      "R032"
++    ]
++  },
++  "startupTail": [
+     "R011",
+     "R009",
+     "R010",
+@@ -47,28 +58,24 @@
+     "P-STARTUP-BOLT10",
+     "P-STARTUP-BOLT8"
+   ],
+-  "autoOnly": [
++  "autoDoors": [
+     "R020",
+     "P-LANDING-DOOR"
+   ],
+-  "semiOnly": [
++  "semiDoors": [
+     "P-SEMI-CABIN-DOOR",
+-    "P-SEMI-CAM",
+-    "P-SEMI-DOOR",
++    "P-SEMI-DOOR"
++  ],
++  "semiTail": [
+     "P-SEMI-DICTATOR",
+     "P-SEMI-LOCK",
+     "P-SEMI-SPRING"
+   ],
+-  "rail": [
+-    "P-RAIL-T5",
+-    "P-RAIL-T9",
+-    "P-BRACKET-T5",
+-    "P-BRACKET-T9",
+-    "P-CLIP-T5",
+-    "P-CLIP-T9",
+-    "P-RAIL-BOLT12",
+-    "P-RAIL-BOLT10",
+-    "P-RAIL-BOLT8"
++  "closing": [
++    "P-STEEL-CABIN"
++  ],
++  "retired": [
++    "P-SEMI-CAM"
+   ],
+   "workbookOnly": [
+     "R014",
+@@ -77,5 +84,19 @@
+     "R026",
+     "R027",
+     "R033"
++  ],
++  "capacity8Substitutions": {
++    "M008": "P-PULLEY-40X5"
++  },
++  "railBolts": [
++    "P-RAIL-BOLT12",
++    "P-RAIL-BOLT10",
++    "P-RAIL-BOLT8"
++  ],
++  "steelCabinPackages": [
++    "mech-auto",
++    "mech-semi",
++    "full-auto",
++    "full-semi"
+   ]
+-}
++}
+\ No newline at end of file
+diff --git a/data/stop-quantities.json b/data/stop-quantities.json
+new file mode 100644
+index 0000000..6ddaf02
+--- /dev/null
++++ b/data/stop-quantities.json
+@@ -0,0 +1,733 @@
++{
++ "stops": {
++  "3": {
++   "auto": {
++    "M001": 56,
++    "M002": 40,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 780,
++    "R029": 20,
++    "P-EARTH-WIRE": 1,
++    "R030": 25,
++    "R031": 4,
++    "R032": 25,
++    "R006": 1,
++    "R035": 3,
++    "R011": 1,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 72,
++    "P-RAIL-BOLT10": 32,
++    "P-RAIL-BOLT8": 40,
++    "R020": 1,
++    "P-LANDING-DOOR": 3,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-RAIL-T5": 8,
++    "P-RAIL-T9": 5,
++    "P-BRACKET-T5": 16,
++    "P-BRACKET-T9": 16,
++    "P-CLIP-T5": 32,
++    "P-CLIP-T9": 32,
++    "R022": 1,
++    "R023": 3,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   },
++   "semi": {
++    "M001": 56,
++    "M002": 40,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 780,
++    "R029": 20,
++    "P-EARTH-WIRE": 1,
++    "R030": 25,
++    "R031": 4,
++    "R032": 25,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 72,
++    "P-RAIL-BOLT10": 32,
++    "P-RAIL-BOLT8": 40,
++    "P-SEMI-CABIN-DOOR": 1,
++    "P-SEMI-DOOR": 1,
++    "P-SEMI-DICTATOR": 3,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-7.5": 1,
++    "P-SEMI-LOCK": 3,
++    "P-SEMI-SPRING": 3,
++    "P-RAIL-T5": 5,
++    "P-RAIL-T9": 5,
++    "P-BRACKET-T5": 16,
++    "P-BRACKET-T9": 16,
++    "P-CLIP-T5": 32,
++    "P-CLIP-T9": 32,
++    "R022": 1,
++    "R023": 3,
++    "P-PULLEY-40X5": 1,
++    "P-CONTROL-11": 1,
++    "P-MOTOR-6.1": 1,
++    "P-STEEL-CABIN": 1
++   }
++  },
++  "4": {
++   "auto": {
++    "M001": 72,
++    "M002": 42,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 780,
++    "R029": 24,
++    "P-EARTH-WIRE": 1,
++    "R030": 30,
++    "R031": 5,
++    "R032": 30,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R005": 4,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 8,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 100,
++    "P-RAIL-BOLT10": 40,
++    "P-RAIL-BOLT8": 50,
++    "R020": 1,
++    "P-LANDING-DOOR": 4,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-RAIL-T5": 6,
++    "P-RAIL-T9": 6,
++    "P-BRACKET-T5": 20,
++    "P-BRACKET-T9": 20,
++    "P-CLIP-T5": 40,
++    "P-CLIP-T9": 40,
++    "R022": 1,
++    "R023": 4,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   },
++   "semi": {
++    "M001": 72,
++    "M002": 42,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 780,
++    "R029": 24,
++    "P-EARTH-WIRE": 1,
++    "R030": 30,
++    "R031": 5,
++    "R032": 30,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 100,
++    "P-RAIL-BOLT10": 40,
++    "P-RAIL-BOLT8": 50,
++    "P-SEMI-CABIN-DOOR": 1,
++    "P-SEMI-DOOR": 1,
++    "P-SEMI-DICTATOR": 4,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-SEMI-LOCK": 4,
++    "P-SEMI-SPRING": 4,
++    "P-RAIL-T5": 6,
++    "P-RAIL-T9": 6,
++    "P-BRACKET-T5": 20,
++    "P-BRACKET-T9": 20,
++    "P-CLIP-T5": 40,
++    "P-CLIP-T9": 40,
++    "R022": 1,
++    "R023": 4,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   }
++  },
++  "6": {
++   "auto": {
++    "M001": 96,
++    "M002": 50,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 780,
++    "R029": 33,
++    "P-EARTH-WIRE": 1,
++    "R030": 40,
++    "R031": 7,
++    "R032": 40,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 5,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R019": 2,
++    "R024": 10,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 132,
++    "P-RAIL-BOLT10": 60,
++    "P-RAIL-BOLT8": 72,
++    "R020": 1,
++    "P-LANDING-DOOR": 6,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-RAIL-T5": 9,
++    "P-RAIL-T9": 9,
++    "P-BRACKET-T5": 30,
++    "P-BRACKET-T9": 30,
++    "P-CLIP-T5": 60,
++    "P-CLIP-T9": 60,
++    "R022": 1,
++    "R023": 6,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   },
++   "semi": {
++    "M001": 96,
++    "M002": 50,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 900,
++    "R029": 31,
++    "P-EARTH-WIRE": 1,
++    "R030": 40,
++    "R031": 7,
++    "R032": 40,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R005": 4,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 10,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 132,
++    "P-RAIL-BOLT10": 60,
++    "P-RAIL-BOLT8": 72,
++    "P-SEMI-CABIN-DOOR": 1,
++    "P-SEMI-DOOR": 6,
++    "P-SEMI-DICTATOR": 6,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-SEMI-SPRING": 6,
++    "P-RAIL-T5": 9,
++    "P-RAIL-T9": 9,
++    "P-BRACKET-T5": 30,
++    "P-BRACKET-T9": 30,
++    "P-CLIP-T5": 60,
++    "P-CLIP-T9": 60,
++    "R022": 1,
++    "R023": 6,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   }
++  },
++  "7": {
++   "auto": {
++    "M001": 112,
++    "M002": 60,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 900,
++    "R029": 38,
++    "P-EARTH-WIRE": 1,
++    "R030": 45,
++    "R031": 8,
++    "R032": 45,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R005": 4,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 11,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 150,
++    "P-RAIL-BOLT10": 64,
++    "P-RAIL-BOLT8": 80,
++    "R020": 1,
++    "P-LANDING-DOOR": 7,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-7.5": 1,
++    "P-RAIL-T5": 10,
++    "P-RAIL-T9": 10,
++    "P-BRACKET-T5": 32,
++    "P-BRACKET-T9": 32,
++    "P-CLIP-T5": 64,
++    "P-CLIP-T9": 64,
++    "R022": 1,
++    "R023": 7,
++    "P-PULLEY-40X5": 1,
++    "P-CONTROL-11": 1,
++    "P-MOTOR-6.1": 1,
++    "P-STEEL-CABIN": 1
++   },
++   "semi": {
++    "M001": 112,
++    "M002": 60,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 780,
++    "R029": 36,
++    "P-EARTH-WIRE": 6,
++    "R030": 40,
++    "R031": 8,
++    "R032": 50,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 9,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 150,
++    "P-RAIL-BOLT10": 65,
++    "P-RAIL-BOLT8": 80,
++    "P-SEMI-CABIN-DOOR": 1,
++    "P-SEMI-DOOR": 1,
++    "P-SEMI-DICTATOR": 7,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-11": 1,
++    "P-SEMI-LOCK": 7,
++    "P-SEMI-SPRING": 7,
++    "P-RAIL-T5": 10,
++    "P-RAIL-T9": 10,
++    "P-BRACKET-T5": 32,
++    "P-BRACKET-T9": 32,
++    "P-CLIP-T5": 64,
++    "P-CLIP-T9": 64,
++    "R022": 1,
++    "R023": 7,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-7.5": 1,
++    "P-STEEL-CABIN": 1
++   }
++  },
++  "8": {
++   "auto": {
++    "M001": 128,
++    "M002": 65,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 900,
++    "R029": 40,
++    "P-EARTH-WIRE": 1,
++    "R030": 50,
++    "R031": 9,
++    "R032": 50,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R016": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R005": 4,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 12,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 176,
++    "P-RAIL-BOLT10": 80,
++    "P-RAIL-BOLT8": 96,
++    "R020": 1,
++    "P-LANDING-DOOR": 8,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-RAIL-T5": 12,
++    "P-RAIL-T9": 12,
++    "P-BRACKET-T5": 40,
++    "P-BRACKET-T9": 40,
++    "P-CLIP-T5": 80,
++    "P-CLIP-T9": 80,
++    "R022": 1,
++    "R023": 8,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   },
++   "semi": {
++    "M001": 128,
++    "M002": 65,
++    "M008": 1,
++    "M009": 8,
++    "M010": 2,
++    "M006": 24,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 900,
++    "R029": 38,
++    "P-EARTH-WIRE": 1,
++    "R030": 50,
++    "R031": 9,
++    "R032": 50,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R001": 3,
++    "R017": 1,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R005": 4,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 12,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 176,
++    "P-RAIL-BOLT10": 80,
++    "P-RAIL-BOLT8": 96,
++    "P-SEMI-CABIN-DOOR": 1,
++    "P-SEMI-DOOR": 8,
++    "P-SEMI-DICTATOR": 8,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-SEMI-SPRING": 8,
++    "P-RAIL-T5": 12,
++    "P-RAIL-T9": 12,
++    "P-BRACKET-T5": 40,
++    "P-BRACKET-T9": 40,
++    "P-CLIP-T5": 80,
++    "P-CLIP-T9": 80,
++    "R022": 1,
++    "R023": 8,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   }
++  },
++  "9": {
++   "auto": {
++    "M001": 175,
++    "M002": 70,
++    "M008": 1,
++    "M009": 10,
++    "M010": 2,
++    "M006": 30,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 900,
++    "R029": 45,
++    "P-EARTH-WIRE": 1,
++    "R030": 55,
++    "R031": 10,
++    "R032": 55,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R005": 4,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 13,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 200,
++    "P-RAIL-BOLT10": 80,
++    "P-RAIL-BOLT8": 104,
++    "R020": 1,
++    "P-LANDING-DOOR": 9,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-RAIL-T5": 13,
++    "P-RAIL-T9": 13,
++    "P-BRACKET-T5": 40,
++    "P-BRACKET-T9": 40,
++    "P-CLIP-T5": 80,
++    "P-CLIP-T9": 80,
++    "R022": 1,
++    "R023": 9,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-STEEL-CABIN": 1
++   },
++   "semi": {
++    "M001": 175,
++    "M008": 1,
++    "M009": 10,
++    "M010": 2,
++    "M006": 30,
++    "M005": 6,
++    "M004": 4,
++    "M007": 1,
++    "M003": 4,
++    "M011": 900,
++    "R029": 45,
++    "P-EARTH-WIRE": 1,
++    "R030": 55,
++    "R031": 10,
++    "R032": 55,
++    "R011": 1,
++    "R006": 1,
++    "R035": 3,
++    "R002": 1,
++    "R001": 3,
++    "R017": 1,
++    "R003": 2,
++    "R025": 1,
++    "R028": 10,
++    "R034": 1,
++    "R005": 4,
++    "R004": 1,
++    "R013": 1,
++    "R012": 5,
++    "R015": 4,
++    "R008": 1,
++    "R019": 2,
++    "R024": 13,
++    "R037": 1,
++    "R036": 1,
++    "P-RAIL-BOLT12": 200,
++    "P-RAIL-BOLT10": 80,
++    "P-RAIL-BOLT8": 104,
++    "P-SEMI-CABIN-DOOR": 1,
++    "P-SEMI-DICTATOR": 9,
++    "P-MOTOR-6.1": 1,
++    "P-CONTROL-7.5": 1,
++    "P-SEMI-DOOR": 9,
++    "P-SEMI-SPRING": 9,
++    "P-RAIL-T5": 13,
++    "P-RAIL-T9": 13,
++    "P-BRACKET-T5": 40,
++    "P-BRACKET-T9": 40,
++    "P-CLIP-T5": 80,
++    "P-CLIP-T9": 80,
++    "R022": 1,
++    "R023": 9,
++    "P-PULLEY-40X5": 1,
++    "P-MOTOR-7.3": 1,
++    "P-CONTROL-11": 1,
++    "P-STEEL-CABIN": 1
++   }
++  }
++ },
++ "notes": [
++  "Exact printed quantities transcribed from the client's zero-to-hundred invoices (3, 4, 6, 7, 8 and 9 stops; automatic and semi-automatic).",
++  "M001 (سیم بکسل ۱۰) follows the printed «شرح کالا» multiplier: 4×N for 4-6 persons and 5×N for 8 persons.",
++  "The all-steel cabin (P-STEEL-CABIN) is a fixed count of 1 and only belongs to the mech-auto, mech-semi, full-auto and full-semi packages.",
++  "Rail, bracket and clip counts are per kind; the rail bolts 12/10/8 are summed into bolt 12 when T9 and T16 are both chosen.",
++  "Rows whose printed name could not be matched to a catalog product are simply absent here and keep their previous source."
++ ],
++ "sources": {
++  "3-auto": "predict-3",
++  "4-auto": "predict-4",
++  "6-auto": "predict-6",
++  "7-auto": "predict-7",
++  "8-auto": "predict-8",
++  "9-auto": "predict-9",
++  "3-semi": "predict-3",
++  "4-semi": "predict-4",
++  "6-semi": "predict-6",
++  "7-semi": "predict-7",
++  "8-semi": "predict-8",
++  "9-semi": "predict-9"
++ }
++}
+\ No newline at end of file
+diff --git a/docs/CLIENT-CHANGES-1405-08.md b/docs/CLIENT-CHANGES-1405-08.md
+new file mode 100644
+index 0000000..884bffa
+--- /dev/null
++++ b/docs/CLIENT-CHANGES-1405-08.md
+@@ -0,0 +1,92 @@
++# Client changes, 1405/08 (revisions 1 to 3)
++
++Base commit: `2e2a1fb` (`fix pdf export`). Pricing formulas are unchanged
++(`quantity x master price`); no package-price or passenger multiplier was added.
++
++## Screen behaviour
++
++| Change | Where |
++|---|---|
++| Quantity, unit price and line total are **read-only** in the main list (and the PDF is built from the same values). | `components/price-manager/product-table.tsx` |
++| Prices change **only** in "مدیریت قیمت مادر". | `master-prices-dialog.tsx` |
++| The settings card sits at the **top of the page**, always visible: customer name, **customer phone (new)**, quote number, master prices, demo reset. | `management-tools.tsx`, `price-manager.tsx` |
++| Removed: optional percentage adjustment, product search, "دریافت/بازیابی پشتیبان". | same + `use-price-manager.ts` |
++| The customer phone is saved with the settings and printed in the PDF header. | `settings.ts`, `quote-print-document.tsx` |
++
++The percentage adjustment was removed completely (`rate` no longer exists in the
++state; old saved data containing it is ignored), so no hidden adjustment can
++remain in a total. `downloadBackup/readBackup` stay in `persistence.ts` because
++the demo reset still downloads a safety backup before it clears prices.
++
++## Brands
++
++* `lib/price-manager/brand-rules.ts` holds the client's list of single-model
++  products (`SINGLE_BRAND_PRODUCT_IDS`). Their brand can never be chosen, even if
++  brands are added to the catalog later.
++* A brand menu appears only for products with **two or more** brands that are not on
++  that list. Today that is only the motors (six brands each).
++* Every selectable brand has **its own master price**. Settings key:
++  `productId::brand` (`P-MOTOR-7.5::ABB`). Lookup order: brand price, then the old
++  per-product price, then the catalog base price (1000 toman).
++* To give another product several brands, add the names to its `brands` array in
++  `data/catalog.json`; the master-price dialog then shows one row per brand.
++
++## Packages (from invoices 17784 and 19381)
++
++Row order in every package: mechanic, startup, doors / motor / controller, rail,
++**all-steel cabin last** (`P-STEEL-CABIN`, quantity 1 for 6/7/8 stops, base price 1000).
++
++* Automatic wiring order: 75 / 1x4 / 6-pair. Semi-automatic: 6-pair / 75 / 1x4.
++* Semi-automatic: motor and controller sit between the doors and the dictator/lock/spring.
++* The mechanical cam (`P-SEMI-CAM`) is not in the newest semi list: retired from all packages
++  and removed from the catalog (older invoices keep it as evidence).
++* `data/reference/invoices.json`: 17784 replaced (58 rows), 15533 replaced by 19381 (60 rows).
++
++Row counts: rail 10, mechanic 12, automatic 38, semi 41, mech+auto 49, mech+semi 52,
++full automatic 58, full semi 61.
++
++## Revision 2: 5 stops, capacity rules, brand prices, printed names
++
++* **5 stops** is a new filter value and the default. Its quantities are the printed ones of invoices
++  17784 (automatic) and 19381 (semi-automatic), stored in `data/five-stop-quantities.json` and verified
++  row by row against `data/reference/invoices.json`. Nothing is blank at 5 stops, for all 8 packages.
++  Rail-only and mechanic-only packages use the automatic list. 6-8 stops still use the Excel table.
++* **Capacity.** Motor: 6.1 kW (4-6 persons) / 7.3 kW (8 persons), brands بهران، الکو، ABB.
++  Controller: 7.5 kW / 11 kW, brands داتیس، پایا، آریان. Mechanic at 5 stops: 4-6 persons 84 / 8 / 24 / 780 and
++  the 40x4 pulley; 8 persons 105 / 12 / 32 / 1000 and the 40x5 pulley (`P-PULLEY-40X5` replaces `M008`).
++  Other 8-person quantities follow the 4-6 list because the client defined no other difference.
++* **Brand prices.** `brandPrices` in `data/catalog.json` gives every brand its own price (demo values
++  1000 / 2000 / 3000 in brand order). They are changed only in "مدیریت قیمت مادر".
++  Lookup: saved brand price, saved product price, catalog brand price, base price.
++* **Names** of all products in the two lists are the printed names (`printedName` in the evidence file; a test compares them).
++* **Single-model rows** (the client's list) are static: no menu, nothing happens on click.
++* Old hand-typed counts in saved data are dropped on load (counts are read-only), so a hidden number
++  can never change a 5-stop quantity.
++* One-per-elevator items (motor, controller, earth wire, semi cabin door, 40x5 pulley, steel cabin)
++  also have quantity 1 at 6-8 stops, like their Excel analogues.
++
++## Revision 3: rail types (T5 / T9 / T16)
++
++* The two "ریل چین سرد ... درجه یک" rows are selectable like brands. The menu "نوع ریل" offers T5, T9 and T16;
++  the type used by the other rail is hidden, so the two rails can never be the same (choosing it from the other
++  menu is also swapped in the state). Default: T5 and T9. The choice is saved with the settings.
++* Brackets and clips follow the selected types in the same order (T5 + T16 gives bracket T5, T16 and clip T5, T16).
++  Row order: rail 1, rail 2, bracket 1, bracket 2, clip 1, clip 2, then the bolts, then the steel cabin.
++* All nine parts (rail, bracket, clip x T5/T9/T16) exist in `data/catalog.json` and appear in
++  "مدیریت قیمت مادر", each with its own price (demo 1000 / 2000 / 3000 for T5 / T9 / T16).
++* Rail bolts: only when **both T9 and T16** are selected, the bolts 10 and 8 are removed and their
++  quantities are added to bolt 12 (5 stops: auto 105 + 50 + 60 = 215, semi 104 + 50 + 56 = 210).
++  Otherwise the three bolts stay at the end, before the steel cabin. A note on the screen explains the merge.
++  The merge applies to the rail bolts only, not to the startup bolts 10 / 8.
++* Quantities per kind at 5 stops (`railKinds` in `data/five-stop-quantities.json`): auto rail 7 / bracket 22 / clip 44,
++  semi 7 / 24 / 48. T16 uses the same per-kind counts as T5 and T9 (assumption: the invoices only show two types).
++* Code: `lib/price-manager/rail-rules.ts` (selection, choices, merge rule), `package-rules.ts`, `quantity-rules.ts`,
++  `product-brand-menu.tsx` (the menu), `product-table.tsx`, tests in `scripts/test-pricing.cjs` (section 4d).
++
++## Still open
++
++* Quantities at 6/7/8 stops of landing doors, startup bolts 10/8, semi doors/dictator/lock/spring and all rail items
++  are unknown. They show "—" and PDF export stays blocked for those packages until the quantities are added to
++  `data/catalog.json`. Stops 3-4 and 9-13 are planned later.
++* Real prices (the Excel master prices) are not loaded; every base price is still 1000 toman.
++* Brand lists for products other than motors and controllers; brand prices are demo values.
+diff --git a/hooks/use-price-manager.ts b/hooks/use-price-manager.ts
+index 2a1c02f..e0f7d5e 100644
+--- a/hooks/use-price-manager.ts
++++ b/hooks/use-price-manager.ts
+@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
+ import { PRODUCTS } from "@/lib/price-manager/catalog";
+ import { buildQuote } from "@/lib/price-manager/calculations";
+ import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
++import { selectRailType } from "@/lib/price-manager/rail-rules";
+ import { createDemoSettings, updateNumericSetting } from "@/lib/price-manager/settings";
+ import {
+   downloadBackup,
+@@ -12,7 +13,7 @@ import {
+   saveQuote,
+   saveSettings,
+ } from "@/lib/price-manager/persistence";
+-import type { LoadStatus, QuoteSettings } from "@/lib/price-manager/types";
++import type { LoadStatus, QuoteSettings, RailType } from "@/lib/price-manager/types";
+ 
+ export function usePriceManager() {
+   const [settings, setSettings] = useState<QuoteSettings>(INITIAL_SETTINGS);
+@@ -65,28 +66,32 @@ export function usePriceManager() {
+     setSettings((current) => ({ ...current, ...patch }));
+   }, []);
+ 
+-  const updatePrice = useCallback((id: string, value: number | null) => {
+-    setSettings((current) => updateNumericSetting(current, "prices", id, value));
++  const updatePrice = useCallback((key: string, value: number | null) => {
++    setSettings((current) => updateNumericSetting(current, "prices", key, value));
+   }, []);
+ 
+-  const updatePreviousPrice = useCallback((id: string, value: number | null) => {
+-    setSettings((current) => updateNumericSetting(current, "previousPrices", id, value));
++  const updatePreviousPrice = useCallback((key: string, value: number | null) => {
++    setSettings((current) => updateNumericSetting(current, "previousPrices", key, value));
+   }, []);
+ 
+   function resetDemo() {
+     if (status !== "ready") return;
+-    const confirmed = window.confirm("قیمت‌ها به ۱۰۰۰ تومان برگردند و تعدادهای دستی و درصد تغییر پاک شوند؟ قبل از بازنشانی، فایل پشتیبان دریافت می‌شود.");
++    const confirmed = window.confirm("قیمت‌ها به مقدار نمونهٔ اولیه برگردند و تعدادهای دستی پاک شوند؟ قبل از بازنشانی، فایل پشتیبان دریافت می‌شود.");
+     if (!confirmed) return;
+     try {
+       downloadBackup(settings);
+       setSettings(createDemoSettings(settings));
+-      setMessage("نمونه ۱۰۰۰ تومانی بارگذاری شد. تعدادها از اکسل خوانده می‌شوند؛ مقادیر نامشخص همچنان خالی هستند.");
++      setMessage("قیمت‌های نمونه بارگذاری شد. نام و تلفن مشتری حفظ شد.");
+     } catch (error) {
+       console.error("Demo reset backup failed", error);
+       setMessage("تهیه پشتیبان ناموفق بود؛ اطلاعات بازنشانی نشد.");
+     }
+   }
+ 
++  const updateRailType = useCallback((slot: 0 | 1, type: RailType) => {
++    setSettings((current) => ({ ...current, railTypes: selectRailType(current.railTypes, slot, type) }));
++  }, []);
++
+   const updateBrand = useCallback((id: string, brand: string) => {
+     setSettings((current) => ({ ...current, brands: { ...current.brands, [id]: brand } }));
+   }, []);
+@@ -126,7 +131,7 @@ export function usePriceManager() {
+   return {
+     settings, status, quote, message, setMessage,
+     databasePath, today, isPrinting,
+-    updateSettings, updatePrice, updatePreviousPrice, updateBrand, toggleProduct, resetDemo,
++    updateSettings, updatePrice, updatePreviousPrice, updateBrand, updateRailType, toggleProduct, resetDemo,
+     printQuote,
+   };
+ }
+diff --git a/lib/price-manager/brand-rules.ts b/lib/price-manager/brand-rules.ts
+new file mode 100644
+index 0000000..26ce087
+--- /dev/null
++++ b/lib/price-manager/brand-rules.ts
+@@ -0,0 +1,52 @@
++import type { Product } from "./types";
++
++/**
++ * Items the client confirmed exist in exactly ONE model. Their brand can never be chosen,
++ * even if a brand list is added to the catalog later. (Client message, 1405/08/10.)
++ */
++export const SINGLE_BRAND_PRODUCT_IDS: ReadonlySet<string> = new Set([
++  "M010", // اشکی گاورنر استیل
++  "M006", // کرپی ۱۰
++  "M005", // کرپی ۶
++  "M004", // پیچ پایه موتور ۱۶
++  "M003", // لاستیک تخت
++  "M011", // وزنه فلزی ۸۷+
++  "R032", // کابل ۴×۱
++  "R011", // داکت فلزی ۱۰
++  "R009", // داکت نمره ۳ پلاستیکی
++  "R010", // داکت نمره ۹ پلاستیکی
++  "R001", // استپ قارچی
++  "R028", // نوارچسب
++  "R034", // علائم استاندارد
++  "R013", // لوله خرطومی پلاستیکی
++  "R019", // کلید تبدیل
++  "R008", // پیچ و رولپلاک
++  "R006", // پریز بارانی
++  "R035", // گوشی تلفن
++  "R007", "P-STARTUP-BOLT10", "P-STARTUP-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (راه‌اندازی)
++  "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", // پیچ و مهره ۱۲ / ۱۰ / ۸ (ریل)
++  "P-SEMI-DOOR", // درب لولایی ۸۰ چپ کرم
++  "P-SEMI-SPRING", // فنر درب (در پیام کارفرما «فلز درب»)
++  "P-BRACKET-T5", "P-BRACKET-T9", "P-BRACKET-T16", "P-CLIP-T5", "P-CLIP-T9", "P-CLIP-T16", // براکت و لقمه (همنوع ریل)
++  "P-STEEL-CABIN", // کابین تمام استیل
++]);
++
++/** Products the client confirmed have a single model: their row is static (no menu, no click action). */
++export function isSingleModel(product: Product): boolean {
++  return SINGLE_BRAND_PRODUCT_IDS.has(product.id);
++}
++
++/** A brand menu exists only for products with at least two brands that are not on the single-model list. */
++export function isBrandSelectable(product: Product): boolean {
++  return !isSingleModel(product) && product.brands.length > 1;
++}
++
++export function resolveBrand(product: Product, savedBrand: string | undefined): string {
++  if (isBrandSelectable(product) && savedBrand !== undefined && product.brands.includes(savedBrand)) return savedBrand;
++  return product.brands[0] ?? "";
++}
++
++/** Settings key of a master price: one price per brand when the brand is selectable. */
++export function getPriceKey(product: Product, brand: string): string {
++  return isBrandSelectable(product) && brand ? `${product.id}::${brand}` : product.id;
++}
+diff --git a/lib/price-manager/calculations.ts b/lib/price-manager/calculations.ts
+index a712d23..c177cb9 100644
+--- a/lib/price-manager/calculations.ts
++++ b/lib/price-manager/calculations.ts
+@@ -1,3 +1,4 @@
++import { resolveBrand } from "./brand-rules";
+ import { OMITTED_PRODUCT_ID } from "./constants";
+ import { getMasterPrice } from "./master-price";
+ import { getPackageProductIds } from "./package-rules";
+@@ -8,7 +9,7 @@ export { matchesCapacity } from "./package-rules";
+ 
+ export function selectProducts(products: Product[], settings: QuoteSettings): Product[] {
+   const byId = new Map(products.map((product) => [product.id, product]));
+-  return getPackageProductIds(settings.pack, settings.capacity)
++  return getPackageProductIds(settings.pack, settings.capacity, settings.railTypes)
+     .map((id) => byId.get(id))
+     .filter((product): product is Product => !!product && product.id !== OMITTED_PRODUCT_ID);
+ }
+@@ -21,20 +22,13 @@ export function calculateLineTotal(quantity: number | null, unitPrice: number |
+   return Number.isFinite(result) ? result : null;
+ }
+ 
+-/** Existing app-only adjustment; NOT a hidden part of the Excel formula. */
+-export function applyQuoteAdjustment(baseTotal: number | null, percentage: number): number | null {
+-  if (baseTotal === null || !Number.isFinite(percentage) || percentage < -100) return null;
+-  const result = baseTotal * (1 + percentage / 100);
+-  return Number.isFinite(result) ? result : null;
+-}
+-
+ export function calculateRow(product: Product, settings: QuoteSettings): QuoteRow {
+   const quantity = resolveQuantity(product, settings);
+-  const unitPrice = getMasterPrice(product, settings);
++  // The brand decides the master price: every selectable brand has its own price in the master list.
++  const brand = resolveBrand(product, settings.brands[product.id]);
++  const unitPrice = getMasterPrice(product, settings, brand);
+   const baseTotal = calculateLineTotal(quantity.value, unitPrice);
+   const enabled = !settings.excluded.includes(product.id);
+-  const savedBrand = settings.brands[product.id];
+-  const brand = product.brands.includes(savedBrand) ? savedBrand : product.brands[0] ?? "";
+   return {
+     product,
+     quantity: quantity.value,
+@@ -43,7 +37,7 @@ export function calculateRow(product: Product, settings: QuoteSettings): QuoteRo
+     unitPrice,
+     baseTotal,
+     // No Math.round: the supplied Excel formula does not round the line total.
+-    total: enabled ? applyQuoteAdjustment(baseTotal, settings.rate) : null,
++    total: enabled ? baseTotal : null,
+     enabled,
+     brand,
+   };
+@@ -52,13 +46,14 @@ export function calculateRow(product: Product, settings: QuoteSettings): QuoteRo
+ export function getTotalCategory(product: Product): TotalCategory {
+   if (product.group === "mechanic") return "mechanic";
+   if (product.group === "rail") return "rail";
++  if (product.group === "cabin") return "cabin";
+   return "startup";
+ }
+ 
+ /** SUMIF-style category totals; never sum numeric-looking labels or placeholder rows. */
+ export function summarizeRows(rows: QuoteRow[]): QuoteSummary {
+   const enabledRows = rows.filter((row) => row.enabled);
+-  const subtotals: Record<TotalCategory, number> = { mechanic: 0, startup: 0, rail: 0 };
++  const subtotals: Record<TotalCategory, number> = { mechanic: 0, startup: 0, rail: 0, cabin: 0 };
+   for (const row of enabledRows) subtotals[getTotalCategory(row.product)] += row.total ?? 0;
+   return {
+     rows,
+@@ -76,14 +71,5 @@ export function buildQuote(products: Product[], settings: QuoteSettings): QuoteS
+ /** A worksheet comparison includes ALL 48 real workbook rows, not a PDF package. */
+ export function buildWorkbookComparison(products: Product[], settings: QuoteSettings): QuoteSummary {
+   const workbookRows = products.filter((product) => product.source === "excel" && product.id !== OMITTED_PRODUCT_ID);
+-  return summarizeRows(workbookRows.map((product) => calculateRow(product, { ...settings, excluded: [], rate: 0, quantities: {} })));
+-}
+-
+-/** Search only affects visibility, never the quote's sums or exported rows. */
+-export function searchQuoteRows(rows: QuoteRow[], query: string): QuoteRow[] {
+-  const normalized = query.trim().toLocaleLowerCase();
+-  if (!normalized) return rows;
+-  return rows.filter((row) =>
+-    `${row.product.id} ${row.product.name} ${row.brand}`.toLocaleLowerCase().includes(normalized),
+-  );
++  return summarizeRows(workbookRows.map((product) => calculateRow(product, { ...settings, excluded: [], quantities: {} })));
+ }
+diff --git a/lib/price-manager/constants.ts b/lib/price-manager/constants.ts
+index 18b269d..6e325f7 100644
+--- a/lib/price-manager/constants.ts
++++ b/lib/price-manager/constants.ts
+@@ -1,3 +1,4 @@
++import { DEFAULT_RAIL_SELECTION } from "./rail-rules";
+ import type { PackageId, ProductGroup, QuoteSettings, SupportedStop } from "./types";
+ 
+ export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
+@@ -7,8 +8,8 @@ export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
+   { value: "semi", label: "راه‌اندازی نیمه اتومات" },
+   { value: "mech-auto", label: "مکانیک و راه‌اندازی تمام اتومات" },
+   { value: "mech-semi", label: "مکانیک و راه‌اندازی نیمه اتومات" },
+-  { value: "full-auto", label: "ریل، مکانیک و راه‌اندازی تمام اتومات" },
+-  { value: "full-semi", label: "ریل، مکانیک و راه‌اندازی نیمه اتومات" },
++  { value: "full-auto", label: "صفر تا صد تمام اتومات" },
++  { value: "full-semi", label: "صفر تا صد نیمه اتومات" },
+ ];
+ 
+ export const GROUP_LABELS: Record<ProductGroup, string> = {
+@@ -18,9 +19,12 @@ export const GROUP_LABELS: Record<ProductGroup, string> = {
+   startup: "راه‌اندازی",
+   auto: "تمام اتومات",
+   semi: "نیمه اتومات",
++  cabin: "کابین",
+ };
+ 
+-export const SUPPORTED_STOPS: readonly SupportedStop[] = [6, 7, 8];
++/** 5 stops come from the client's 5-stop invoices; 3, 4 and 9 stops come from the zero-to-hundred invoices; 6-8 keep the Excel stop table. */
++export const SUPPORTED_STOPS: readonly SupportedStop[] = [3, 4, 5, 6, 7, 8, 9];
++export const WORKBOOK_STOPS: readonly SupportedStop[] = [6, 7, 8];
+ export const DEMO_BASE_PRICE = 1000;
+ 
+ export function isSupportedStop(value: number): value is SupportedStop {
+@@ -30,9 +34,10 @@ export function isSupportedStop(value: number): value is SupportedStop {
+ export const INITIAL_SETTINGS: QuoteSettings = {
+   schemaVersion: 2,
+   motor: "gearbox",
+-  stops: 6,
++  stops: 5,
+   capacity: "4-6",
+   pack: "full-auto",
++  railTypes: [...DEFAULT_RAIL_SELECTION],
+   prices: {},
+   previousPrices: {},
+   quantities: {},
+diff --git a/lib/price-manager/master-price.ts b/lib/price-manager/master-price.ts
+index de7938d..3854829 100644
+--- a/lib/price-manager/master-price.ts
++++ b/lib/price-manager/master-price.ts
+@@ -1,12 +1,22 @@
++import { getPriceKey, resolveBrand } from "./brand-rules";
+ import type { Product, QuoteSettings } from "./types";
+ 
+-export function getMasterPrice(product: Product, settings: QuoteSettings): number | null {
+-  const price = settings.prices[product.id] ?? product.price;
+-  return price !== null && Number.isFinite(price) && price >= 0 ? price : null;
++function readPrice(value: number | null | undefined): number | null {
++  return value !== null && value !== undefined && Number.isFinite(value) && value >= 0 ? value : null;
+ }
+ 
+-export function getPreviousPrice(product: Product, settings: QuoteSettings): number | null {
+-  return settings.previousPrices[product.id] ?? product.previous;
++/** Base price of one brand: its own catalog price, else the product base price. */
++export function getBaseBrandPrice(product: Product, brand: string): number | null {
++  return readPrice(product.brandPrices?.[brand] ?? product.price);
++}
++
++/** Brand-specific master price; falls back to the legacy per-product price, then the brand's catalog price. */
++export function getMasterPrice(product: Product, settings: QuoteSettings, brand = resolveBrand(product, settings.brands[product.id])): number | null {
++  return readPrice(settings.prices[getPriceKey(product, brand)] ?? settings.prices[product.id] ?? getBaseBrandPrice(product, brand));
++}
++
++export function getPreviousPrice(product: Product, settings: QuoteSettings, brand = resolveBrand(product, settings.brands[product.id])): number | null {
++  return settings.previousPrices[getPriceKey(product, brand)] ?? settings.previousPrices[product.id] ?? product.previous;
+ }
+ 
+ /** Excel G: current / previous - 1. The result is a ratio (0.2 = 20%). */
+diff --git a/lib/price-manager/package-rules.ts b/lib/price-manager/package-rules.ts
+index 6225922..ce057ed 100644
+--- a/lib/price-manager/package-rules.ts
++++ b/lib/price-manager/package-rules.ts
+@@ -1,7 +1,8 @@
+ import membership from "../../data/reference/package-membership.json";
+-import type { Capacity, PackageId, Product } from "./types";
++import { DEFAULT_RAIL_SELECTION, getRailProductIds, shouldMergeRailBolts } from "./rail-rules";
++import type { Capacity, PackageId, Product, RailSelection } from "./types";
+ 
+-/** Exact equipment-family membership from the eight invoice row audits. */
++/** Exact equipment-family membership from the invoice row audits (newest client lists take precedence). */
+ const PACKAGE_PARTS: Record<PackageId, { mechanic: boolean; rail: boolean; startup: "auto" | "semi" | null }> = {
+   rail: { mechanic: false, rail: true, startup: null },
+   mechanic: { mechanic: true, rail: false, startup: null },
+@@ -13,27 +14,53 @@ const PACKAGE_PARTS: Record<PackageId, { mechanic: boolean; rail: boolean; start
+   "full-semi": { mechanic: true, rail: true, startup: "semi" },
+ };
+ 
+-export function requiredMotorPower(capacity: Capacity): 7.5 | 11 {
+-  // Explicit client requirement, NOT a formula inferred from the workbook.
++/** Client rule: 4-6 persons use a 6.1 kW motor, 8 persons a 7.3 kW motor (brands Behran, Elco, ABB). */
++export function requiredMotorPower(capacity: Capacity): 6.1 | 7.3 {
++  return capacity === "8" ? 7.3 : 6.1;
++}
++
++/** Client rule: 4-6 persons use a 7.5 kW controller, 8 persons an 11 kW one (brands Datis, Paya, Aryan). */
++export function requiredControllerPower(capacity: Capacity): 7.5 | 11 {
+   return capacity === "8" ? 11 : 7.5;
+ }
+ 
+ export function matchesCapacity(product: Product, capacity: Capacity): boolean {
+-  return product.powerKw === undefined || product.powerKw === requiredMotorPower(capacity);
++  if (product.powerKw === undefined) return true;
++  return product.powerKw === (product.group === "motor" ? requiredMotorPower(capacity) : requiredControllerPower(capacity));
++}
++
++/** The startup family that decides which invoice a quantity comes from; packages without startup use the automatic list. */
++export function getStartupFamily(packageId: PackageId): "auto" | "semi" {
++  return PACKAGE_PARTS[packageId].startup ?? "auto";
+ }
+ 
+-export function getPackageProductIds(packageId: PackageId, capacity: Capacity): string[] {
++/**
++ * Row order follows the client's newest invoices (17784 automatic, 19381 semi-automatic):
++ * mechanic, startup, doors / motor / controller, rail, and the all-steel cabin LAST in every package.
++ */
++export function hasRail(packageId: PackageId): boolean {
++  return PACKAGE_PARTS[packageId].rail;
++}
++
++export function getPackageProductIds(packageId: PackageId, capacity: Capacity, railTypes: RailSelection = DEFAULT_RAIL_SELECTION): string[] {
+   const parts = PACKAGE_PARTS[packageId];
+   const ids: string[] = [];
+-  if (parts.mechanic) ids.push(...membership.mechanic);
++  const substitutions: Record<string, string> = capacity === "8" ? membership.capacity8Substitutions : {};
++  if (parts.mechanic) ids.push(...membership.mechanic.map((id) => substitutions[id] ?? id));
+   if (parts.startup) {
+-    ids.push(...membership.startupCommon);
+-    ids.push(...(parts.startup === "auto" ? membership.autoOnly : membership.semiOnly));
+-    const power = requiredMotorPower(capacity);
+-    ids.push(`P-MOTOR-${power}`, `P-CONTROL-${power}`);
++    const motorAndController = [`P-MOTOR-${requiredMotorPower(capacity)}`, `P-CONTROL-${requiredControllerPower(capacity)}`];
++    ids.push(...membership.startupHead, ...membership.startupWiring[parts.startup], ...membership.startupTail);
++    if (parts.startup === "auto") ids.push(...membership.autoDoors, ...motorAndController);
++    else ids.push(...membership.semiDoors, ...motorAndController, ...membership.semiTail);
++  }
++  if (parts.rail) {
++    // Rails, brackets and clips follow the two chosen rail types. T9 + T16 turn every rail bolt into a bolt 12.
++    ids.push(...getRailProductIds(railTypes));
++    // Do not merge rail bolts with startup bolts: PDFs contain BOTH rows.
++    ids.push(...(shouldMergeRailBolts(railTypes) ? membership.railBolts.slice(0, 1) : membership.railBolts));
+   }
+-  if (parts.rail) ids.push(...membership.rail);
+-  // Do not merge rail bolts with startup bolts: PDFs contain BOTH rows.
++  // The all-steel cabin is only sold inside the four zero-to-hundred packages.
++  if (membership.steelCabinPackages.includes(packageId)) ids.push(...membership.closing);
+   return ids;
+ }
+ 
+diff --git a/lib/price-manager/quantity-rules.ts b/lib/price-manager/quantity-rules.ts
+index 9d792fa..0d6dff6 100644
+--- a/lib/price-manager/quantity-rules.ts
++++ b/lib/price-manager/quantity-rules.ts
+@@ -1,4 +1,10 @@
+-import { isSupportedStop } from "./constants";
++import fiveStop from "../../data/five-stop-quantities.json";
++import stopQuantities from "../../data/stop-quantities.json";
++import membership from "../../data/reference/package-membership.json";
++import { PRODUCTS } from "./catalog";
++import { WORKBOOK_STOPS, isSupportedStop } from "./constants";
++import { getStartupFamily } from "./package-rules";
++import { shouldMergeRailBolts } from "./rail-rules";
+ import type { Product, QuantitySource, QuoteSettings } from "./types";
+ 
+ type QuantityContext = Pick<QuoteSettings, "motor" | "pack" | "capacity"> & { stops: number };
+@@ -14,7 +20,23 @@ export interface ResolvedQuantity {
+   reference: string;
+ }
+ 
++/** Rail bolts 10 and 8 are removed when T9 + T16 are chosen; bolt 12 then carries all three counts. */
++const MERGED_BOLT = membership.railBolts[0];
++
+ export function resolveQuantity(product: Product, settings: QuoteSettings): ResolvedQuantity {
++  const base = resolveBaseQuantity(product, settings);
++  if (product.id !== MERGED_BOLT || !shouldMergeRailBolts(settings.railTypes)) return base;
++  const parts = membership.railBolts.map((id) => {
++    const bolt = PRODUCTS.find((candidate) => candidate.id === id);
++    return bolt && bolt.id !== product.id ? resolveBaseQuantity(bolt, settings) : base;
++  });
++  if (parts.some((part) => part.value === null)) {
++    return { value: null, source: "missing", reference: "مجموع پیچ و مهره ۱۲، ۱۰ و ۸ ریل؛ یکی از تعدادها نامشخص است." };
++  }
++  return { value: parts.reduce((sum, part) => sum + (part.value ?? 0), 0), source: base.source, reference: `مجموع پیچ و مهره ۱۲، ۱۰ و ۸ ریل (ریل T9 و T16)؛ ${base.reference}` };
++}
++
++function resolveBaseQuantity(product: Product, settings: QuoteSettings): ResolvedQuantity {
+   if (!isSupportedStop(settings.stops)) {
+     return { value: null, source: "missing", reference: "تعداد توقف خارج از جدول اکسل است." };
+   }
+@@ -22,15 +44,43 @@ export function resolveQuantity(product: Product, settings: QuoteSettings): Reso
+   if (Number.isFinite(manual) && manual >= 0) {
+     return { value: manual, source: "manual", reference: "تعداد دستی مخصوص همین پکیج، ظرفیت، موتور و توقف" };
+   }
+-  const value = product.quantities[String(settings.stops)] ?? null;
+-  if (value !== null && Number.isFinite(value) && value >= 0) {
+-    const columns = { 6: "C", 7: "D", 8: "E" } as const;
++  if (settings.stops === 5) {
++    // Exact printed quantities of the client's 5-stop invoices (17784 automatic, 19381 semi-automatic).
++    const family = getStartupFamily(settings.pack);
++    const table: Record<string, number> = fiveStop.quantities[family];
++    const overrides: Record<string, number> = settings.capacity === "8" ? fiveStop.capacity8 : {};
++    // Rail, bracket and clip counts depend on the kind of part, not on the rail type (T5, T9, T16).
++    const printed = overrides[product.id] ?? (product.rail ? fiveStop.railKinds[family][product.rail.kind] : table[product.id]);
++    if (printed !== undefined) {
++      const capacityNote = overrides[product.id] !== undefined ? " (ویژهٔ ۸ نفر)" : "";
++      return { value: printed, source: "invoice", reference: `پیش‌فاکتور ۵ توقف ${fiveStop.sources[family]}${capacityNote}` };
++    }
++    return { value: null, source: "missing", reference: "این قلم در پیش‌فاکتور ۵ توقف نیست." };
++  }
++  // 3, 4 and 9 stops: exact printed quantities of the client's zero-to-hundred invoices.
++  const family = getStartupFamily(settings.pack);
++  const table = (stopQuantities.stops as Record<string, Record<string, Record<string, number>> | undefined>)[String(settings.stops)]?.[family];
++  const printed = table && !WORKBOOK_STOPS.includes(settings.stops) ? (table as Record<string, number>)[product.id] : undefined;
++  if (printed !== undefined && Number.isFinite(printed) && printed >= 0) {
++    const capacityNote = settings.capacity === "8" ? " (ویژهٔ ۸ نفر)" : "";
+     return {
+-      value,
+-      source: "workbook",
+-      reference: `تعداد_توقف!${columns[settings.stops]}${product.workbookRow ?? ""}`,
++      value: printed,
++      source: "invoice",
++      reference: `پیش‌فاکتور ${settings.stops} توقف صفر تا صد ${stopQuantities.sources[`${settings.stops}-${family}`]}${capacityNote}`,
+     };
+   }
+-  // Five-stop invoice snapshots do NOT define six/seven/eight-stop quantities.
+-  return { value: null, source: "missing", reference: "فاقد تعداد تأییدشده در اکسل؛ مقدار PDF پنج‌توقف تعمیم داده نشده است." };
++  const value = product.quantities[String(settings.stops)] ?? null;
++  if (value !== null && Number.isFinite(value) && value >= 0) {
++    if (product.workbookRow === undefined) {
++      // Not an Excel row (e.g. the all-steel cabin): a fixed count recorded in the catalog.
++      return { value, source: "catalog", reference: "تعداد ثابت ثبت‌شده در کاتالوگ بر اساس پیش‌فاکتورهای نمونه" };
++    }
++    const columns = { 3: "B", 4: "C", 6: "D", 7: "E", 8: "F", 9: "G" } as Partial<Record<number, string>>;
++    const column = columns[settings.stops];
++    if (column === undefined) {
++      return { value, source: "catalog", reference: "تعداد ثابت ثبت‌شده در کاتالوگ" };
++    }
++    return { value, source: "workbook", reference: `تعداد_توقف!${column}${product.workbookRow}` };
++  }
++  return { value: null, source: "missing", reference: "این قلم در پیش‌فاکتور این تعداد توقف نیست." };
+ }
+diff --git a/lib/price-manager/rail-rules.ts b/lib/price-manager/rail-rules.ts
+new file mode 100644
+index 0000000..6081c73
+--- /dev/null
++++ b/lib/price-manager/rail-rules.ts
+@@ -0,0 +1,42 @@
++import type { RailKind, RailSelection, RailType } from "./types";
++
++export const RAIL_TYPES: readonly RailType[] = ["T5", "T9", "T16"];
++export const DEFAULT_RAIL_SELECTION: RailSelection = ["T5", "T9"];
++
++export function isRailType(value: unknown): value is RailType {
++  return RAIL_TYPES.some((type) => type === value);
++}
++
++/** Two DIFFERENT rail types; anything else falls back to the default. */
++export function normalizeRailSelection(value: unknown): RailSelection {
++  if (Array.isArray(value) && value.length === 2 && isRailType(value[0]) && isRailType(value[1]) && value[0] !== value[1]) {
++    return [value[0], value[1]];
++  }
++  return [...DEFAULT_RAIL_SELECTION];
++}
++
++/** Choose a type for one of the two rails. Picking the other rail's type swaps them, so they never repeat. */
++export function selectRailType(current: RailSelection, slot: 0 | 1, type: RailType): RailSelection {
++  const next: RailSelection = [...current];
++  const other = slot === 0 ? 1 : 0;
++  if (next[other] === type) next[other] = next[slot];
++  next[slot] = type;
++  return next;
++}
++
++/** Types offered by one rail's menu: everything except the type the other rail already uses. */
++export function getRailChoices(current: RailSelection, slot: 0 | 1): RailType[] {
++  const other = current[slot === 0 ? 1 : 0];
++  return RAIL_TYPES.filter((type) => type !== other);
++}
++
++/** Client rule: only when BOTH T9 and T16 are chosen, the rail bolts 10 and 8 become bolts 12. */
++export function shouldMergeRailBolts(selection: RailSelection): boolean {
++  return selection.includes("T9") && selection.includes("T16");
++}
++
++/** Row order of the rail block: rails, then brackets, then clips, each in the order of the two selected types. */
++export function getRailProductIds(selection: RailSelection): string[] {
++  const prefix: Record<RailKind, string> = { rail: "P-RAIL", bracket: "P-BRACKET", clip: "P-CLIP" };
++  return (Object.keys(prefix) as RailKind[]).flatMap((kind) => selection.map((type) => `${prefix[kind]}-${type}`));
++}
+diff --git a/lib/price-manager/settings.ts b/lib/price-manager/settings.ts
+index 8cdb15f..758c683 100644
+--- a/lib/price-manager/settings.ts
++++ b/lib/price-manager/settings.ts
+@@ -1,5 +1,6 @@
+ import { INITIAL_SETTINGS, isSupportedStop, PACKAGE_OPTIONS } from "./constants";
+ import { getQuantityOverrideKey } from "./quantity-rules";
++import { normalizeRailSelection } from "./rail-rules";
+ import type { QuoteSettings } from "./types";
+ 
+ export function isRecord(value: unknown): value is Record<string, unknown> {
+@@ -13,21 +14,20 @@ function readNumberMap(value: unknown): Record<string, number> {
+   ));
+ }
+ 
+-/** Preserve legacy custom prices; a demo reset is always explicit and backed up. */
++/** Preserve legacy custom prices; a demo reset is always explicit and backed up. Legacy `rate` is ignored: the optional adjustment was removed. */
+ export function parseSettings(value: unknown): QuoteSettings {
+   if (!isRecord(value) || !PACKAGE_OPTIONS.some((option) => option.value === value.pack)) {
+     throw new Error("Invalid saved settings");
+   }
+   const oldStop = Number(value.stops);
+-  const rate = Number(value.rate);
+   const settings: QuoteSettings = {
+     ...INITIAL_SETTINGS,
+     schemaVersion: 2,
+     pack: value.pack as QuoteSettings["pack"],
+     motor: value.motor === "gearless" ? "gearless" : "gearbox",
+     capacity: value.capacity === "8" ? "8" : "4-6",
++    railTypes: normalizeRailSelection(value.railTypes),
+     stops: isSupportedStop(oldStop) ? oldStop : INITIAL_SETTINGS.stops,
+-    rate: Number.isFinite(rate) && rate >= -100 ? rate : 0,
+     customer: typeof value.customer === "string" ? value.customer : "",
+     phone: typeof value.phone === "string" ? value.phone : "",
+     quoteNumber: typeof value.quoteNumber === "string" ? value.quoteNumber : "",
+@@ -39,12 +39,7 @@ export function parseSettings(value: unknown): QuoteSettings {
+       : {},
+     excluded: Array.isArray(value.excluded) ? value.excluded.filter((id): id is string => typeof id === "string") : [],
+   };
+-  for (const [key, quantity] of Object.entries(readNumberMap(value.quantities))) {
+-    // Old five-stop overrides are retained under five-stop keys, NOT applied to six stops.
+-    const context = { ...settings, stops: Number.isInteger(oldStop) && oldStop >= 1 && oldStop <= 13 ? oldStop : settings.stops };
+-    const scopedKey = key.includes("|") ? key : getQuantityOverrideKey(key, context);
+-    settings.quantities[scopedKey] = quantity;
+-  }
++  // Counts are read-only now (5 stops: client invoices, 6-8 stops: Excel). Old hand-typed counts are dropped so a hidden number can never change a quote.
+   return settings;
+ }
+ 
+@@ -62,5 +57,5 @@ export function updateNumericSetting(
+ }
+ 
+ export function createDemoSettings(current: QuoteSettings): QuoteSettings {
+-  return { ...current, prices: {}, previousPrices: {}, quantities: {}, excluded: [], rate: 0 };
++  return { ...current, prices: {}, previousPrices: {}, quantities: {}, excluded: [] };
+ }
+diff --git a/lib/price-manager/types.ts b/lib/price-manager/types.ts
+index 1ac0274..49a7c49 100644
+--- a/lib/price-manager/types.ts
++++ b/lib/price-manager/types.ts
+@@ -1,12 +1,16 @@
+ export type MotorType = "gearbox" | "gearless";
+ export type Capacity = "4-6" | "8";
+-export type SupportedStop = 6 | 7 | 8;
++export type SupportedStop = 3 | 4 | 5 | 6 | 7 | 8 | 9;
+ export type PackageId =
+   | "rail" | "mechanic" | "auto" | "semi"
+   | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
+-export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi";
+-export type QuantitySource = "workbook" | "manual" | "missing";
+-export type TotalCategory = "mechanic" | "startup" | "rail";
++export type ProductGroup = "rail" | "mechanic" | "motor" | "startup" | "auto" | "semi" | "cabin";
++export type QuantitySource = "workbook" | "invoice" | "manual" | "catalog" | "missing";
++export type RailType = "T5" | "T9" | "T16";
++export type RailKind = "rail" | "bracket" | "clip";
++/** The two rails of a quote: always two different types. */
++export type RailSelection = [RailType, RailType];
++export type TotalCategory = "mechanic" | "startup" | "rail" | "cabin";
+ 
+ export interface Product {
+   id: string;
+@@ -14,13 +18,17 @@ export interface Product {
+   group: ProductGroup;
+   unit: string;
+   price: number | null;
++  /** Base price of each brand when the brand can be chosen; every brand has its own, distinct price. */
++  brandPrices?: Record<string, number>;
+   previous: number | null;
+   quantities: Record<string, number | null>;
+   brands: string[];
+   source: string;
+   notes: string;
+   workbookRow?: number;
+-  powerKw?: 7.5 | 11;
++  powerKw?: 6.1 | 7.3 | 7.5 | 11;
++  /** Rail, bracket and clip products: which part it is and for which rail type. */
++  rail?: { kind: RailKind; type: RailType };
+ }
+ 
+ /** Older backups are migrated by parseSettings; never by UI components. */
+@@ -30,6 +38,8 @@ export interface QuoteSettings {
+   stops: SupportedStop;
+   capacity: Capacity;
+   pack: PackageId;
++  railTypes: RailSelection;
++  /** Key: product ID, or `productId::brand` for products whose brand can be chosen. */
+   prices: Record<string, number>;
+   previousPrices: Record<string, number>;
+   /** Keys include motor, package, capacity, stop count and product ID. */
+diff --git a/scripts/test-pricing.cjs b/scripts/test-pricing.cjs
+index 9d37a4a..a0205a3 100644
+--- a/scripts/test-pricing.cjs
++++ b/scripts/test-pricing.cjs
+@@ -28,16 +28,19 @@ async function run() {
+     fs.writeFileSync(path.join(temp, "lib/price-manager", name.replace(/\.ts$/, ".js")), compiled.outputText);
+   }
+ 
+-  const { INITIAL_SETTINGS, PACKAGE_OPTIONS, SUPPORTED_STOPS, DEMO_BASE_PRICE } = load("constants");
++  const { INITIAL_SETTINGS, PACKAGE_OPTIONS, SUPPORTED_STOPS, WORKBOOK_STOPS, DEMO_BASE_PRICE } = load("constants");
+   const { PRODUCTS: products } = load("catalog");
+-  const { calculateRow, calculateLineTotal, applyQuoteAdjustment, buildQuote, buildWorkbookComparison, selectProducts, searchQuoteRows } = load("calculations");
++  const { calculateRow, calculateLineTotal, buildQuote, buildWorkbookComparison, selectProducts } = load("calculations");
++  const { isBrandSelectable, resolveBrand, getPriceKey, SINGLE_BRAND_PRODUCT_IDS } = load("brand-rules");
+   const { getPackageProductIds } = load("package-rules");
++  const { RAIL_TYPES, DEFAULT_RAIL_SELECTION, normalizeRailSelection, selectRailType, getRailChoices, shouldMergeRailBolts, getRailProductIds } = load("rail-rules");
+   const { getQuantityOverrideKey } = load("quantity-rules");
+   const { getMasterPrice, comparePrices } = load("master-price");
+   const { parseSettings, updateNumericSetting, createDemoSettings } = load("settings");
+   const { parseNumericInput } = load("format");
+   const persistence = load("persistence");
+   const workbook = readJSON("tests/fixtures/workbook-reference.json");
++  const stopQuantities = readJSON("data/stop-quantities.json");
+   const invoices = readJSON("data/reference/invoices.json").invoices;
+   const membership = readJSON("data/reference/package-membership.json");
+   const byId = new Map(products.map((p) => [p.id, p]));
+@@ -50,19 +53,22 @@ async function run() {
+   equal(workbook.stopHeaders.includes(workbook.selectedStop), false, "Documented source MATCH mismatch");
+   equal(invoices.length, 8, "All eight PDFs reviewed");
+   equal(invoices.reduce((sum, invoice) => sum + invoice.rows.length, 0), 364, "All 364 printed invoice rows mapped");
+-  equal(SUPPORTED_STOPS, [6, 7, 8], "No unsupported stop option");
+-  equal(INITIAL_SETTINGS.stops, 6, "Default is a supported stop");
+-  equal(products.length, 72, "71 products plus placeholder");
++  equal(invoices.find((i) => i.invoiceNumber === "17784").rows.length, 58, "Newest automatic list: 58 rows incl. all-steel cabin");
++  equal(invoices.find((i) => i.invoiceNumber === "19381").rows.length, 60, "Newest semi-automatic list: 60 rows");
++  equal(SUPPORTED_STOPS, [3, 4, 5, 6, 7, 8, 9], "5 stops come from the client invoices, 3/4/9 from the zero-to-hundred invoices");
++  equal(WORKBOOK_STOPS, [6, 7, 8], "Excel has exactly three stop columns");
++  equal(INITIAL_SETTINGS.stops, 5, "Default is the fully specified 5-stop list");
++  equal(products.length, 76, "75 products plus placeholder");
+   equal(new Set(products.map((p) => p.id)).size, products.length, "No duplicate catalog IDs");
+-  for (const product of products) equal(product.price, DEMO_BASE_PRICE, `${product.id}: every base price is 1000`);
++  const railDemoPrice = { T5: 1000, T9: 2000, T16: 3000 };
++  for (const product of products) equal(product.price, product.rail ? railDemoPrice[product.rail.type] : DEMO_BASE_PRICE, `${product.id}: demo base price (rail parts: one distinct price per type)`);
+ 
+   // Literal source-cell comparisons: no linear extrapolation or five-stop substitution.
+   for (const record of workbook.records) {
+     const product = byId.get(record.id);
+-    equal(product.name, record.name, `${record.id}: workbook terminology`);
+     equal(product.unit, record.unit, `${record.id}: workbook unit`);
+     equal(product.workbookRow, record.masterRow, `${record.id}: row provenance`);
+-    for (const stops of SUPPORTED_STOPS) {
++    for (const stops of WORKBOOK_STOPS) {
+       const row = calculateRow(product, { ...INITIAL_SETTINGS, stops });
+       const expected = record.quantities[String(stops)];
+       equal(row.quantity, expected, `${record.id}/${stops}: exact lookup`);
+@@ -74,25 +80,50 @@ async function run() {
+   const demoTotals = { 6: [208000, 198000, 406000], 7: [226000, 225000, 451000], 8: [244000, 258000, 502000] };
+   const originalTotals = { 6: [55884000, 155721000, 211605000], 7: [58638000, 161471000, 220109000], 8: [61392000, 168941000, 230333000] };
+   const sourcePrices = Object.fromEntries(workbook.records.filter((p) => p.currentPrice !== null).map((p) => [p.id, p.currentPrice]));
+-  for (const stops of SUPPORTED_STOPS) {
++  for (const stops of WORKBOOK_STOPS) {
+     const demo = buildWorkbookComparison(products, { ...INITIAL_SETTINGS, stops });
+     equal([demo.subtotals.mechanic, demo.subtotals.startup, demo.total], demoTotals[stops], `Workbook demo SUMIF/SUM ${stops}`);
+     const original = buildWorkbookComparison(products, { ...INITIAL_SETTINGS, stops, prices: sourcePrices });
+     equal([original.subtotals.mechanic, original.subtotals.startup, original.total], originalTotals[stops], `Original-price SUMIF/SUM ${stops}`);
+   }
+ 
+-  // 2. Package membership is tested against each invoice, not against its implementation.
++  // 2. Package membership: the newest client lists (17784 / 19381) fix the row set AND the exact row order.
++  const retired = new Set(membership.retired);
++  // Older invoices are evidence of the family sets only: P-SEMI-CAM is retired, and the client wants the all-steel cabin last in EVERY package.
++  const cabinPackages = new Set(membership.steelCabinPackages);
++  const adapt = (ids, capacity = "4-6", packageId) => [...ids.filter((id) => !retired.has(id)).map((id) => (capacity === "8" ? membership.capacity8Substitutions[id] ?? id : id)), ...(packageId && cabinPackages.has(packageId) ? membership.closing.filter((id) => !ids.includes(id)) : [])];
+   for (const invoice of invoices) {
+     const capacity = invoice.capacity || "4-6";
+-    const expected = invoice.rows.map((row) => row.productId).sort();
++    const expected = adapt(invoice.rows.map((row) => row.productId), capacity, invoice.packageId).sort();
+     equal(getPackageProductIds(invoice.packageId, capacity).sort(), expected, `Invoice ${invoice.invoiceNumber}: family membership`);
+-    for (const row of invoice.rows) equal(byId.has(row.productId), true, `Invoice ${invoice.invoiceNumber}/${row.row}: mapped product exists`);
++    for (const row of invoice.rows) equal(byId.has(row.productId) || retired.has(row.productId), true, `Invoice ${invoice.invoiceNumber}/${row.row}: mapped product exists`);
++  }
++  for (const number of ["17784", "19381"]) {
++    const invoice = invoices.find((i) => i.invoiceNumber === number);
++    for (const row of invoice.rows) {
++      if (/^P-(MOTOR|CONTROL)/.test(row.productId)) continue; // brand-dependent names
++      equal(byId.get(row.productId).name, row.printedName, `Invoice ${number}/${row.row}: catalog name is the printed name`);
++    }
++    equal(getPackageProductIds(invoice.packageId, "4-6"), adapt(invoice.rows.map((r) => r.productId), "4-6", invoice.packageId), `Invoice ${number}: exact row order`);
+   }
++  for (const id of retired) equal(byId.has(id), false, `${id}: retired product is not in the catalog`);
+   const fullAuto = invoices.find((i) => i.invoiceNumber === "17784");
+-  equal(getPackageProductIds("rail", "4-6"), fullAuto.rows.slice(48).map((r) => r.productId), "Rail-only extracted from full-auto appendix");
+-  const counts = { rail: 9, mechanic: 11, auto: 37, semi: 41, "mech-auto": 48, "mech-semi": 52, "full-auto": 57, "full-semi": 61 };
+-  const missing = { rail: 9, mechanic: 0, auto: 6, semi: 11, "mech-auto": 6, "mech-semi": 11, "full-auto": 15, "full-semi": 20 };
+-  const brands = ["\u062f\u0627\u062a\u06cc\u0633", "\u0622\u0631\u06cc\u0646", "\u067e\u0627\u06cc\u0627", "\u0628\u0647\u0631\u0627\u0646", "\u0627\u0644\u06a9\u0648", "ABB"];
++  equal(getPackageProductIds("rail", "4-6"), fullAuto.rows.slice(48, -1).map((r) => r.productId), "Rail-only extracted from full-auto appendix (the all-steel cabin is not part of the rail package)");
++  const semiIds = getPackageProductIds("semi", "4-6");
++  equal(semiIds.indexOf("P-MOTOR-6.1") > semiIds.indexOf("P-SEMI-DOOR") && semiIds.indexOf("P-MOTOR-6.1") < semiIds.indexOf("P-SEMI-DICTATOR"), true, "Semi: motor and controller sit between the doors and the dictator");
++  equal(semiIds.slice(2, 5), ["R030", "R031", "R032"], "Semi wiring order");
++  equal(getPackageProductIds("auto", "4-6").slice(2, 5), ["R031", "R032", "R030"], "Automatic wiring order");
++  equal(semiIds.includes("P-SEMI-CAM"), false, "No mechanical cam in the newest semi list");
++  const counts = { rail: 9, mechanic: 11, auto: 37, semi: 40, "mech-auto": 49, "mech-semi": 52, "full-auto": 58, "full-semi": 61 };
++  const cabinLast = new Set(["mech-auto", "mech-semi", "full-auto", "full-semi"]);
++  const missing = { rail: 9, mechanic: 0, auto: 3, semi: 6, "mech-auto": 3, "mech-semi": 6, "full-auto": 12, "full-semi": 15 }; // 6-8 stops; 5 stops has none
++  const printedStops = new Set([3, 4, 5, 9]); // stops whose quantities come from a printed invoice
++  const tableStops = new Set([3, 4, 9]); // stops served by data/stop-quantities.json
++  const constantOne = new Set(["P-STEEL-CABIN", "P-MOTOR-6.1", "P-MOTOR-7.3", "P-CONTROL-7.5", "P-CONTROL-11", "P-EARTH-WIRE", "P-SEMI-CABIN-DOOR", "P-PULLEY-40X5"]);
++  const printedBy = (number) => Object.fromEntries(invoices.find((i) => i.invoiceNumber === number).rows.map((r) => [r.productId, r.printedQuantity]));
++  const printedAlias = { "P-MOTOR-7.3": "P-MOTOR-6.1", "P-CONTROL-11": "P-CONTROL-7.5", "P-PULLEY-40X5": "M008" };
++  const motorBrands = ["\u0628\u0647\u0631\u0627\u0646", "\u0627\u0644\u06a9\u0648", "ABB"];
++  const controlBrands = ["\u062f\u0627\u062a\u06cc\u0633", "\u067e\u0627\u06cc\u0627", "\u0622\u0631\u06cc\u0627\u0646"];
+   let combinations = 0;
+   for (const { value: pack } of PACKAGE_OPTIONS) for (const stops of SUPPORTED_STOPS) for (const capacity of ["4-6", "8"]) for (const motor of ["gearbox", "gearless"]) {
+     combinations += 1;
+@@ -100,25 +131,49 @@ async function run() {
+     const quote = buildQuote(products, settings);
+     equal(quote.rows.length, counts[pack], `${pack}: exact row count`);
+     equal(new Set(quote.rows.map((r) => r.product.id)).size, counts[pack], `${pack}: no duplicate invoice row`);
+-    equal(quote.incompleteRows.length, missing[pack], `${pack}: missing source quantities remain missing`);
++    if (stops === 5) equal(quote.incompleteRows.length, 0, `${pack}/5: the printed 5-stop invoice covers every row`);
++    for (const row of quote.incompleteRows) equal(row.quantitySource, "missing", `${pack}/${stops}/${row.product.id}: blank rows are reported as missing`);
++    if (cabinLast.has(pack)) {
++      equal(quote.rows.at(-1).product.id, "P-STEEL-CABIN", `${pack}: all-steel cabin is the last row`);
++      equal(quote.rows.at(-1).quantity, 1, `${pack}: one all-steel cabin`);
++    } else {
++      equal(quote.rows.some((r) => r.product.id === "P-STEEL-CABIN"), false, `${pack}: no all-steel cabin`);
++    }
+     const motors = quote.rows.filter((r) => r.product.group === "motor");
+     equal(motors.length, ["rail", "mechanic"].includes(pack) ? 0 : 1, `${pack}: motor only belongs to startup`);
+     if (motors.length) {
+-      equal(motors[0].product.powerKw, capacity === "8" ? 11 : 7.5, "Client capacity/power rule");
+-      equal(motors[0].product.brands, brands, "All six motor brands, both powers");
++      equal(motors[0].product.powerKw, capacity === "8" ? 7.3 : 6.1, "Client motor power rule: 6.1 kW for 4-6 persons, 7.3 kW for 8");
++      equal(motors[0].product.brands, motorBrands, "Motor brands: Behran, Elco, ABB");
++      const control = quote.rows.find((r) => r.product.id.startsWith("P-CONTROL"));
++      equal(control.product.powerKw, capacity === "8" ? 11 : 7.5, "Client controller rule: 7.5 kW for 4-6 persons, 11 kW for 8");
++      equal(control.product.brands, controlBrands, "Controller brands: Datis, Paya, Aryan");
+     }
++    const printed = printedBy(pack.includes("semi") || pack === "semi" ? "19381" : "17784");
+     let expectedTotal = 0;
+     for (const row of quote.rows) {
+-      const record = sourceById.get(row.product.id);
+-      const expectedQuantity = record ? record.quantities[String(stops)] : null;
+-      equal(row.quantity, expectedQuantity, "No capacity or drive-type multiplier invented");
+-      if (expectedQuantity !== null) expectedTotal += expectedQuantity * 1000;
++      const id = row.product.id;
++      const record = sourceById.get(id);
++      let expectedQuantity;
++      if (stops === 5) {
++        const overrides = capacity === "8" ? { M001: 105, M009: 10, M006: 32, M011: 1000 } : {};
++        expectedQuantity = overrides[id] ?? (id === "P-PULLEY-40X5" ? 1 : printed[printedAlias[id] ?? id] ?? (id === "P-STEEL-CABIN" ? 1 : undefined));
++        equal(expectedQuantity !== undefined, true, `${pack}/${id}: 5-stop quantity exists in the invoice`);
++      } else if (tableStops.has(stops)) {
++        // 3, 4 and 9 stops: exact printed quantities of the zero-to-hundred invoices.
++        const fam = pack.endsWith("semi") ? "semi" : "auto";
++        const table = stopQuantities.stops[String(stops)]?.[fam];
++        expectedQuantity = table && Object.prototype.hasOwnProperty.call(table, id) ? table[id] : record ? record.quantities[String(stops)] ?? null : constantOne.has(id) ? 1 : null;
++      } else {
++        expectedQuantity = record ? record.quantities[String(stops)] : constantOne.has(id) ? 1 : null;
++      }
++      equal(row.quantity, expectedQuantity, `${pack}/${stops}/${capacity}/${id}: quantity`);
++      if (expectedQuantity !== null) expectedTotal += expectedQuantity * row.unitPrice;
+     }
+     equal(quote.total, expectedTotal, "Package total only sums known selected lines");
+     equal(Object.values(quote.subtotals).reduce((a, b) => a + b, 0), quote.total, "Category totals reconcile");
+     for (const id of membership.workbookOnly) equal(quote.rows.some((r) => r.product.id === id), false, "Workbook-only items are not silently assigned to a PDF package");
+   }
+-  equal(combinations, 96, "8 packages x 3 stops x 2 capacities x 2 drive types");
++  equal(combinations, 224, "8 packages x 7 stops (3-9) x 2 capacities x 2 drive types");
+   for (const id of ["P-CABIN-DOOR", "P-DOOR-MOTOR", "P-RAIL-FASTEN"]) equal(byId.has(id), false, "Remove duplicate/invented legacy rows");
+   equal(selectProducts(products, { ...INITIAL_SETTINGS, pack: "semi" }).some((p) => p.id === "R020"), false, "Automatic cabin door must not appear in semi package");
+ 
+@@ -130,10 +185,6 @@ async function run() {
+   equal(calculateLineTotal(1, null), null, "Blank price propagates");
+   equal(calculateLineTotal(-1, 1000), null, "Reject negative quantity");
+   equal(calculateLineTotal(Infinity, 1000), null, "Reject infinity");
+-  equal(applyQuoteAdjustment(96000, 20), 115200, "App-only percentage adjustment");
+-  equal(applyQuoteAdjustment(96000, -100), 0, "Full discount");
+-  equal(applyQuoteAdjustment(null, 20), null, "Adjustment cannot fabricate a missing amount");
+-  equal(applyQuoteAdjustment(1, -101), null, "Invalid adjustment");
+   equal(comparePrices(null, 1000).ratio, null, "Blank current price");
+   equal(comparePrices(1000, null).status, "\u0628\u062f\u0648\u0646 \u0645\u0642\u0627\u06cc\u0633\u0647", "Excel no-comparison state");
+   near(comparePrices(1200, 1000).ratio, 0.2, "Excel percent increase");
+@@ -144,7 +195,7 @@ async function run() {
+ 
+   // 4. Overrides are scoped and legacy data is retained, not reset on application load.
+   const product = byId.get("M001");
+-  let manual = updateNumericSetting(INITIAL_SETTINGS, "quantities", "M001", 3);
++  let manual = updateNumericSetting({ ...INITIAL_SETTINGS, stops: 6 }, "quantities", "M001", 3);
+   equal(calculateRow(product, manual).quantity, 3, "Manual count");
+   equal(calculateRow(product, { ...manual, stops: 7 }).quantity, 108, "No leak into another stop");
+   equal(calculateRow(product, { ...manual, capacity: "8" }).quantity, 96, "No leak into another capacity");
+@@ -153,38 +204,165 @@ async function run() {
+   equal(calculateRow(product, updateNumericSetting(manual, "quantities", "M001", null)).quantity, 96, "Clear override restores workbook");
+   equal(calculateRow(product, updateNumericSetting(manual, "quantities", "M001", 0)).total, 0, "Manual zero");
+   equal(calculateRow(product, { ...manual, excluded: ["M001"] }).total, null, "Excluded line not charged");
+-  for (const stops of [1, 5, 9, 13]) equal(calculateRow(product, { ...INITIAL_SETTINGS, stops }).quantity, null, "Never extrapolate unsupported stops");
++  for (const stops of [1, 2, 10, 13]) equal(calculateRow(product, { ...INITIAL_SETTINGS, stops }).quantity, null, "Never extrapolate unsupported stops");
++  for (const stops of [3, 4, 9]) equal(calculateRow(product, { ...INITIAL_SETTINGS, stops }).quantity, stopQuantities.stops[String(stops)].auto.M001, `${stops} stops come from the printed zero-to-hundred invoice`);
+   const legacy = { pack: "mechanic", stops: 7, capacity: "4-6", motor: "gearbox", prices: { M001: 5555 }, quantities: { M001: 23 }, rate: 0 };
+   const migrated = parseSettings(legacy);
+   equal(migrated.prices.M001, 5555, "Preserve customized master prices");
+-  equal(calculateRow(product, migrated).quantity, 23, "Migrate legacy count to its own scenario");
++  equal(Object.keys(migrated.quantities).length, 0, "Old hand-typed counts are dropped: counts are read-only now");
++  equal(calculateRow(product, migrated).quantity, 108, "Quantity comes from the Excel table, not a hidden number");
+   equal(parseSettings(migrated), migrated, "Idempotent schema migration");
+-  const oldFive = parseSettings({ ...legacy, stops: 5 });
+-  equal(oldFive.stops, 6, "Old stop 5 becomes UI default 6");
+-  equal(calculateRow(product, oldFive).quantity, 96, "Old five-stop count is not used for six stops");
+-  equal(oldFive.quantities[getQuantityOverrideKey("M001", { ...oldFive, stops: 5 })], 23, "Old count retained in backup data");
++  const five = parseSettings({ ...legacy, stops: 5 });
++  equal(five.stops, 5, "5 stops are supported");
++  equal(calculateRow(product, five).quantity, 84, "5 stops read the printed invoice quantity, never a stored number");
+   throws(() => parseSettings({ pack: "bad" }), "Invalid package rejected");
+   equal(parseSettings({ ...legacy, prices: { M001: -5, M002: Infinity } }).prices, {}, "Invalid saved prices rejected");
+-  const reset = createDemoSettings({ ...migrated, previousPrices: { M001: 4000 }, excluded: ["M001"], rate: 30 });
++  const reset = createDemoSettings({ ...migrated, previousPrices: { M001: 4000 }, excluded: ["M001"], customer: "x", phone: "09120000000" });
+   equal(getMasterPrice(product, reset), 1000, "Explicit demo reset");
+   equal(reset.quantities, {}, "Reset manual counts, not source counts");
+   equal(reset.previousPrices, {}, "Reset previous price comparison");
+-  equal(reset.rate, 0, "Reset app adjustment");
++  equal([reset.customer, reset.phone], ["x", "09120000000"], "Demo reset keeps the customer name and phone");
+   equal(migrated.prices.M001, 5555, "No mutation of backed-up object");
+-  for (const power of [7.5, 11]) for (const brand of brands) {
++  for (const power of [6.1, 7.3]) motorBrands.forEach((brand, index) => {
+     const motor = byId.get(`P-MOTOR-${power}`);
+     const selected = calculateRow(motor, { ...INITIAL_SETTINGS, brands: { [motor.id]: brand } });
+-    equal(selected.brand, brand, "Selected motor brand preserved");
+-    equal(selected.unitPrice, 1000, "No hidden brand multiplier in demo");
+-  }
++    equal([selected.brand, selected.unitPrice], [brand, 1000 * (index + 1)], "Each motor brand has its own price");
++  });
+ 
+-  const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack: "mechanic" });
+-  equal(searchQuoteRows(quote.rows, "no-such-product").length, 0, "Search can hide rows");
+-  equal(quote.total, 208000, "Search does not change PDF total");
++  const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack: "mechanic", stops: 6 });
++  equal(quote.total, 208000, "Mechanic package: only the known mechanic lines are charged");
++  equal(quote.subtotals.cabin, 0, "The all-steel cabin is not part of the mechanic package");
++  const cabinQuote = buildQuote(products, { ...INITIAL_SETTINGS, pack: "full-auto", stops: 6 });
++  equal(cabinQuote.subtotals.cabin, 1000, "Cabin has its own category subtotal");
+   equal(parseNumericInput("\u06f1\u06f2\u06f3\u066c\u06f4\u06f5\u06f6\u066b\u06f5"), 123456.5, "Persian numeric input");
+   equal(parseNumericInput("\u0661\u0662\u0663"), 123, "Arabic numeric input");
+   equal(parseNumericInput(""), null, "Empty number");
+ 
++  // 4b. Brands: single-model products can never be switched; multi-brand products price per brand.
++  const singleModel = ["M010", "M006", "M005", "M004", "M003", "M011", "R032", "R011", "R009", "R010", "R001", "R028", "R034", "R013", "R019", "R008", "R006", "R035",
++    "R007", "P-STARTUP-BOLT10", "P-STARTUP-BOLT8", "P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8", "P-SEMI-DOOR", "P-SEMI-SPRING",
++    "P-BRACKET-T5", "P-BRACKET-T9", "P-CLIP-T5", "P-CLIP-T9", "P-STEEL-CABIN"];
++  for (const id of singleModel) {
++    equal(byId.has(id), true, `${id}: single-model product exists`);
++    equal(SINGLE_BRAND_PRODUCT_IDS.has(id), true, `${id}: on the client's single-model list`);
++    equal(isBrandSelectable(byId.get(id)), false, `${id}: brand cannot be chosen`);
++    equal(isBrandSelectable({ ...byId.get(id), brands: ["A", "B"] }), false, `${id}: still locked even if brands were added later`);
++    equal(resolveBrand({ ...byId.get(id), brands: ["A", "B"] }, "B"), "A", `${id}: a saved brand is ignored`);
++  }
++  for (const [id, brandList] of [["P-MOTOR-6.1", motorBrands], ["P-MOTOR-7.3", motorBrands], ["P-CONTROL-7.5", controlBrands], ["P-CONTROL-11", controlBrands]]) {
++    const item = byId.get(id);
++    equal(isBrandSelectable(item), true, `${id}: has a brand menu`);
++    equal(item.brands, brandList, `${id}: brand list`);
++    const prices = Object.fromEntries(brandList.map((brand, index) => [getPriceKey(item, brand), 5000 + index]));
++    brandList.forEach((brand, index) => {
++      const row = calculateRow(item, { ...INITIAL_SETTINGS, prices, brands: { [item.id]: brand } });
++      equal([row.brand, row.unitPrice], [brand, 5000 + index], "Changing the brand changes the price to that brand's master price");
++    });
++    equal(calculateRow(item, { ...INITIAL_SETTINGS, prices: { [getPriceKey(item, brandList[2])]: 9000 }, brands: { [item.id]: brandList[1] } }).unitPrice, 2000, "A brand without a custom price keeps ITS OWN catalog price");
++    equal(calculateRow(item, { ...INITIAL_SETTINGS, prices: { [item.id]: 7777 }, brands: { [item.id]: brandList[2] } }).unitPrice, 7777, "Legacy per-product price remains the fallback");
++    // Data-level guarantee: every brand has its own, different catalog price.
++    equal(brandList.every((brand) => typeof item.brandPrices[brand] === "number" && item.brandPrices[brand] > 0), true, `${id}: every brand has a price in the data`);
++    equal(new Set(Object.values(item.brandPrices)).size, brandList.length, `${id}: brand prices are all different`);
++    equal(Object.keys(item.brandPrices), brandList, `${id}: no price without a brand`);
++  }
++  for (const p of products) if (p.brands.length > 1 && !SINGLE_BRAND_PRODUCT_IDS.has(p.id)) equal(new Set(Object.values(p.brandPrices)).size, p.brands.length, `${p.id}: every multi-brand product has distinct brand prices`);
++  const twoBrand = { ...byId.get("M001"), brands: ["A", "B"] };
++  const brandPrices = { "M001::A": 4000, "M001::B": 5000 };
++  equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, stops: 6, prices: brandPrices, brands: { M001: "B" } }).total, 96 * 5000, "Quantity x price of the chosen brand");
++  equal(calculateRow(twoBrand, { ...INITIAL_SETTINGS, stops: 6, prices: brandPrices }).total, 96 * 4000, "First brand is the default");
++  equal(calculateRow(byId.get("M003"), { ...INITIAL_SETTINGS, prices: { "M003::\u0627\u0644\u0645\u067e\u06cc\u06a9": 1 } }).unitPrice, 1000, "Single-model products ignore brand price keys");
++  equal(products.filter((p) => p.source !== "excel" && Object.keys(p.quantities).length).map((p) => p.id).sort(), [...constantOne].sort(), "Only one-per-elevator items have a fixed non-workbook quantity at 6-8 stops");
++  const steel = byId.get("P-STEEL-CABIN");
++  for (const stops of SUPPORTED_STOPS) {
++    const row = calculateRow(steel, { ...INITIAL_SETTINGS, stops });
++    equal([row.quantity, row.total], [1, 1000], `Steel cabin ${stops}`);
++    equal(["invoice", "catalog"].includes(row.quantitySource), true, "Steel cabin source");
++    equal(row.quantityReference.includes("\u062a\u0639\u062f\u0627\u062f_\u062a\u0648\u0642\u0641"), false, "Steel cabin never claims a worksheet cell");
++  }
++  equal(INITIAL_SETTINGS.phone, "", "Customer phone defaults to empty");
++  equal(parseSettings({ ...legacy, phone: "09121234567", rate: 30 }).phone, "09121234567", "Customer phone is stored");
++  equal(parseSettings({ ...legacy, rate: 30 }).rate, 0, "A saved percentage adjustment never reaches a quote");
++
++  // 4c. 5 stops: exactly the printed lists, nothing blank, capacity differences only where the client defined them.
++  for (const [pack, number] of [["full-auto", "17784"], ["full-semi", "19381"]]) {
++    const invoice = invoices.find((i) => i.invoiceNumber === number);
++    const quote5 = buildQuote(products, { ...INITIAL_SETTINGS, pack, stops: 5, capacity: "4-6" });
++    equal(quote5.incompleteRows.length, 0, `${number}: nothing blank`);
++    invoice.rows.forEach((printedRow, index) => {
++      equal([quote5.rows[index].product.id, quote5.rows[index].quantity], [printedRow.productId, printedRow.printedQuantity], `${number} row ${printedRow.row}: id and quantity exactly as printed`);
++    });
++    equal(quote5.rows.length, invoice.rows.length + (number === "19381" ? 1 : 0), `${number}: same rows, plus the steel cabin where the PDF omits it`);
++  }
++  for (const pack of ["rail", "mechanic"]) {
++    const rows5 = buildQuote(products, { ...INITIAL_SETTINGS, pack, stops: 5 }).rows;
++    equal(rows5.every((r) => r.quantity !== null), true, `${pack}: all 5-stop quantities present`);
++  }
++  const railRows = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", stops: 5 }).rows;
++  equal(railRows.map((r) => r.quantity), [7, 7, 22, 22, 44, 44, 105, 50, 60], "Rail package at 5 stops");
++  const mech = (capacity, stops = 5) => Object.fromEntries(buildQuote(products, { ...INITIAL_SETTINGS, pack: "mechanic", stops, capacity }).rows.map((r) => [r.product.id, r.quantity]));
++  equal([mech("4-6").M001, mech("4-6").M009, mech("4-6").M006, mech("4-6").M011, mech("4-6").M008], [84, 8, 24, 780, 1], "4-6 persons mechanic at 5 stops");
++  const m8 = mech("8");
++  equal([m8.M001, m8.M009, m8.M006, m8.M011, m8["P-PULLEY-40X5"], m8.M008], [105, 10, 32, 1000, 1, undefined], "8 persons mechanic at 5 stops: 40x5 pulley replaces 40x4 and the traveler count is 10");
++  equal(m8.M002, mech("4-6").M002, "Items the client did not change keep the list quantity");
++  equal(mech("8", 6).M001, 96, "The 8-person counts belong to the 5-stop list; 6-8 stops keep the Excel counts");
++  equal(getPackageProductIds("mechanic", "8").includes("M008"), false, "8 persons: no 40x4 pulley");
++  equal(getPackageProductIds("mechanic", "4-6").includes("P-PULLEY-40X5"), false, "4-6 persons: no 40x5 pulley");
++  const semi5 = buildQuote(products, { ...INITIAL_SETTINGS, pack: "semi", stops: 5 }).rows.find((r) => r.product.id === "R029");
++  const auto5 = buildQuote(products, { ...INITIAL_SETTINGS, pack: "auto", stops: 5 }).rows.find((r) => r.product.id === "R029");
++  equal([semi5.quantity, auto5.quantity], [27, 30], "Travelling cable differs between the semi (27) and automatic (30) lists");
++  equal(semi5.quantityReference.includes("19381") && auto5.quantityReference.includes("17784"), true, "Quantity reference names the invoice");
++
++  // 4d. Rails: two different types out of T5 / T9 / T16; brackets and clips follow; T9 + T16 merge the rail bolts.
++  equal(RAIL_TYPES, ["T5", "T9", "T16"], "Three rail types");
++  equal(DEFAULT_RAIL_SELECTION, ["T5", "T9"], "Default rails match the printed lists");
++  const railParts = products.filter((p) => p.rail);
++  equal(railParts.length, 9, "Rail, bracket and clip exist for T5, T9 and T16");
++  equal(new Set(railParts.map((p) => p.price)).size >= 3, true, "Rail parts have their own prices");
++  for (const kind of ["rail", "bracket", "clip"]) equal(new Set(railParts.filter((p) => p.rail.kind === kind).map((p) => p.price)).size, 3, `${kind}: one different price per type`);
++  for (const id of ["P-BRACKET-T16", "P-CLIP-T16", "P-BRACKET-T5", "P-CLIP-T9"]) equal(isBrandSelectable(byId.get(id)), false, `${id}: static row, follows the rail`);
++  equal(normalizeRailSelection(["T9", "T9"]), ["T5", "T9"], "Duplicate rails are rejected");
++  equal(normalizeRailSelection(["T3", "T9"]), ["T5", "T9"], "Unknown rail type is rejected");
++  equal(normalizeRailSelection(undefined), ["T5", "T9"], "Missing selection falls back to the default");
++  equal(normalizeRailSelection(["T16", "T5"]), ["T16", "T5"], "A valid selection is kept in order");
++  equal(selectRailType(["T5", "T9"], 0, "T9"), ["T9", "T5"], "Choosing the other rail's type swaps instead of repeating");
++  equal(selectRailType(["T5", "T9"], 1, "T16"), ["T5", "T16"], "Free type is simply selected");
++  equal(getRailChoices(["T5", "T9"], 0), ["T5", "T16"], "First menu hides the type of the second rail");
++  equal(getRailChoices(["T5", "T9"], 1), ["T9", "T16"], "Second menu hides the type of the first rail");
++  const pairs = RAIL_TYPES.flatMap((a) => RAIL_TYPES.filter((b) => b !== a).map((b) => [a, b]));
++  equal(pairs.length, 6, "Six ordered pairs of two different rails");
++  for (const pair of pairs) {
++    const [a, b] = pair;
++    equal(getRailProductIds(pair), [`P-RAIL-${a}`, `P-RAIL-${b}`, `P-BRACKET-${a}`, `P-BRACKET-${b}`, `P-CLIP-${a}`, `P-CLIP-${b}`], `${a}/${b}: brackets and clips follow the rails`);
++    const merged = pair.includes("T9") && pair.includes("T16");
++    equal(shouldMergeRailBolts(pair), merged, `${a}/${b}: bolt merge rule`);
++    for (const pack of ["rail", "full-auto", "full-semi"]) for (const capacity of ["4-6", "8"]) {
++      const quote = buildQuote(products, { ...INITIAL_SETTINGS, pack, capacity, railTypes: pair, stops: 5 });
++      const ids = quote.rows.map((r) => r.product.id);
++      equal(new Set(ids).size, ids.length, `${pack}/${a}/${b}: no duplicate row`);
++      equal(quote.incompleteRows.length, 0, `${pack}/${a}/${b}: nothing blank at 5 stops`);
++      if (pack !== "rail") equal(ids.at(-1), "P-STEEL-CABIN", "Steel cabin stays last");
++      const start = ids.indexOf(`P-RAIL-${a}`);
++      equal(ids.slice(start, start + 6), getRailProductIds(pair), `${pack}/${a}/${b}: rail block order`);
++      const bolts = ids.filter((id) => id.startsWith("P-RAIL-BOLT"));
++      equal(bolts, merged ? ["P-RAIL-BOLT12"] : ["P-RAIL-BOLT12", "P-RAIL-BOLT10", "P-RAIL-BOLT8"], `${pack}/${a}/${b}: rail bolts`);
++      if (pack !== "rail") equal(ids.at(-2 - bolts.length), `P-CLIP-${b}`, "Bolts come right after the clips and before the steel cabin");
++      const family = pack === "full-semi" ? "semi" : "auto";
++      const kinds = family === "semi" ? { rail: 7, bracket: 24, clip: 48 } : { rail: 7, bracket: 22, clip: 44 };
++      const bolt = family === "semi" ? [104, 50, 56] : [105, 50, 60];
++      for (const row of quote.rows.filter((r) => r.product.rail)) equal(row.quantity, kinds[row.product.rail.kind], `${a}/${b}/${row.product.id}: count follows the kind of part`);
++      equal(quote.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, merged ? bolt[0] + bolt[1] + bolt[2] : bolt[0], `${pack}/${a}/${b}: bolt 12 count`);
++      const base = buildQuote(products, { ...INITIAL_SETTINGS, pack, capacity, stops: 5 });
++      equal(quote.rows.length, base.rows.length - (merged ? 2 : 0), `${pack}/${a}/${b}: two rows less only when bolts merge`);
++    }
++  }
++  const mergedSix = buildQuote(products, { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T9", "T16"], stops: 6 });
++  equal(mergedSix.rows.find((r) => r.product.id === "P-RAIL-BOLT12").quantity, null, "Unknown 6-stop bolt counts are not summed into a fake number");
++  const priced = { ...INITIAL_SETTINGS, pack: "rail", railTypes: ["T16", "T5"], stops: 5, prices: { "P-RAIL-T16": 111, "P-BRACKET-T16": 22, "P-CLIP-T16": 3 } };
++  const pricedRows = Object.fromEntries(buildQuote(products, priced).rows.map((r) => [r.product.id, r.unitPrice]));
++  equal([pricedRows["P-RAIL-T16"], pricedRows["P-BRACKET-T16"], pricedRows["P-CLIP-T16"], pricedRows["P-RAIL-T5"]], [111, 22, 3, 1000], "Each rail part has its own editable master price");
++  equal(parseSettings({ ...legacy, railTypes: ["T16", "T9"] }).railTypes, ["T16", "T9"], "Rail choice is saved");
++  equal(parseSettings({ ...legacy, railTypes: ["T9", "T9"] }).railTypes, ["T5", "T9"], "Saved duplicate rails are repaired");
++
+   // 5. Real persistence functions, with mocked storage/IPC (not a native Rust test).
+   const values = new Map();
+   global.localStorage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+@@ -199,16 +377,16 @@ async function run() {
+   fs.writeFileSync(path.join(mockFolder, "core.js"), `exports.invoke = async (command, args) => { global.__calls.push({command, args}); if(command === 'save_state') await new Promise(r => setTimeout(r, 2)); };`);
+   global.__calls = [];
+   global.window = { __TAURI_INTERNALS__: {} };
+-  await Promise.all([persistence.saveSettings({ ...migrated, rate: 1 }), persistence.saveSettings({ ...migrated, rate: 2 })]);
+-  equal(global.__calls.map((call) => JSON.parse(call.args.payload).rate), [1, 2], "Serialized SQLite saves preserve ordering");
+-  const settingsWithBrand = { ...INITIAL_SETTINGS, brands: { "P-MOTOR-7.5": "ABB" } };
++  await Promise.all([persistence.saveSettings({ ...migrated, customer: "first" }), persistence.saveSettings({ ...migrated, customer: "second" })]);
++  equal(global.__calls.map((call) => JSON.parse(call.args.payload).customer), ["first", "second"], "Serialized SQLite saves preserve ordering");
++  const settingsWithBrand = { ...INITIAL_SETTINGS, stops: 6, brands: { "P-MOTOR-6.1": "ABB" } };
+   const brandQuote = buildQuote(products, settingsWithBrand);
+   await persistence.saveQuote(settingsWithBrand, brandQuote);
+   const payload = JSON.parse(global.__calls.at(-1).args.payload);
+-  equal(payload.rows.find((p) => p.id === "P-MOTOR-7.5").brand, "ABB", "Selected brand stored with quote snapshot");
++  equal(payload.rows.find((p) => p.id === "P-MOTOR-6.1").brand, "ABB", "Selected brand stored with quote snapshot");
+   equal(payload.rows.find((p) => p.id === "M001").quantitySource, "workbook", "Quantity provenance stored with quote");
+ 
+-  console.log(`PASS: ${assertions} assertions; 96 configurations; 248 source formulas; 364 PDF row mappings.`);
++  console.log(`PASS: ${assertions} assertions; ${combinations} configurations; 248 source formulas; 364 PDF row mappings.`);
+   console.log("Test scope: pricing, source tables, BOM families, state migrations, mocked persistence. Native Windows/PDF rendering not tested here.");
+ }
+ 

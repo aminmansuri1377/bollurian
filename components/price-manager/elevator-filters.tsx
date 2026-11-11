@@ -54,7 +54,7 @@ export function ElevatorFilters({
             value={settings.motor}
             options={[
               { value: "gearbox", label: "آسانسور گیربکس" },
-              { value: "gearless", label: "آسانسور گیرلس" },
+              // { value: "gearless", label: "آسانسور گیرلس" },
             ]}
             onChange={(motor) => onChange({ motor: motor as MotorType })}
           />
