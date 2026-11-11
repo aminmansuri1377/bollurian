@@ -1,0 +1,47 @@
+diff --git a/lib/price-manager/client-products.ts b/lib/price-manager/client-products.ts
+index 7262ec0..7187902 100644
+--- a/lib/price-manager/client-products.ts
++++ b/lib/price-manager/client-products.ts
+@@ -35,6 +35,10 @@ const PRODUCT_OVERRIDES: Readonly<Record<string, ProductOverride>> = {
+   "P-MOTOR-7.3": { name: "موتور 7.3 کیلووات تک‌سرعته" },
+   "P-CONTROL-7.5": { name: "تابلو فرمان 7.5 کیلووات" },
+   "P-CONTROL-11": { name: "تابلو فرمان 11 کیلووات" },
++  "P-RAIL-T5": { name: "ریل T5 چین سرد درجه یک" },
++  "P-RAIL-T9": { name: "ریل T9 چین سرد درجه یک" },
++  "P-RAIL-T16.T89": { name: "ریل T16.T89 چین سرد درجه یک" },
++  "P-RAIL-T16.T90": { name: "ریل T16.T90 چین سرد درجه یک" },
+   R002: {
+     brands: ["زیرکابینی توربوسل", "مگنتی تکسل", "سیم بکسل توربوسل"],
+     brandPrices: {
+diff --git a/lib/price-manager/client-rules.ts b/lib/price-manager/client-rules.ts
+index 6cde9dd..cc2b168 100644
+--- a/lib/price-manager/client-rules.ts
++++ b/lib/price-manager/client-rules.ts
+@@ -6,10 +6,10 @@ const RAIL_CHOICES_BY_SLOT: Readonly<Record<0 | 1, readonly RailType[]>> = {
+ };
+ 
+ const RAIL_LABELS: Readonly<Record<RailType, string>> = {
+-  T5: "ریل چین سرد T5 درجه یک",
+-  T9: "ریل چین سرد T9 درجه یک",
+-  "T16.T89": "ریل چین سرد T16.T89 درجه یک",
+-  "T16.T90": "ریل چین سرد T16.T90 درجه یک",
++  T5: "ریل T5 چین سرد درجه یک",
++  T9: "ریل T9 چین سرد درجه یک",
++  "T16.T89": "ریل T16.T89 چین سرد درجه یک",
++  "T16.T90": "ریل T16.T90 چین سرد درجه یک",
+ };
+ 
+ const CAPACITY_8_DEFAULT_BRANDS: Readonly<Record<string, string>> = {
+@@ -84,6 +84,12 @@ function formatVisibleBrand(product: Product, brand: string): string {
+     if (brand.startsWith("آذرتابش")) return "آذرتابش 5 توقف یک متری نقره‌ای";
+   }
+ 
++  // The 9-stop cabin-button models are also one metre; keep stored price keys unchanged and fix only their visible label.
++  if (product.id === "P-CAB-BTN-9") {
++    if (brand.startsWith("مدیا")) return "مدیا 9 توقف یک متری نور قرمز";
++    if (brand.startsWith("آذرتابش")) return "آذرتابش 9 توقف یک متری طلایی";
++  }
++
+   if (!product.id.startsWith("P-CAB-BTN-")) return brand;
+   if (/\d+\s*توقف/.test(brand)) return brand;
+   return brand.replace(/(\d+)(?=\s)/, "$1 توقف");

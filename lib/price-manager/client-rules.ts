@@ -6,10 +6,15 @@ const RAIL_CHOICES_BY_SLOT: Readonly<Record<0 | 1, readonly RailType[]>> = {
 };
 
 const RAIL_LABELS: Readonly<Record<RailType, string>> = {
-  T5: "ریل چین سرد T5 درجه یک",
-  T9: "ریل چین سرد T9 درجه یک",
-  "T16.T89": "ریل چین سرد T16.T89 درجه یک",
-  "T16.T90": "ریل چین سرد T16.T90 درجه یک",
+  T5: "ریل T5 چین سرد درجه یک",
+  T9: "ریل T9 چین سرد درجه یک",
+  "T16.T89": "ریل T16.T89 چین سرد درجه یک",
+  "T16.T90": "ریل T16.T90 چین سرد درجه یک",
+};
+
+const CLIENT_DEFAULT_BRANDS: Readonly<Record<string, string>> = {
+  // Keep the original catalog key so existing brand prices/backups remain compatible; only the visible label is one metre.
+  "P-CAB-BTN-9": "مدیا 9 دومتری نور قرمز",
 };
 
 const CAPACITY_8_DEFAULT_BRANDS: Readonly<Record<string, string>> = {
@@ -51,14 +56,20 @@ export function getClientRailLabel(type: RailType): string {
   return RAIL_LABELS[type];
 }
 
-/** Capacity-specific defaults are applied only when the user has not explicitly chosen a brand. */
+/** Client defaults are applied only when the user has not explicitly chosen a brand. */
 export function withClientQuoteDefaults(settings: QuoteSettings): QuoteSettings {
-  if (settings.capacity !== "8") return settings;
-
   const brands = { ...settings.brands };
-  for (const [productId, brand] of Object.entries(CAPACITY_8_DEFAULT_BRANDS)) {
+
+  for (const [productId, brand] of Object.entries(CLIENT_DEFAULT_BRANDS)) {
     if (!brands[productId]) brands[productId] = brand;
   }
+
+  if (settings.capacity === "8") {
+    for (const [productId, brand] of Object.entries(CAPACITY_8_DEFAULT_BRANDS)) {
+      if (!brands[productId]) brands[productId] = brand;
+    }
+  }
+
   return { ...settings, brands };
 }
 
@@ -75,7 +86,22 @@ export function getClientBrandOptions(product: Product, activeBrand: string): st
 }
 
 function formatVisibleBrand(product: Product, brand: string): string {
-  if (!(product.id === "R022" || product.id.startsWith("P-CAB-BTN-"))) return brand;
+  // The word «فول» belongs to the cabin-door product name, not to the Ravankar brand.
+  if ((product.id === "R020" || product.id === "P-LANDING-DOOR") && brand === "روانکار فول") return "روانکار";
+
+  // The 5-stop cabin-button models are explicitly one metre. Keep these labels stable even in old saved data.
+  if (product.id === "R022") {
+    if (brand.startsWith("مدیا")) return "مدیا 5 توقف یک متری نور قرمز";
+    if (brand.startsWith("آذرتابش")) return "آذرتابش 5 توقف یک متری نقره‌ای";
+  }
+
+  // The 9-stop cabin-button models are also one metre; keep stored price keys unchanged and fix only their visible label.
+  if (product.id === "P-CAB-BTN-9") {
+    if (brand.startsWith("مدیا")) return "مدیا 9 توقف یک متری نور قرمز";
+    if (brand.startsWith("آذرتابش")) return "آذرتابش 9 توقف یک متری طلایی";
+  }
+
+  if (!product.id.startsWith("P-CAB-BTN-")) return brand;
   if (/\d+\s*توقف/.test(brand)) return brand;
   return brand.replace(/(\d+)(?=\s)/, "$1 توقف");
 }

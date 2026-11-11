@@ -1,0 +1,41 @@
+diff --git a/lib/price-manager/client-rules.ts b/lib/price-manager/client-rules.ts
+index cc2b168..64b1d20 100644
+--- a/lib/price-manager/client-rules.ts
++++ b/lib/price-manager/client-rules.ts
+@@ -12,6 +12,11 @@ const RAIL_LABELS: Readonly<Record<RailType, string>> = {
+   "T16.T90": "ریل T16.T90 چین سرد درجه یک",
+ };
+ 
++const CLIENT_DEFAULT_BRANDS: Readonly<Record<string, string>> = {
++  // Keep the original catalog key so existing brand prices/backups remain compatible; only the visible label is one metre.
++  "P-CAB-BTN-9": "مدیا 9 دومتری نور قرمز",
++};
++
+ const CAPACITY_8_DEFAULT_BRANDS: Readonly<Record<string, string>> = {
+   R002: "سیم بکسل توربوسل",
+   R016: "پیشرو فلزی با آهنربا",
+@@ -51,14 +56,20 @@ export function getClientRailLabel(type: RailType): string {
+   return RAIL_LABELS[type];
+ }
+ 
+-/** Capacity-specific defaults are applied only when the user has not explicitly chosen a brand. */
++/** Client defaults are applied only when the user has not explicitly chosen a brand. */
+ export function withClientQuoteDefaults(settings: QuoteSettings): QuoteSettings {
+-  if (settings.capacity !== "8") return settings;
+-
+   const brands = { ...settings.brands };
+-  for (const [productId, brand] of Object.entries(CAPACITY_8_DEFAULT_BRANDS)) {
++
++  for (const [productId, brand] of Object.entries(CLIENT_DEFAULT_BRANDS)) {
+     if (!brands[productId]) brands[productId] = brand;
+   }
++
++  if (settings.capacity === "8") {
++    for (const [productId, brand] of Object.entries(CAPACITY_8_DEFAULT_BRANDS)) {
++      if (!brands[productId]) brands[productId] = brand;
++    }
++  }
++
+   return { ...settings, brands };
+ }
+ 

@@ -1,0 +1,152 @@
+diff --git a/components/price-manager/price-manager.tsx b/components/price-manager/price-manager.tsx
+index ef098ed..ec1505b 100644
+--- a/components/price-manager/price-manager.tsx
++++ b/components/price-manager/price-manager.tsx
+@@ -44,6 +44,7 @@ export function PriceManager() {
+         <QuoteSheet settings={manager.settings} quote={manager.quote} disabled={disabled} isPrinting={manager.isPrinting} onPrint={manager.openPreview}>
+           <ProductTable
+             rows={manager.quote.rows}
++            settings={manager.settings}
+             railTypes={manager.settings.railTypes}
+             disabled={disabled}
+             onRailTypeChange={manager.updateRailType}
+diff --git a/components/price-manager/product-brand-menu.tsx b/components/price-manager/product-brand-menu.tsx
+index 98c9f68..ca09d43 100644
+--- a/components/price-manager/product-brand-menu.tsx
++++ b/components/price-manager/product-brand-menu.tsx
+@@ -5,19 +5,21 @@ import { ChevronIcon } from "@/components/ui/icons";
+ import { isBrandSelectable } from "@/lib/price-manager/brand-rules";
+ import { formatClientBrandLabel, formatClientProductName, getClientBrandOptions, getClientRailLabel } from "@/lib/price-manager/client-rules";
+ import { formatNumber, formatMoney } from "@/lib/price-manager/format";
+-import type { QuoteRow, RailType } from "@/lib/price-manager/types";
++import { getMasterPrice } from "@/lib/price-manager/master-price";
++import type { QuoteRow, QuoteSettings, RailType } from "@/lib/price-manager/types";
+ import { RowNumberBadge } from "./row-number-badge";
+ 
+ interface ProductBrandMenuProps {
+   row: QuoteRow;
+   rowNumber: number;
++  settings: QuoteSettings;
+   onBrandChange: (id: string, brand: string) => void;
+   onToggle: (id: string) => void;
+   /** Present only for the two rail rows: the rail type replaces the brand selector. */
+   rail?: { type: RailType; choices: RailType[]; onChange: (type: RailType) => void };
+ }
+ 
+-export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
++export function ProductBrandMenu({ row, rowNumber, settings, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
+   const [open, setOpen] = useState(false);
+   const containerRef = useRef<HTMLDivElement>(null);
+   const buttonRef = useRef<HTMLButtonElement>(null);
+@@ -81,9 +83,16 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
+                 onChange={(event) => onBrandChange(product.id, event.target.value)}
+                 className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
+               >
+-                {brandOptions.map((brand) => <option key={brand} value={brand}>{formatClientBrandLabel(product, brand)}</option>)}
++                {brandOptions.map((brand) => {
++                  const unavailable = getMasterPrice(product, settings, brand) === 0;
++                  return (
++                    <option key={brand} value={brand} disabled={unavailable} className={unavailable ? "text-slate-300" : undefined}>
++                      {formatClientBrandLabel(product, brand)}
++                    </option>
++                  );
++                })}
+               </select>
+-              <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند.</p>
++              <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند. برند با قیمت صفر قابل انتخاب نیست.</p>
+             </>
+           ) : (
+             <p className="font-medium">برند / مدل: <span className="font-light">{row.brand || "ثبت نشده"}</span></p>
+diff --git a/components/price-manager/product-table.tsx b/components/price-manager/product-table.tsx
+index 72ebe6c..5320509 100644
+--- a/components/price-manager/product-table.tsx
++++ b/components/price-manager/product-table.tsx
+@@ -2,12 +2,13 @@ import { isSingleModel } from "@/lib/price-manager/brand-rules";
+ import { groupRowsByCategory } from "@/lib/price-manager/calculations";
+ import { getClientRailChoices } from "@/lib/price-manager/client-rules";
+ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+-import type { QuoteRow, RailSelection, RailType } from "@/lib/price-manager/types";
++import type { QuoteRow, QuoteSettings, RailSelection, RailType } from "@/lib/price-manager/types";
+ import { ProductBrandMenu } from "./product-brand-menu";
+ import { ProductNameCell } from "./product-name-cell";
+ 
+ interface ProductTableProps {
+   rows: QuoteRow[];
++  settings: QuoteSettings;
+   railTypes: RailSelection;
+   disabled: boolean;
+   onRailTypeChange: (slot: 0 | 1, type: RailType) => void;
+@@ -20,7 +21,7 @@ const sectionBar = "flex h-[44px] items-center rounded-full bg-lavender px-6 tex
+ const cell = "flex h-[50px] min-w-0 items-center justify-center rounded-full border bg-white px-2 text-[13px] font-light tabular-nums";
+ 
+ /** Quantity, unit price and total are read-only here; prices are changed only in the master-price dialog. */
+-export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBrandChange, onToggle }: ProductTableProps) {
++export function ProductTable({ rows, settings, railTypes, disabled, onRailTypeChange, onBrandChange, onToggle }: ProductTableProps) {
+   const sections = groupRowsByCategory(rows);
+   return (
+     <fieldset disabled={disabled} className="min-w-0">
+@@ -46,7 +47,7 @@ export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBr
+               <div role="cell" className="min-w-0">
+                 {isSingleModel(row.product)
+                   ? <ProductNameCell row={row} rowNumber={index + 1} />
+-                  : <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle}
++                  : <ProductBrandMenu row={row} rowNumber={index + 1} settings={settings} onBrandChange={onBrandChange} onToggle={onToggle}
+                       rail={slot === null ? undefined : { type: railTypes[slot], choices: getClientRailChoices(slot), onChange: (type) => onRailTypeChange(slot, type) }} />}
+               </div>
+               <div role="cell" className={`${cell} ${row.quantity === null && row.enabled ? "border-amber-500/75" : "border-outline"}`} title={`واحد: ${row.product.unit}`}>
+diff --git a/lib/price-manager/client-products.ts b/lib/price-manager/client-products.ts
+index c25d442..7262ec0 100644
+--- a/lib/price-manager/client-products.ts
++++ b/lib/price-manager/client-products.ts
+@@ -12,6 +12,29 @@ type ProductOverride = Pick<Partial<Product>, "name" | "brands" | "brandPrices">
+  * The source JSON and all pricing/quantity formulas stay untouched.
+  */
+ const PRODUCT_OVERRIDES: Readonly<Record<string, ProductOverride>> = {
++  R022: {
++    // 5-stop cabin button: both client-approved models are one metre.
++    brands: ["مدیا 5 یک متری نور قرمز", "آذرتابش 5 یک متری نقره‌ای"],
++    brandPrices: {
++      "مدیا 5 یک متری نور قرمز": 1000,
++      "آذرتابش 5 یک متری نقره‌ای": 2000,
++    },
++  },
++  R020: { name: "درب فول کابین 80 چپ دو لته" },
++  "P-FLOOR-BTN-GOLD-BLUE": {
++    name: "شستی طبقه",
++    brands: ["G07 مدیا نور آبی", "آذرتابش پلکسی نقره‌ای نور آبی"],
++    brandPrices: { "G07 مدیا نور آبی": 1000, "آذرتابش پلکسی نقره‌ای نور آبی": 2000 },
++  },
++  "P-FLOOR-BTN-GOLD-RED": {
++    name: "شستی طبقه",
++    brands: ["G07 مدیا نور آبی", "آذرتابش پلکسی نقره‌ای نور آبی"],
++    brandPrices: { "G07 مدیا نور آبی": 1000, "آذرتابش پلکسی نقره‌ای نور آبی": 2000 },
++  },
++  "P-MOTOR-6.1": { name: "موتور 6.1 کیلووات تک‌سرعته" },
++  "P-MOTOR-7.3": { name: "موتور 7.3 کیلووات تک‌سرعته" },
++  "P-CONTROL-7.5": { name: "تابلو فرمان 7.5 کیلووات" },
++  "P-CONTROL-11": { name: "تابلو فرمان 11 کیلووات" },
+   R002: {
+     brands: ["زیرکابینی توربوسل", "مگنتی تکسل", "سیم بکسل توربوسل"],
+     brandPrices: {
+diff --git a/lib/price-manager/client-rules.ts b/lib/price-manager/client-rules.ts
+index 2f61cef..6cde9dd 100644
+--- a/lib/price-manager/client-rules.ts
++++ b/lib/price-manager/client-rules.ts
+@@ -75,7 +75,16 @@ export function getClientBrandOptions(product: Product, activeBrand: string): st
+ }
+ 
+ function formatVisibleBrand(product: Product, brand: string): string {
+-  if (!(product.id === "R022" || product.id.startsWith("P-CAB-BTN-"))) return brand;
++  // The word «فول» belongs to the cabin-door product name, not to the Ravankar brand.
++  if ((product.id === "R020" || product.id === "P-LANDING-DOOR") && brand === "روانکار فول") return "روانکار";
++
++  // The 5-stop cabin-button models are explicitly one metre. Keep these labels stable even in old saved data.
++  if (product.id === "R022") {
++    if (brand.startsWith("مدیا")) return "مدیا 5 توقف یک متری نور قرمز";
++    if (brand.startsWith("آذرتابش")) return "آذرتابش 5 توقف یک متری نقره‌ای";
++  }
++
++  if (!product.id.startsWith("P-CAB-BTN-")) return brand;
+   if (/\d+\s*توقف/.test(brand)) return brand;
+   return brand.replace(/(\d+)(?=\s)/, "$1 توقف");
+ }

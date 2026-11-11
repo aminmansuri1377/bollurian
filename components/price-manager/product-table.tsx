@@ -2,12 +2,13 @@ import { isSingleModel } from "@/lib/price-manager/brand-rules";
 import { groupRowsByCategory } from "@/lib/price-manager/calculations";
 import { getClientRailChoices } from "@/lib/price-manager/client-rules";
 import { formatMoney, formatNumber } from "@/lib/price-manager/format";
-import type { QuoteRow, RailSelection, RailType } from "@/lib/price-manager/types";
+import type { QuoteRow, QuoteSettings, RailSelection, RailType } from "@/lib/price-manager/types";
 import { ProductBrandMenu } from "./product-brand-menu";
 import { ProductNameCell } from "./product-name-cell";
 
 interface ProductTableProps {
   rows: QuoteRow[];
+  settings: QuoteSettings;
   railTypes: RailSelection;
   disabled: boolean;
   onRailTypeChange: (slot: 0 | 1, type: RailType) => void;
@@ -20,7 +21,7 @@ const sectionBar = "flex h-[44px] items-center rounded-full bg-lavender px-6 tex
 const cell = "flex h-[50px] min-w-0 items-center justify-center rounded-full border bg-white px-2 text-[13px] font-light tabular-nums";
 
 /** Quantity, unit price and total are read-only here; prices are changed only in the master-price dialog. */
-export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBrandChange, onToggle }: ProductTableProps) {
+export function ProductTable({ rows, settings, railTypes, disabled, onRailTypeChange, onBrandChange, onToggle }: ProductTableProps) {
   const sections = groupRowsByCategory(rows);
   return (
     <fieldset disabled={disabled} className="min-w-0">
@@ -46,7 +47,7 @@ export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBr
               <div role="cell" className="min-w-0">
                 {isSingleModel(row.product)
                   ? <ProductNameCell row={row} rowNumber={index + 1} />
-                  : <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle}
+                  : <ProductBrandMenu row={row} rowNumber={index + 1} settings={settings} onBrandChange={onBrandChange} onToggle={onToggle}
                       rail={slot === null ? undefined : { type: railTypes[slot], choices: getClientRailChoices(slot), onChange: (type) => onRailTypeChange(slot, type) }} />}
               </div>
               <div role="cell" className={`${cell} ${row.quantity === null && row.enabled ? "border-amber-500/75" : "border-outline"}`} title={`واحد: ${row.product.unit}`}>

@@ -5,19 +5,21 @@ import { ChevronIcon } from "@/components/ui/icons";
 import { isBrandSelectable } from "@/lib/price-manager/brand-rules";
 import { formatClientBrandLabel, formatClientProductName, getClientBrandOptions, getClientRailLabel } from "@/lib/price-manager/client-rules";
 import { formatNumber, formatMoney } from "@/lib/price-manager/format";
-import type { QuoteRow, RailType } from "@/lib/price-manager/types";
+import { getMasterPrice } from "@/lib/price-manager/master-price";
+import type { QuoteRow, QuoteSettings, RailType } from "@/lib/price-manager/types";
 import { RowNumberBadge } from "./row-number-badge";
 
 interface ProductBrandMenuProps {
   row: QuoteRow;
   rowNumber: number;
+  settings: QuoteSettings;
   onBrandChange: (id: string, brand: string) => void;
   onToggle: (id: string) => void;
   /** Present only for the two rail rows: the rail type replaces the brand selector. */
   rail?: { type: RailType; choices: RailType[]; onChange: (type: RailType) => void };
 }
 
-export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
+export function ProductBrandMenu({ row, rowNumber, settings, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -81,9 +83,16 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
                 onChange={(event) => onBrandChange(product.id, event.target.value)}
                 className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
               >
-                {brandOptions.map((brand) => <option key={brand} value={brand}>{formatClientBrandLabel(product, brand)}</option>)}
+                {brandOptions.map((brand) => {
+                  const unavailable = getMasterPrice(product, settings, brand) === 0;
+                  return (
+                    <option key={brand} value={brand} disabled={unavailable} className={unavailable ? "text-slate-300" : undefined}>
+                      {formatClientBrandLabel(product, brand)}
+                    </option>
+                  );
+                })}
               </select>
-              <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند.</p>
+              <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند. برند با قیمت صفر قابل انتخاب نیست.</p>
             </>
           ) : (
             <p className="font-medium">برند / مدل: <span className="font-light">{row.brand || "ثبت نشده"}</span></p>
