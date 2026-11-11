@@ -1,6 +1,6 @@
 import { isSingleModel } from "@/lib/price-manager/brand-rules";
 import { groupRowsByCategory } from "@/lib/price-manager/calculations";
-import { getRailChoices } from "@/lib/price-manager/rail-rules";
+import { getClientRailChoices } from "@/lib/price-manager/client-rules";
 import { formatMoney, formatNumber } from "@/lib/price-manager/format";
 import type { QuoteRow, RailSelection, RailType } from "@/lib/price-manager/types";
 import { ProductBrandMenu } from "./product-brand-menu";
@@ -47,7 +47,7 @@ export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBr
                 {isSingleModel(row.product)
                   ? <ProductNameCell row={row} rowNumber={index + 1} />
                   : <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle}
-                      rail={slot === null ? undefined : { type: railTypes[slot], choices: getRailChoices(railTypes, slot), onChange: (type) => onRailTypeChange(slot, type) }} />}
+                      rail={slot === null ? undefined : { type: railTypes[slot], choices: getClientRailChoices(slot), onChange: (type) => onRailTypeChange(slot, type) }} />}
               </div>
               <div role="cell" className={`${cell} ${row.quantity === null && row.enabled ? "border-amber-500/75" : "border-outline"}`} title={`واحد: ${row.product.unit}`}>
                 {row.quantity === null ? "—" : formatNumber(row.quantity)}

@@ -1,0 +1,371 @@
+diff --git a/components/price-manager/master-prices-dialog.tsx b/components/price-manager/master-prices-dialog.tsx
+index 2f2c0c7..02d928a 100644
+--- a/components/price-manager/master-prices-dialog.tsx
++++ b/components/price-manager/master-prices-dialog.tsx
+@@ -5,7 +5,8 @@ import {
+   isBrandSelectable,
+   resolveBrand,
+ } from "@/lib/price-manager/brand-rules";
+-import { PRODUCTS } from "@/lib/price-manager/catalog";
++import { CLIENT_PRODUCTS } from "@/lib/price-manager/client-products";
++import { formatClientProductName } from "@/lib/price-manager/client-rules";
+ import {
+   GROUP_LABELS,
+   OMITTED_PRODUCT_ID,
+@@ -38,7 +39,7 @@ export function MasterPricesDialog({
+   onPreviousPriceChange,
+ }: MasterPricesDialogProps) {
+   // One row per brand for products whose brand can be chosen; every other product has a single row.
+-  const entries = PRODUCTS.filter(
++  const entries = CLIENT_PRODUCTS.filter(
+     (product) => product.id !== OMITTED_PRODUCT_ID,
+   ).flatMap((product) =>
+     isBrandSelectable(product)
+@@ -76,14 +77,11 @@ export function MasterPricesDialog({
+         </thead>
+         <tbody>
+           {entries.map(({ product, brand }) => {
+-            const selectable = isBrandSelectable(product);
+             const priceKey = getPriceKey(product, brand);
+             const current = getMasterPrice(product, settings, brand);
+             const previous = getPreviousPrice(product, settings, brand);
+             const change = comparePrices(current, previous);
+-            const title = selectable
+-              ? `${product.name} - ${brand}`
+-              : product.name;
++            const title = brand ? formatClientProductName(product, brand) : product.name;
+             return (
+               <tr key={priceKey}>
+                 {/* <td className="px-2 py-2 text-[10px] font-light">
+diff --git a/components/price-manager/product-brand-menu.tsx b/components/price-manager/product-brand-menu.tsx
+index c03d7da..98c9f68 100644
+--- a/components/price-manager/product-brand-menu.tsx
++++ b/components/price-manager/product-brand-menu.tsx
+@@ -3,6 +3,7 @@
+ import { useEffect, useRef, useState } from "react";
+ import { ChevronIcon } from "@/components/ui/icons";
+ import { isBrandSelectable } from "@/lib/price-manager/brand-rules";
++import { formatClientBrandLabel, formatClientProductName, getClientBrandOptions, getClientRailLabel } from "@/lib/price-manager/client-rules";
+ import { formatNumber, formatMoney } from "@/lib/price-manager/format";
+ import type { QuoteRow, RailType } from "@/lib/price-manager/types";
+ import { RowNumberBadge } from "./row-number-badge";
+@@ -22,6 +23,8 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
+   const buttonRef = useRef<HTMLButtonElement>(null);
+   const { product } = row;
+   const panelId = `product-options-${product.id}`;
++  const displayName = formatClientProductName(product, row.brand);
++  const brandOptions = getClientBrandOptions(product, row.brand);
+ 
+   useEffect(() => {
+     if (!open) return;
+@@ -45,16 +48,16 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
+         aria-label={`برند و جزئیات ${product.name}`}
+         onClick={() => setOpen((current) => !current)}
+         className="relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white pr-[50px] text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
+-        title={`${product.name}${row.brand ? ` - ${row.brand}` : ""}`}
++        title={displayName}
+       >
+         <RowNumberBadge value={rowNumber} className="absolute -top-px -right-px" />
+-        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}{row.brand && !product.name.includes(row.brand) ? ` - ${row.brand}` : ""}</span>
++        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{displayName}</span>
+         <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+       </button>
+ 
+       {open && (
+         <div id={panelId} className="absolute top-[58px] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
+-          <p className="mb-2 text-[13px] font-bold">{product.name}</p>
++          <p className="mb-2 text-[13px] font-bold">{displayName}</p>
+           <p className="mb-3 text-caption">کد: <bdi>{product.id}</bdi> · واحد: {product.unit}</p>
+           {rail ? (
+             <>
+@@ -65,7 +68,7 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
+                 onChange={(event) => rail.onChange(event.target.value as RailType)}
+                 className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
+               >
+-                {rail.choices.map((type) => <option key={type} value={type}>{type}</option>)}
++                {rail.choices.map((type) => <option key={type} value={type}>{getClientRailLabel(type)}</option>)}
+               </select>
+               <p className="mt-1 text-[11px] text-caption">دو ریل نمی‌توانند هم‌نوع باشند. براکت و لقمه هم‌نوع ریل انتخاب‌شده تغییر می‌کنند و قیمت هر قلم از مدیریت قیمت مادر می‌آید.</p>
+             </>
+@@ -78,7 +81,7 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
+                 onChange={(event) => onBrandChange(product.id, event.target.value)}
+                 className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
+               >
+-                {product.brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
++                {brandOptions.map((brand) => <option key={brand} value={brand}>{formatClientBrandLabel(product, brand)}</option>)}
+               </select>
+               <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند.</p>
+             </>
+diff --git a/components/price-manager/product-table.tsx b/components/price-manager/product-table.tsx
+index dc7e336..72ebe6c 100644
+--- a/components/price-manager/product-table.tsx
++++ b/components/price-manager/product-table.tsx
+@@ -1,6 +1,6 @@
+ import { isSingleModel } from "@/lib/price-manager/brand-rules";
+ import { groupRowsByCategory } from "@/lib/price-manager/calculations";
+-import { getRailChoices } from "@/lib/price-manager/rail-rules";
++import { getClientRailChoices } from "@/lib/price-manager/client-rules";
+ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+ import type { QuoteRow, RailSelection, RailType } from "@/lib/price-manager/types";
+ import { ProductBrandMenu } from "./product-brand-menu";
+@@ -47,7 +47,7 @@ export function ProductTable({ rows, railTypes, disabled, onRailTypeChange, onBr
+                 {isSingleModel(row.product)
+                   ? <ProductNameCell row={row} rowNumber={index + 1} />
+                   : <ProductBrandMenu row={row} rowNumber={index + 1} onBrandChange={onBrandChange} onToggle={onToggle}
+-                      rail={slot === null ? undefined : { type: railTypes[slot], choices: getRailChoices(railTypes, slot), onChange: (type) => onRailTypeChange(slot, type) }} />}
++                      rail={slot === null ? undefined : { type: railTypes[slot], choices: getClientRailChoices(slot), onChange: (type) => onRailTypeChange(slot, type) }} />}
+               </div>
+               <div role="cell" className={`${cell} ${row.quantity === null && row.enabled ? "border-amber-500/75" : "border-outline"}`} title={`واحد: ${row.product.unit}`}>
+                 {row.quantity === null ? "—" : formatNumber(row.quantity)}
+diff --git a/components/price-manager/quote-print-row.tsx b/components/price-manager/quote-print-row.tsx
+index 3a8bbb8..f2d640b 100644
+--- a/components/price-manager/quote-print-row.tsx
++++ b/components/price-manager/quote-print-row.tsx
+@@ -1,3 +1,4 @@
++import { formatClientProductName } from "@/lib/price-manager/client-rules";
+ import { formatMoney, formatNumber } from "@/lib/price-manager/format";
+ import type { QuoteRow } from "@/lib/price-manager/types";
+ import { RowNumberBadge } from "./row-number-badge";
+@@ -13,7 +14,7 @@ const numberCellClasses =
+ /** Compact print rows; only genuinely long product names may add a line. */
+ export function QuotePrintRow({ row, rowNumber }: QuotePrintRowProps) {
+   const { product, brand, quantity, unitPrice, total } = row;
+-  const brandSuffix = brand && !product.name.includes(brand) ? ` \u2014 ${brand}` : "";
++  const displayName = formatClientProductName(product, brand);
+ 
+   return (
+     <tr data-quote-row={product.id} className="break-inside-avoid [page-break-inside:avoid]">
+@@ -21,7 +22,7 @@ export function QuotePrintRow({ row, rowNumber }: QuotePrintRowProps) {
+         <div className="relative flex min-h-[26px] items-center py-[3px] pr-[34px] pl-2">
+           <RowNumberBadge value={rowNumber} size="print" className="absolute -top-px -right-px" />
+           <span className="min-w-0 break-words leading-[14px]">
+-            {product.name}{brandSuffix}
++            {displayName}
+           </span>
+         </div>
+       </td>
+diff --git a/hooks/use-price-manager.ts b/hooks/use-price-manager.ts
+index 9f108ba..9cdfb47 100644
+--- a/hooks/use-price-manager.ts
++++ b/hooks/use-price-manager.ts
+@@ -1,10 +1,10 @@
+ "use client";
+ 
+ import { useCallback, useEffect, useMemo, useState } from "react";
+-import { PRODUCTS } from "@/lib/price-manager/catalog";
++import { CLIENT_PRODUCTS } from "@/lib/price-manager/client-products";
++import { normalizeClientRailSelection, selectClientRailType, withClientQuoteDefaults } from "@/lib/price-manager/client-rules";
+ import { buildQuote } from "@/lib/price-manager/calculations";
+ import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
+-import { selectRailType } from "@/lib/price-manager/rail-rules";
+ import { createDemoSettings, updateNumericSetting } from "@/lib/price-manager/settings";
+ import {
+   downloadBackup,
+@@ -32,7 +32,7 @@ export function usePriceManager() {
+       try {
+         const saved = await loadSettings();
+         if (cancelled) return;
+-        setSettings(saved);
++        setSettings({ ...saved, railTypes: normalizeClientRailSelection(saved.railTypes) });
+         setStatus("ready");
+         try {
+           const path = await getDatabasePath();
+@@ -61,7 +61,8 @@ export function usePriceManager() {
+     });
+   }, [settings, status]);
+ 
+-  const quote = useMemo(() => buildQuote(PRODUCTS, settings), [settings]);
++  const quoteSettings = useMemo(() => withClientQuoteDefaults(settings), [settings]);
++  const quote = useMemo(() => buildQuote(CLIENT_PRODUCTS, quoteSettings), [quoteSettings]);
+ 
+   const updateSettings = useCallback((patch: Partial<QuoteSettings>) => {
+     setSettings((current) => ({ ...current, ...patch }));
+@@ -90,7 +91,7 @@ export function usePriceManager() {
+   }
+ 
+   const updateRailType = useCallback((slot: 0 | 1, type: RailType) => {
+-    setSettings((current) => ({ ...current, railTypes: selectRailType(current.railTypes, slot, type) }));
++    setSettings((current) => ({ ...current, railTypes: selectClientRailType(current.railTypes, slot, type) }));
+   }, []);
+ 
+   const updateBrand = useCallback((id: string, brand: string) => {
+@@ -135,7 +136,7 @@ export function usePriceManager() {
+     }
+     setIsPrinting(true);
+     try {
+-      await saveQuote(settings, quote);
++      await saveQuote(quoteSettings, quote);
+       await document.fonts.ready;
+       window.print();
+     } catch (error) {
+diff --git a/lib/price-manager/client-products.ts b/lib/price-manager/client-products.ts
+new file mode 100644
+index 0000000..c25d442
+--- /dev/null
++++ b/lib/price-manager/client-products.ts
+@@ -0,0 +1,69 @@
++import { PRODUCTS } from "./catalog";
++import type { Product } from "./types";
++
++const HIDDEN_PRODUCT_IDS: ReadonlySet<string> = new Set([
++  "P-STEEL-CABIN",
++]);
++
++type ProductOverride = Pick<Partial<Product>, "name" | "brands" | "brandPrices">;
++
++/**
++ * Client-requested presentation/catalog changes layered on top of the audited source catalog.
++ * The source JSON and all pricing/quantity formulas stay untouched.
++ */
++const PRODUCT_OVERRIDES: Readonly<Record<string, ProductOverride>> = {
++  R002: {
++    brands: ["زیرکابینی توربوسل", "مگنتی تکسل", "سیم بکسل توربوسل"],
++    brandPrices: {
++      "زیرکابینی توربوسل": 1000,
++      "مگنتی تکسل": 2000,
++      "سیم بکسل توربوسل": 3000,
++    },
++  },
++  R016: {
++    brands: ["پیشرو پلاستیکی با آهنربا", "فلزی راینو", "پیشرو فلزی با آهنربا"],
++    brandPrices: {
++      "پیشرو پلاستیکی با آهنربا": 1000,
++      "فلزی راینو": 2000,
++      "پیشرو فلزی با آهنربا": 3000,
++    },
++  },
++  R036: {
++    brands: ["بلوریان", "لیفت گارو"],
++    brandPrices: { بلوریان: 1000, "لیفت گارو": 2000 },
++  },
++  R037: {
++    brands: ["بلوریان", "لیفت گارو"],
++    brandPrices: { بلوریان: 1000, "لیفت گارو": 2000 },
++  },
++  "P-SEMI-DICTATOR": {
++    name: "دیکتاتور",
++    brands: ["سپاهان", "جان لیفت", "IRT"],
++    brandPrices: { سپاهان: 1000, "جان لیفت": 2000, IRT: 3000 },
++  },
++  "P-SEMI-LOCK": {
++    name: "قفل چپ",
++    brands: ["تاپ لیفت", "بهران", "ژیان لیفت"],
++    brandPrices: { "تاپ لیفت": 1000, بهران: 2000, "ژیان لیفت": 3000 },
++  },
++  "P-BRACKET-T16.T89": { name: "براکت T16" },
++  "P-BRACKET-T16.T90": { name: "براکت T16" },
++  "P-CLIP-T16.T89": { name: "لقمه T16" },
++  "P-CLIP-T16.T90": { name: "لقمه T16" },
++};
++
++function applyOverride(product: Product): Product {
++  const override = PRODUCT_OVERRIDES[product.id];
++  if (!override) return product;
++  return {
++    ...product,
++    ...override,
++    brands: override.brands ? [...override.brands] : product.brands,
++    brandPrices: override.brandPrices ? { ...override.brandPrices } : product.brandPrices,
++  };
++}
++
++/** Products used by the actual desktop app. Hidden products remain in the audited source catalog. */
++export const CLIENT_PRODUCTS: Product[] = PRODUCTS
++  .filter((product) => !HIDDEN_PRODUCT_IDS.has(product.id))
++  .map(applyOverride);
+diff --git a/lib/price-manager/client-rules.ts b/lib/price-manager/client-rules.ts
+new file mode 100644
+index 0000000..88efe7d
+--- /dev/null
++++ b/lib/price-manager/client-rules.ts
+@@ -0,0 +1,90 @@
++import type { Product, QuoteSettings, RailSelection, RailType } from "./types";
++
++const RAIL_CHOICES_BY_SLOT: Readonly<Record<0 | 1, readonly RailType[]>> = {
++  0: ["T5", "T9"],
++  1: ["T9", "T16.T89", "T16.T90"],
++};
++
++const RAIL_LABELS: Readonly<Record<RailType, string>> = {
++  T5: "ریل چین سرد T5 درجه یک",
++  T9: "ریل چین سرد T9 درجه یک",
++  "T16.T89": "ریل چین سرد T16.T89 درجه یک",
++  "T16.T90": "ریل چین سرد T16.T90 درجه یک",
++};
++
++const CAPACITY_8_DEFAULT_BRANDS: Readonly<Record<string, string>> = {
++  R002: "سیم بکسل توربوسل",
++  R016: "پیشرو فلزی با آهنربا",
++};
++
++export function normalizeClientRailSelection(selection: RailSelection): RailSelection {
++  let first = RAIL_CHOICES_BY_SLOT[0].includes(selection[0]) ? selection[0] : "T5";
++  let second = RAIL_CHOICES_BY_SLOT[1].includes(selection[1]) ? selection[1] : "T9";
++
++  if (first === second) {
++    if (first === "T9") second = "T16.T89";
++    else first = "T5";
++  }
++  return [first, second];
++}
++
++export function getClientRailChoices(slot: 0 | 1): RailType[] {
++  return [...RAIL_CHOICES_BY_SLOT[slot]];
++}
++
++export function selectClientRailType(current: RailSelection, slot: 0 | 1, type: RailType): RailSelection {
++  const normalized = normalizeClientRailSelection(current);
++  if (!RAIL_CHOICES_BY_SLOT[slot].includes(type)) return normalized;
++
++  let [first, second] = normalized;
++  if (slot === 0) {
++    first = type;
++    if (first === second) second = "T16.T89";
++  } else {
++    second = type;
++    if (first === second) first = "T5";
++  }
++  return [first, second];
++}
++
++export function getClientRailLabel(type: RailType): string {
++  return RAIL_LABELS[type];
++}
++
++/** Capacity-specific defaults are applied only when the user has not explicitly chosen a brand. */
++export function withClientQuoteDefaults(settings: QuoteSettings): QuoteSettings {
++  if (settings.capacity !== "8") return settings;
++
++  const brands = { ...settings.brands };
++  for (const [productId, brand] of Object.entries(CAPACITY_8_DEFAULT_BRANDS)) {
++    if (!brands[productId]) brands[productId] = brand;
++  }
++  return { ...settings, brands };
++}
++
++/** With exactly three brands, keep the active/default brand in the middle of the selector. */
++export function getClientBrandOptions(product: Product, activeBrand: string): string[] {
++  const brands = [...product.brands];
++  if (brands.length !== 3) return brands;
++
++  const capacityDefault = CAPACITY_8_DEFAULT_BRANDS[product.id];
++  const defaultBrand = capacityDefault && activeBrand === capacityDefault ? capacityDefault : brands[0];
++  const defaultIndex = brands.indexOf(defaultBrand);
++  if (defaultIndex !== 1) [brands[1], brands[defaultIndex]] = [brands[defaultIndex], brands[1]];
++  return brands;
++}
++
++/** Add the word «توقف» after the stop number of cabin-button model names. */
++export function formatClientBrandLabel(product: Product, brand: string): string {
++  if (!(product.id === "R022" || product.id.startsWith("P-CAB-BTN-"))) return brand;
++  if (/\d+\s*توقف/.test(brand)) return brand;
++  return brand.replace(/(\d+)(?=\s)/, "$1 توقف");
++}
++
++/** Main list/PDF label: selected brand first, then the product name. */
++export function formatClientProductName(product: Product, brand: string): string {
++  if (!brand) return product.name;
++  const visibleBrand = formatClientBrandLabel(product, brand);
++  const productName = product.name.replace(brand, "").replace(/\s+/g, " ").trim();
++  return `${visibleBrand} ${productName}`.trim();
++}

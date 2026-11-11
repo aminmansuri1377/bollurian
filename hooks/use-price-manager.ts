@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PRODUCTS } from "@/lib/price-manager/catalog";
+import { CLIENT_PRODUCTS } from "@/lib/price-manager/client-products";
+import { normalizeClientRailSelection, selectClientRailType, withClientQuoteDefaults } from "@/lib/price-manager/client-rules";
 import { buildQuote } from "@/lib/price-manager/calculations";
 import { INITIAL_SETTINGS } from "@/lib/price-manager/constants";
-import { selectRailType } from "@/lib/price-manager/rail-rules";
 import { createDemoSettings, updateNumericSetting } from "@/lib/price-manager/settings";
 import {
   downloadBackup,
@@ -32,7 +32,7 @@ export function usePriceManager() {
       try {
         const saved = await loadSettings();
         if (cancelled) return;
-        setSettings(saved);
+        setSettings({ ...saved, railTypes: normalizeClientRailSelection(saved.railTypes) });
         setStatus("ready");
         try {
           const path = await getDatabasePath();
@@ -61,7 +61,8 @@ export function usePriceManager() {
     });
   }, [settings, status]);
 
-  const quote = useMemo(() => buildQuote(PRODUCTS, settings), [settings]);
+  const quoteSettings = useMemo(() => withClientQuoteDefaults(settings), [settings]);
+  const quote = useMemo(() => buildQuote(CLIENT_PRODUCTS, quoteSettings), [quoteSettings]);
 
   const updateSettings = useCallback((patch: Partial<QuoteSettings>) => {
     setSettings((current) => ({ ...current, ...patch }));
@@ -90,7 +91,7 @@ export function usePriceManager() {
   }
 
   const updateRailType = useCallback((slot: 0 | 1, type: RailType) => {
-    setSettings((current) => ({ ...current, railTypes: selectRailType(current.railTypes, slot, type) }));
+    setSettings((current) => ({ ...current, railTypes: selectClientRailType(current.railTypes, slot, type) }));
   }, []);
 
   const updateBrand = useCallback((id: string, brand: string) => {
@@ -135,7 +136,7 @@ export function usePriceManager() {
     }
     setIsPrinting(true);
     try {
-      await saveQuote(settings, quote);
+      await saveQuote(quoteSettings, quote);
       await document.fonts.ready;
       window.print();
     } catch (error) {

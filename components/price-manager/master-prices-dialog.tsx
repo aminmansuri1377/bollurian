@@ -5,7 +5,8 @@ import {
   isBrandSelectable,
   resolveBrand,
 } from "@/lib/price-manager/brand-rules";
-import { PRODUCTS } from "@/lib/price-manager/catalog";
+import { CLIENT_PRODUCTS } from "@/lib/price-manager/client-products";
+import { formatClientProductName } from "@/lib/price-manager/client-rules";
 import {
   GROUP_LABELS,
   OMITTED_PRODUCT_ID,
@@ -38,7 +39,7 @@ export function MasterPricesDialog({
   onPreviousPriceChange,
 }: MasterPricesDialogProps) {
   // One row per brand for products whose brand can be chosen; every other product has a single row.
-  const entries = PRODUCTS.filter(
+  const entries = CLIENT_PRODUCTS.filter(
     (product) => product.id !== OMITTED_PRODUCT_ID,
   ).flatMap((product) =>
     isBrandSelectable(product)
@@ -76,14 +77,11 @@ export function MasterPricesDialog({
         </thead>
         <tbody>
           {entries.map(({ product, brand }) => {
-            const selectable = isBrandSelectable(product);
             const priceKey = getPriceKey(product, brand);
             const current = getMasterPrice(product, settings, brand);
             const previous = getPreviousPrice(product, settings, brand);
             const change = comparePrices(current, previous);
-            const title = selectable
-              ? `${product.name} - ${brand}`
-              : product.name;
+            const title = brand ? formatClientProductName(product, brand) : product.name;
             return (
               <tr key={priceKey}>
                 {/* <td className="px-2 py-2 text-[10px] font-light">

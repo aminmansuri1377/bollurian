@@ -1,0 +1,32 @@
+diff --git a/lib/price-manager/client-rules.ts b/lib/price-manager/client-rules.ts
+index 88efe7d0384eaf84a397b39678a25057ed664831..2f61cef54e7f2eb9540cb608bf64d706a3ac41c7 100644
+--- a/lib/price-manager/client-rules.ts
++++ b/lib/price-manager/client-rules.ts
+@@ -74,17 +74,21 @@ export function getClientBrandOptions(product: Product, activeBrand: string): st
+   return brands;
+ }
+ 
+-/** Add the word «توقف» after the stop number of cabin-button model names. */
+-export function formatClientBrandLabel(product: Product, brand: string): string {
++function formatVisibleBrand(product: Product, brand: string): string {
+   if (!(product.id === "R022" || product.id.startsWith("P-CAB-BTN-"))) return brand;
+   if (/\d+\s*توقف/.test(brand)) return brand;
+   return brand.replace(/(\d+)(?=\s)/, "$1 توقف");
+ }
+ 
+-/** Main list/PDF label: selected brand first, then the product name. */
++/** Dropdown option: shared product name first, then this brand/model. */
++export function formatClientBrandLabel(product: Product, brand: string): string {
++  const visibleBrand = formatVisibleBrand(product, brand);
++  return `${product.name} ${visibleBrand}`.trim();
++}
++
++/** Main list/PDF label: product name first, then the selected brand/model. */
+ export function formatClientProductName(product: Product, brand: string): string {
+   if (!brand) return product.name;
+-  const visibleBrand = formatClientBrandLabel(product, brand);
+-  const productName = product.name.replace(brand, "").replace(/\s+/g, " ").trim();
+-  return `${visibleBrand} ${productName}`.trim();
++  const visibleBrand = formatVisibleBrand(product, brand);
++  return `${product.name} ${visibleBrand}`.trim();
+ }

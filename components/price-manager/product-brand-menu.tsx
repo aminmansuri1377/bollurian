@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronIcon } from "@/components/ui/icons";
 import { isBrandSelectable } from "@/lib/price-manager/brand-rules";
+import { formatClientBrandLabel, formatClientProductName, getClientBrandOptions, getClientRailLabel } from "@/lib/price-manager/client-rules";
 import { formatNumber, formatMoney } from "@/lib/price-manager/format";
 import type { QuoteRow, RailType } from "@/lib/price-manager/types";
 import { RowNumberBadge } from "./row-number-badge";
@@ -22,6 +23,8 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { product } = row;
   const panelId = `product-options-${product.id}`;
+  const displayName = formatClientProductName(product, row.brand);
+  const brandOptions = getClientBrandOptions(product, row.brand);
 
   useEffect(() => {
     if (!open) return;
@@ -45,16 +48,16 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
         aria-label={`برند و جزئیات ${product.name}`}
         onClick={() => setOpen((current) => !current)}
         className="relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white pr-[50px] text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
-        title={`${product.name}${row.brand ? ` - ${row.brand}` : ""}`}
+        title={displayName}
       >
         <RowNumberBadge value={rowNumber} className="absolute -top-px -right-px" />
-        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{product.name}{row.brand && !product.name.includes(row.brand) ? ` - ${row.brand}` : ""}</span>
+        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{displayName}</span>
         <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
         <div id={panelId} className="absolute top-[58px] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
-          <p className="mb-2 text-[13px] font-bold">{product.name}</p>
+          <p className="mb-2 text-[13px] font-bold">{displayName}</p>
           <p className="mb-3 text-caption">کد: <bdi>{product.id}</bdi> · واحد: {product.unit}</p>
           {rail ? (
             <>
@@ -65,7 +68,7 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
                 onChange={(event) => rail.onChange(event.target.value as RailType)}
                 className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
               >
-                {rail.choices.map((type) => <option key={type} value={type}>{type}</option>)}
+                {rail.choices.map((type) => <option key={type} value={type}>{getClientRailLabel(type)}</option>)}
               </select>
               <p className="mt-1 text-[11px] text-caption">دو ریل نمی‌توانند هم‌نوع باشند. براکت و لقمه هم‌نوع ریل انتخاب‌شده تغییر می‌کنند و قیمت هر قلم از مدیریت قیمت مادر می‌آید.</p>
             </>
@@ -78,7 +81,7 @@ export function ProductBrandMenu({ row, rowNumber, onBrandChange, onToggle, rail
                 onChange={(event) => onBrandChange(product.id, event.target.value)}
                 className="h-10 w-full cursor-pointer rounded-full border border-outline bg-white px-3 outline-none focus-visible:ring-2 focus-visible:ring-brand/25"
               >
-                {product.brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
+                {brandOptions.map((brand) => <option key={brand} value={brand}>{formatClientBrandLabel(product, brand)}</option>)}
               </select>
               <p className="mt-1 text-[11px] text-caption">با تغییر برند، قیمت واحد طبق قیمت همان برند در مدیریت قیمت مادر تغییر می‌کند.</p>
             </>

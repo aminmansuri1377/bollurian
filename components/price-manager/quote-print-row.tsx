@@ -1,3 +1,4 @@
+import { formatClientProductName } from "@/lib/price-manager/client-rules";
 import { formatMoney, formatNumber } from "@/lib/price-manager/format";
 import type { QuoteRow } from "@/lib/price-manager/types";
 import { RowNumberBadge } from "./row-number-badge";
@@ -13,7 +14,7 @@ const numberCellClasses =
 /** Compact print rows; only genuinely long product names may add a line. */
 export function QuotePrintRow({ row, rowNumber }: QuotePrintRowProps) {
   const { product, brand, quantity, unitPrice, total } = row;
-  const brandSuffix = brand && !product.name.includes(brand) ? ` \u2014 ${brand}` : "";
+  const displayName = formatClientProductName(product, brand);
 
   return (
     <tr data-quote-row={product.id} className="break-inside-avoid [page-break-inside:avoid]">
@@ -21,7 +22,7 @@ export function QuotePrintRow({ row, rowNumber }: QuotePrintRowProps) {
         <div className="relative flex min-h-[26px] items-center py-[3px] pr-[34px] pl-2">
           <RowNumberBadge value={rowNumber} size="print" className="absolute -top-px -right-px" />
           <span className="min-w-0 break-words leading-[14px]">
-            {product.name}{brandSuffix}
+            {displayName}
           </span>
         </div>
       </td>
