@@ -2,7 +2,7 @@ import Image from "next/image";
 import { groupRowsByCategory } from "@/lib/price-manager/calculations";
 import { formatMoney } from "@/lib/price-manager/format";
 import type { QuoteSettings, QuoteSummary } from "@/lib/price-manager/types";
-import { BrandWordmark } from "./brand-wordmark";
+import { HeroLogo } from "./hero-logo";
 import { QuotePrintRow } from "./quote-print-row";
 import { QuoteMetadata } from "./quote-metadata";
 import { PricingSourceNotice } from "./pricing-source-notice";
@@ -120,9 +120,9 @@ export function QuotePrintDocument({
         </div>
         <div
           aria-hidden="true"
-          className="mt-8 min-h-[96px] border-t border-outline/30 pt-5"
+          className="mt-8 border-t border-outline/30 pt-6 pb-2"
         >
-          <BrandWordmark showSubtitle={false} className="mx-auto block h-auto w-[500px] text-brand" />
+          <HeroLogo className="mx-auto block h-auto w-[420px] text-brand" />
         </div>
       </footer>
     </section>
