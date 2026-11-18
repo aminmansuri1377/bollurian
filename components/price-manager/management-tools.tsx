@@ -14,6 +14,8 @@ interface ManagementToolsProps {
   onPriceChange: (key: string, value: number | null) => void;
   onPreviousPriceChange: (key: string, value: number | null) => void;
   onResetDemo: () => void;
+  listBold: boolean;
+  onToggleListBold: () => void;
 }
 
 const textInput =
@@ -30,6 +32,8 @@ export function ManagementTools({
   onPriceChange,
   onPreviousPriceChange,
   onResetDemo,
+  listBold,
+  onToggleListBold,
 }: ManagementToolsProps) {
   const [adminAction, setAdminAction] = useState<AdminAction | null>(null);
 
@@ -107,6 +111,19 @@ export function ManagementTools({
               className={actionButton}
             >
               بازنشانی قیمت‌های نمونه (با پشتیبان)
+            </button>
+            <button
+              type="button"
+              aria-pressed={listBold}
+              onClick={onToggleListBold}
+              className={`${actionButton} inline-flex items-center gap-2`}
+              title="تغییر ضخامت نوشته‌های داخل لیست محصولات"
+            >
+              <span className="text-[15px] font-black leading-none">
+                {" "}
+                {listBold ? "B" : "R"}
+              </span>
+              :فونت لیست
             </button>
           </div>
           {/* <p className="mt-4 text-[11px] leading-6 text-caption">

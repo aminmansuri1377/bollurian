@@ -2,6 +2,7 @@
 
 import { CloseIcon } from "@/components/ui/icons";
 import { usePriceManager } from "@/hooks/use-price-manager";
+import { useListFontPreference } from "@/hooks/use-list-font-preference";
 import { HeroSection } from "./hero-section";
 import { ManagementTools } from "./management-tools";
 import { ProductTable } from "./product-table";
@@ -11,6 +12,7 @@ import { QuoteSheet } from "./quote-sheet";
 
 export function PriceManager() {
   const manager = usePriceManager();
+  const { listBold, toggleListBold } = useListFontPreference();
   const disabled = manager.status !== "ready";
 
   function showResults() {
@@ -28,6 +30,8 @@ export function PriceManager() {
           onPriceChange={manager.updatePrice}
           onPreviousPriceChange={manager.updatePreviousPrice}
           onResetDemo={manager.resetDemo}
+          listBold={listBold}
+          onToggleListBold={toggleListBold}
         />
 
         <HeroSection settings={manager.settings} disabled={disabled} onChange={manager.updateSettings} onBuildList={showResults} />
@@ -47,18 +51,20 @@ export function PriceManager() {
             settings={manager.settings}
             railTypes={manager.settings.railTypes}
             disabled={disabled}
+            boldText={listBold}
             onRailTypeChange={manager.updateRailType}
             onBrandChange={manager.updateBrand}
             onToggle={manager.toggleProduct}
           />
         </QuoteSheet>
       </main>
-      <QuotePrintDocument settings={manager.settings} quote={manager.quote} today={manager.today} />
+      <QuotePrintDocument settings={manager.settings} quote={manager.quote} today={manager.today} boldText={listBold} />
       {manager.previewOpen && (
         <QuotePreview
           settings={manager.settings}
           quote={manager.quote}
           today={manager.today}
+          boldText={listBold}
           isPrinting={manager.isPrinting}
           onPrint={manager.printQuote}
           onClose={manager.closePreview}

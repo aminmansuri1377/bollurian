@@ -5,7 +5,7 @@ interface RowNumberBadgeProps {
 }
 
 const sizeClasses = {
-  screen: "size-[50px] text-[18px]",
+  screen: "size-[34px] text-[12px]",
   print: "size-[28px] text-[11px]",
 } as const;
 

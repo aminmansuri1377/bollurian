@@ -41,16 +41,28 @@ export function ElevatorFilters({
       onSubmit={handleSubmit}
       dir="rtl"
       aria-label="انتخاب مشخصات آسانسور"
-      className="h-[548px] w-[378px] rounded-[30px] bg-white px-[42px] pt-[28px] pb-[28px] text-brand"
+      className="mt-[18px] h-[226px] w-[780px] rounded-[26px] bg-white px-[44px] pt-[19px] pb-[16px] text-brand shadow-[0_10px_28px_rgba(2,33,70,0.08)]"
     >
-      <h2 className="mb-[23px] whitespace-nowrap text-[26px] font-black leading-9 tracking-[-0.7px]">
+      <h2 className="mb-[12px] text-right text-[20px] font-black leading-7">
         چه آسانسوری می‌خواهید؟
       </h2>
       <fieldset disabled={disabled} className="min-w-0">
-        <div className="flex flex-col gap-[14px]">
+        <div className="grid grid-cols-2 gap-x-[28px] gap-y-[10px]">
           <SelectField
+            compact
+            id="passenger-capacity"
+            label="ظرفیت نفرات"
+            value={settings.capacity}
+            options={[
+              { value: "4-6", label: "۴ تا ۶ نفر" },
+              { value: "8", label: "۸ نفر" },
+            ]}
+            onChange={(capacity) => onChange({ capacity: capacity as Capacity })}
+          />
+          <SelectField
+            compact
             id="motor-type"
-            label="نوع آسانسور"
+            label="نوع موتور آسانسور"
             value={settings.motor}
             options={[
               { value: "gearbox", label: "آسانسور گیربکس" },
@@ -59,6 +71,7 @@ export function ElevatorFilters({
             onChange={(motor) => onChange({ motor: motor as MotorType })}
           />
           <SelectField
+            compact
             id="stop-count"
             label="تعداد توقف"
             value={settings.stops}
@@ -69,33 +82,15 @@ export function ElevatorFilters({
             }}
           />
           <SelectField
-            id="passenger-capacity"
-            label="ظرفیت نفرات"
-            value={settings.capacity}
-            options={[
-              { value: "4-6", label: "۴ تا ۶ نفر" },
-              { value: "8", label: "۸ نفر" },
-            ]}
-            onChange={(capacity) =>
-              onChange({ capacity: capacity as Capacity })
-            }
-          />
-          <SelectField
+            compact
             id="package-type"
             label="نوع پکیج"
             value={settings.pack}
             options={PACKAGE_OPTIONS}
-            onChange={(pack) =>
-              onChange({ pack: pack as PackageId, excluded: [] })
-            }
+            onChange={(pack) => onChange({ pack: pack as PackageId, excluded: [] })}
           />
         </div>
-        <button
-          type="submit"
-          className="mt-[36px] h-[43px] w-full cursor-pointer rounded-full bg-linear-to-r from-brand to-brand-end text-[14px] font-bold text-white outline-none transition-shadow hover:shadow-lg hover:shadow-brand/15 focus-visible:ring-4 focus-visible:ring-brand/25 disabled:cursor-wait disabled:opacity-60"
-        >
-          ساختن لیست
-        </button>
+        <button type="submit" className="sr-only">ساختن لیست</button>
       </fieldset>
     </form>
   );

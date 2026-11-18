@@ -13,6 +13,8 @@ interface QuotePrintDocumentProps {
   today: string;
   /** On-screen preview (inside the preview window) instead of the print-only copy. */
   preview?: boolean;
+  /** Same visual preference as the desktop list; it must also affect preview/PDF. */
+  boldText?: boolean;
 }
 
 /** A real paginated table: no hero, controls, screenshots, or clipped long lists. */
@@ -21,6 +23,7 @@ export function QuotePrintDocument({
   quote,
   today,
   preview = false,
+  boldText = false,
 }: QuotePrintDocumentProps) {
   return (
     <section
@@ -47,7 +50,7 @@ export function QuotePrintDocument({
           <span>تاریخ: {today}</span>
         </div>
       </header>
-      <table className="w-full table-fixed border-separate [border-spacing:5px_6px] text-[12px] leading-[14px]">
+      <table className={`w-full table-fixed border-separate [border-spacing:5px_6px] text-[12px] leading-[14px] ${boldText ? "font-bold" : "font-normal"}`}>
         <colgroup>
           <col className="w-[42%]" />
           <col className="w-[14%]" />
@@ -97,7 +100,10 @@ export function QuotePrintDocument({
                   جمع {section.label}
                 </td>
                 <td className="whitespace-nowrap rounded-[14px] border border-brand px-1 py-1 text-center align-middle font-medium tabular-nums">
-                  {formatMoney(section.subtotal)}
+                  <span className="inline-flex items-baseline justify-center gap-1">
+                    <bdi>{formatMoney(section.subtotal)}</bdi>
+                    <span className="text-[8px] text-brand/65">تومان</span>
+                  </span>
                 </td>
               </tr>
             )}
@@ -114,9 +120,9 @@ export function QuotePrintDocument({
         </div>
         <div
           aria-hidden="true"
-          className="mt-10 h-[55px] overflow-hidden border-t border-outline/30 pt-5"
+          className="mt-8 min-h-[96px] border-t border-outline/30 pt-5"
         >
-          <BrandWordmark showSubtitle={false} className="mx-auto w-[480px]" />
+          <BrandWordmark showSubtitle={false} className="mx-auto block h-auto w-[500px] text-brand" />
         </div>
       </footer>
     </section>

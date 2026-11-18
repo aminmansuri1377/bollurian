@@ -12,11 +12,11 @@ export function QuoteMetadata({ settings, compact = false }: { settings: QuoteSe
   ];
 
   return (
-    <dl className={`grid grid-cols-[0.83fr_1.17fr] ${compact ? "gap-x-2 gap-y-2" : "gap-x-[14px] gap-y-[14px]"}`}>
+    <dl className={`grid grid-cols-[0.83fr_1.17fr] ${compact ? "gap-x-2 gap-y-2" : "gap-x-[10px] gap-y-[8px]"}`}>
       {items.map((item) => (
-        <div key={item.kind} className={`flex min-w-0 items-center overflow-hidden rounded-full border border-outline ${compact ? "h-8 text-[10px]" : "h-[50px] text-[13px]"}`}>
-          <dt className={`flex h-full shrink-0 items-center justify-center gap-2 rounded-full bg-linear-to-r from-brand to-brand-end font-medium text-white ${compact ? "w-[97px] px-2" : "w-[166px] px-4"}`}>
-            <MetaIcon kind={item.kind} className={compact ? "size-3" : "size-4"} />
+        <div key={item.kind} className={`flex min-w-0 items-center overflow-hidden rounded-full border border-outline ${compact ? "h-8 text-[10px]" : "h-[38px] text-[13px]"}`}>
+          <dt className={`flex h-full shrink-0 items-center justify-center gap-2 rounded-full bg-linear-to-r from-brand to-brand-end font-medium text-white ${compact ? "w-[97px] px-2" : "w-[145px] px-3"}`}>
+            <MetaIcon kind={item.kind} className={compact ? "size-3" : "size-3.5"} />
             {item.label}
           </dt>
           <dd className={`min-w-0 flex-1 truncate px-3 text-center font-light ${item.kind === "package" && !compact ? "text-[12px]" : ""}`} title={item.value}>

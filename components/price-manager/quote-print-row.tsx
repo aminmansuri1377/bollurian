@@ -34,7 +34,12 @@ export function QuotePrintRow({ row, rowNumber }: QuotePrintRowProps) {
         </span>
       </td>
       <td className={`${numberCellClasses} whitespace-nowrap`}>{formatMoney(unitPrice)}</td>
-      <td className={`${numberCellClasses} whitespace-nowrap`}>{formatMoney(total)}</td>
+      <td className={`${numberCellClasses} whitespace-nowrap`}>
+        <span className="inline-flex items-baseline justify-center gap-1">
+          <bdi>{formatMoney(total)}</bdi>
+          <span className="text-[8px] text-brand/65">تومان</span>
+        </span>
+      </td>
     </tr>
   );
 }

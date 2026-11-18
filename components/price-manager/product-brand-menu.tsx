@@ -13,13 +13,14 @@ interface ProductBrandMenuProps {
   row: QuoteRow;
   rowNumber: number;
   settings: QuoteSettings;
+  boldText?: boolean;
   onBrandChange: (id: string, brand: string) => void;
   onToggle: (id: string) => void;
   /** Present only for the two rail rows: the rail type replaces the brand selector. */
   rail?: { type: RailType; choices: RailType[]; onChange: (type: RailType) => void };
 }
 
-export function ProductBrandMenu({ row, rowNumber, settings, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
+export function ProductBrandMenu({ row, rowNumber, settings, boldText = false, onBrandChange, onToggle, rail }: ProductBrandMenuProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -38,7 +39,7 @@ export function ProductBrandMenu({ row, rowNumber, settings, onBrandChange, onTo
   }, [open]);
 
   return (
-    <div ref={containerRef} className="relative h-[50px] min-w-0" onKeyDown={(event) => {
+    <div ref={containerRef} className="relative h-[34px] min-w-0" onKeyDown={(event) => {
       if (event.key === "Escape") { setOpen(false); buttonRef.current?.focus(); }
     }}>
       <button
@@ -49,16 +50,16 @@ export function ProductBrandMenu({ row, rowNumber, settings, onBrandChange, onTo
         aria-controls={panelId}
         aria-label={`برند و جزئیات ${product.name}`}
         onClick={() => setOpen((current) => !current)}
-        className="relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white pr-[50px] text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
+        className="relative flex h-full w-full cursor-pointer items-center rounded-full border border-brand bg-white pr-[34px] text-right outline-none transition-shadow hover:shadow-sm data-[inactive=true]:opacity-45 focus-visible:ring-2 focus-visible:ring-brand/25"
         title={displayName}
       >
         <RowNumberBadge value={rowNumber} className="absolute -top-px -right-px" />
-        <span className="min-w-0 flex-1 truncate px-3 text-[13px] font-light">{displayName}</span>
-        <ChevronIcon className={`ml-5 h-[7px] w-[10px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className={`min-w-0 flex-1 truncate px-3 text-[11px] ${boldText ? "font-bold" : "font-light"}`}>{displayName}</span>
+        <ChevronIcon className={`ml-4 h-[6px] w-[9px] shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div id={panelId} className="absolute top-[58px] right-0 z-30 w-[385px] rounded-[20px] border border-outline bg-white p-5 text-[12px] leading-6 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
+        <div id={panelId} className="absolute top-[40px] right-0 z-30 w-[360px] rounded-[18px] border border-outline bg-white p-4 text-[11px] leading-5 shadow-xl shadow-brand/15" role="group" aria-label="مشخصات و برند محصول">
           <p className="mb-2 text-[13px] font-bold">{displayName}</p>
           <p className="mb-3 text-caption">کد: <bdi>{product.id}</bdi> · واحد: {product.unit}</p>
           {rail ? (

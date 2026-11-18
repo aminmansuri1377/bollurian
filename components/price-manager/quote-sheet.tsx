@@ -33,23 +33,23 @@ export function QuoteSheet({
     <section
       id="results"
       aria-label="پیش‌فاکتور بلوریان"
-      className="mt-[48px] scroll-mt-5 rounded-[28px] border border-outline bg-white"
+      className="mt-[32px] scroll-mt-5 rounded-[24px] border border-outline bg-white"
     >
-      <div className="px-[82px] pt-[40px]">
-        <header className="mb-[42px] flex justify-center">
+      <div className="px-[82px] pt-[26px]">
+        <header className="mb-[24px] flex justify-center">
           <Image
             src="/logo.png"
             alt="Bollourian Elevator — آسانسور بلوریان"
-            width={350}
-            height={120}
-            className="h-[120px] w-[350px] object-contain"
+            width={240}
+            height={82}
+            className="h-[82px] w-[240px] object-contain"
           />
         </header>
         <QuoteMetadata settings={settings} />
         {/* <PricingSourceNotice settings={settings} /> */}
-        <div className="mt-[40px]">{children}</div>
+        <div className="mt-[18px]">{children}</div>
 
-        <div className="mt-[38px] flex items-center justify-between gap-6">
+        <div className="mt-[20px] flex items-center justify-between gap-6">
           <button
             type="button"
             onClick={onPrint}
@@ -59,13 +59,13 @@ export function QuoteSheet({
                 ? "ابتدا قیمت و تعداد ردیف‌های ناقص را کامل کنید"
                 : "چاپ / ذخیره به صورت PDF"
             }
-            className="h-[43px] w-[166px] shrink-0 cursor-pointer rounded-full bg-linear-to-r from-brand to-brand-end text-[13px] text-white outline-none transition-shadow hover:shadow-lg hover:shadow-brand/15 focus-visible:ring-4 focus-visible:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-[34px] w-[145px] shrink-0 cursor-pointer rounded-full bg-linear-to-r from-brand to-brand-end text-[11px] text-white outline-none transition-shadow hover:shadow-lg hover:shadow-brand/15 focus-visible:ring-4 focus-visible:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPrinting ? "آماده‌سازی…" : "خروجی PDF"}
           </button>
-          <p className="text-[13px] font-light">
+          <p className="text-[11px] font-light">
             {quote.incompleteRows.length ? "جمع اقلام تکمیل‌شده:" : "جمع کل:"}
-            <strong className="mr-3 text-[17px] font-medium tabular-nums">
+            <strong className="mr-3 text-[14px] font-medium tabular-nums">
               {formatMoney(quote.total)}
             </strong>
             <span className="mr-1 text-[12px]">تومان</span>

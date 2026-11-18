@@ -9,6 +9,7 @@ interface QuotePreviewProps {
   settings: QuoteSettings;
   quote: QuoteSummary;
   today: string;
+  boldText: boolean;
   isPrinting: boolean;
   onPrint: () => void;
   onClose: () => void;
@@ -19,7 +20,7 @@ interface QuotePreviewProps {
  * The system print dialog is not part of the page, so the visible way back is the × button here
  * (Esc works too). It is never printed (`print:hidden`); the print-only copy of the quote is rendered elsewhere.
  */
-export function QuotePreview({ settings, quote, today, isPrinting, onPrint, onClose }: QuotePreviewProps) {
+export function QuotePreview({ settings, quote, today, boldText, isPrinting, onPrint, onClose }: QuotePreviewProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export function QuotePreview({ settings, quote, today, isPrinting, onPrint, onCl
       <div className="flex-1 overflow-y-auto px-6 py-8">
         {/* A4 width minus the 12mm print margins on each side, like the printed page. */}
         <div className="mx-auto w-[794px] bg-white p-[45px] shadow-lg shadow-brand/15">
-          <QuotePrintDocument settings={settings} quote={quote} today={today} preview />
+          <QuotePrintDocument settings={settings} quote={quote} today={today} preview boldText={boldText} />
         </div>
       </div>
     </div>
