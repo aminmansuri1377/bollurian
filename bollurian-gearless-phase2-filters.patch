@@ -1,0 +1,272 @@
+diff --git a/components/price-manager/elevator-filters.tsx b/components/price-manager/elevator-filters.tsx
+index db2abd4..db27f08 100644
+--- a/components/price-manager/elevator-filters.tsx
++++ b/components/price-manager/elevator-filters.tsx
+@@ -1,7 +1,9 @@
+ import type { FormEvent } from "react";
+ import {
+-  PACKAGE_OPTIONS,
+-  SUPPORTED_STOPS,
++  GEARBOX_PACKAGE_OPTIONS,
++  GEARBOX_STOPS,
++  GEARLESS_PACKAGE_OPTIONS,
++  GEARLESS_STOPS,
+   isSupportedStop,
+ } from "@/lib/price-manager/constants";
+ import { formatNumber } from "@/lib/price-manager/format";
+@@ -10,6 +12,8 @@ import type {
+   MotorType,
+   PackageId,
+   QuoteSettings,
++  RailSelection,
++  SupportedStop,
+ } from "@/lib/price-manager/types";
+ import { SelectField } from "@/components/ui/select-field";
+ 
+@@ -20,10 +24,15 @@ interface ElevatorFiltersProps {
+   onBuildList: () => void;
+ }
+ 
+-const stopOptions = SUPPORTED_STOPS.map((stop) => ({
+-  value: stop,
+-  label: `آسانسور ${formatNumber(stop)} توقف`,
+-}));
++const GEARLESS_13_RAILS: RailSelection = ["T9", "T16.T89"];
++
++function includesStop(options: readonly SupportedStop[], value: SupportedStop): boolean {
++  return options.some((stop) => stop === value);
++}
++
++function includesPackage(options: readonly { value: PackageId; label: string }[], value: PackageId): boolean {
++  return options.some((option) => option.value === value);
++}
+ 
+ export function ElevatorFilters({
+   settings,
+@@ -31,11 +40,75 @@ export function ElevatorFilters({
+   onChange,
+   onBuildList,
+ }: ElevatorFiltersProps) {
++  const gearless = settings.motor === "gearless";
++  const stopValues = gearless ? GEARLESS_STOPS : GEARBOX_STOPS;
++  const stopOptions = stopValues.map((stop) => ({
++    value: stop,
++    label: `آسانسور ${formatNumber(stop)} توقف`,
++  }));
++  const capacityOptions = gearless
++    ? [
++        { value: "8", label: "۸ نفر" },
++        { value: "13", label: "۱۳ نفر" },
++      ]
++    : [
++        { value: "4-6", label: "۴ تا ۶ نفر" },
++        { value: "8", label: "۸ نفر" },
++      ];
++  const packageOptions = gearless ? GEARLESS_PACKAGE_OPTIONS : GEARBOX_PACKAGE_OPTIONS;
++
+   function handleSubmit(event: FormEvent<HTMLFormElement>) {
+     event.preventDefault();
+     onBuildList();
+   }
+ 
++  function handleMotorChange(value: string) {
++    const motor = value as MotorType;
++
++    if (motor === "gearless") {
++      const capacity: Capacity = settings.capacity === "8" || settings.capacity === "13" ? settings.capacity : "8";
++      const pack: PackageId = includesPackage(GEARLESS_PACKAGE_OPTIONS, settings.pack)
++        ? settings.pack
++        : settings.pack.startsWith("full-")
++          ? "gearless-full-1to1-auto"
++          : "gearless-mech-1to1-auto";
++
++      onChange({
++        motor,
++        capacity,
++        stops: includesStop(GEARLESS_STOPS, settings.stops) ? settings.stops : 4,
++        pack,
++        excluded: [],
++        ...(capacity === "13" ? { railTypes: GEARLESS_13_RAILS } : {}),
++      });
++      return;
++    }
++
++    const pack: PackageId = includesPackage(GEARBOX_PACKAGE_OPTIONS, settings.pack)
++      ? settings.pack
++      : settings.pack === "rail"
++        ? "rail"
++        : settings.pack.startsWith("gearless-full-")
++          ? "full-auto"
++          : "mech-auto";
++
++    onChange({
++      motor,
++      capacity: settings.capacity === "13" ? "8" : settings.capacity,
++      stops: includesStop(GEARBOX_STOPS, settings.stops) ? settings.stops : 10,
++      pack,
++      excluded: [],
++    });
++  }
++
++  function handleCapacityChange(value: string) {
++    const capacity = value as Capacity;
++    onChange({
++      capacity,
++      ...(gearless && capacity === "13" ? { railTypes: GEARLESS_13_RAILS } : {}),
++    });
++  }
++
+   return (
+     <form
+       onSubmit={handleSubmit}
+@@ -53,11 +126,8 @@ export function ElevatorFilters({
+             id="passenger-capacity"
+             label="ظرفیت نفرات"
+             value={settings.capacity}
+-            options={[
+-              { value: "4-6", label: "۴ تا ۶ نفر" },
+-              { value: "8", label: "۸ نفر" },
+-            ]}
+-            onChange={(capacity) => onChange({ capacity: capacity as Capacity })}
++            options={capacityOptions}
++            onChange={handleCapacityChange}
+           />
+           <SelectField
+             compact
+@@ -66,9 +136,9 @@ export function ElevatorFilters({
+             value={settings.motor}
+             options={[
+               { value: "gearbox", label: "آسانسور گیربکس" },
+-              // { value: "gearless", label: "آسانسور گیرلس" },
++              { value: "gearless", label: "آسانسور گیرلس" },
+             ]}
+-            onChange={(motor) => onChange({ motor: motor as MotorType })}
++            onChange={handleMotorChange}
+           />
+           <SelectField
+             compact
+@@ -86,7 +156,7 @@ export function ElevatorFilters({
+             id="package-type"
+             label="نوع پکیج"
+             value={settings.pack}
+-            options={PACKAGE_OPTIONS}
++            options={packageOptions}
+             onChange={(pack) => onChange({ pack: pack as PackageId, excluded: [] })}
+           />
+         </div>
+diff --git a/components/price-manager/quote-metadata.tsx b/components/price-manager/quote-metadata.tsx
+index feb1c01..19cce5b 100644
+--- a/components/price-manager/quote-metadata.tsx
++++ b/components/price-manager/quote-metadata.tsx
+@@ -8,7 +8,7 @@ export function QuoteMetadata({ settings, compact = false }: { settings: QuoteSe
+     { kind: "motor" as const, label: "نوع موتور:", value: settings.motor === "gearbox" ? "موتور گیربکس" : "موتور گیرلس" },
+     { kind: "package" as const, label: "نوع پکیج:", value: getPackageLabel(settings.pack) },
+     { kind: "stops" as const, label: "تعداد توقف:", value: `آسانسور ${formatNumber(settings.stops)} توقف` },
+-    { kind: "capacity" as const, label: "ظرفیت نفرات:", value: settings.capacity === "8" ? "۸ نفر" : "۴ تا ۶ نفر" },
++    { kind: "capacity" as const, label: "ظرفیت نفرات:", value: settings.capacity === "13" ? "۱۳ نفر" : settings.capacity === "8" ? "۸ نفر" : "۴ تا ۶ نفر" },
+   ];
+ 
+   return (
+diff --git a/lib/price-manager/constants.ts b/lib/price-manager/constants.ts
+index 52bcbc7..8fba67f 100644
+--- a/lib/price-manager/constants.ts
++++ b/lib/price-manager/constants.ts
+@@ -1,7 +1,7 @@
+ import { DEFAULT_RAIL_SELECTION } from "./rail-rules";
+ import type { PackageId, ProductGroup, QuoteSettings, SupportedStop } from "./types";
+ 
+-export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
++export const GEARBOX_PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
+   { value: "rail", label: "ریل" },
+   { value: "mechanic", label: "مکانیک" },
+   { value: "auto", label: "راه‌اندازی تمام اتومات" },
+@@ -12,6 +12,22 @@ export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
+   { value: "full-semi", label: "صفر تا صد نیمه اتومات" },
+ ];
+ 
++export const GEARLESS_PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
++  { value: "rail", label: "ریل" },
++  { value: "gearless-mech-1to1-auto", label: "مکانیک راه اندازی گیرلس دیسکی یک به یک تمام اتومات" },
++  { value: "gearless-mech-2to1-auto", label: "مکانیک راه اندازی گیرلس دیسکی دو به یک تمام اتومات" },
++  { value: "gearless-mech-mrl-auto", label: "مکانیک راه اندازی گیرلس بشکه ای ( MRL ) تمام اتومات" },
++  { value: "gearless-full-1to1-auto", label: "صفرتاصد گیرلس دیسکی یک به یک تمام اتومات" },
++  { value: "gearless-full-2to1-auto", label: "صفرتاصد گیرلس دیسکی دو به یک تمام اتومات" },
++  { value: "gearless-full-mrl-auto", label: "صفرتاصد گیرلس بشکه ای ( MRL ) تمام اتومات" },
++];
++
++/** All valid package IDs. UI filters still expose only the options for the selected motor type. */
++export const PACKAGE_OPTIONS: { value: PackageId; label: string }[] = [
++  ...GEARBOX_PACKAGE_OPTIONS,
++  ...GEARLESS_PACKAGE_OPTIONS.filter((option) => option.value !== "rail"),
++];
++
+ /** Display order of the groups: list sections and PDF sections follow it. */
+ export const GROUP_ORDER: readonly ProductGroup[] = ["mechanic", "startup", "rail", "cabin"];
+ 
+@@ -22,8 +38,12 @@ export const GROUP_LABELS: Record<ProductGroup, string> = {
+   cabin: "کابین",
+ };
+ 
+-/** Every stop count has the client's printed "صفر تا صد" invoices (automatic and semi-automatic). */
+-export const SUPPORTED_STOPS: readonly SupportedStop[] = [3, 4, 5, 6, 7, 8, 9, 10];
++/** Gearbox phase-1 range stays unchanged. */
++export const GEARBOX_STOPS: readonly SupportedStop[] = [3, 4, 5, 6, 7, 8, 9, 10];
++/** Gearless phase-2 range requested by the client. */
++export const GEARLESS_STOPS: readonly SupportedStop[] = [4, 5, 6, 7, 8, 9, 10, 11, 12];
++/** Every stop count accepted by the combined application. */
++export const SUPPORTED_STOPS: readonly SupportedStop[] = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+ /** The Excel stop table only has these three columns; it is kept as evidence and for the workbook comparison. */
+ export const WORKBOOK_STOPS: readonly SupportedStop[] = [6, 7, 8];
+ export const DEMO_BASE_PRICE = 1000;
+diff --git a/lib/price-manager/package-rules.ts b/lib/price-manager/package-rules.ts
+index 2c6b188..f9a66f5 100644
+--- a/lib/price-manager/package-rules.ts
++++ b/lib/price-manager/package-rules.ts
+@@ -21,6 +21,15 @@ const PACKAGE_PARTS: Record<PackageId, PackageParts> = {
+   "mech-semi": { mechanic: true, rail: false, startup: "semi", cabin: true },
+   "full-auto": { mechanic: true, rail: true, startup: "auto", cabin: true },
+   "full-semi": { mechanic: true, rail: true, startup: "semi", cabin: true },
++
++  // Phase 2: keep the new Gearless packages valid without leaking Gearbox rows into them.
++  // Their dedicated products/quantities will be added incrementally in the Gearless branch.
++  "gearless-mech-1to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
++  "gearless-mech-2to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
++  "gearless-mech-mrl-auto": { mechanic: false, rail: false, startup: null, cabin: false },
++  "gearless-full-1to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
++  "gearless-full-2to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
++  "gearless-full-mrl-auto": { mechanic: false, rail: false, startup: null, cabin: false },
+ };
+ 
+ /** Client rule: 4-6 persons use a 6.1 kW motor, 8 persons a 7.3 kW motor (brands Behran, Elco, ABB). */
+diff --git a/lib/price-manager/settings.ts b/lib/price-manager/settings.ts
+index be6a9aa..3c31c98 100644
+--- a/lib/price-manager/settings.ts
++++ b/lib/price-manager/settings.ts
+@@ -25,7 +25,7 @@ export function parseSettings(value: unknown): QuoteSettings {
+     schemaVersion: 2,
+     pack: value.pack as QuoteSettings["pack"],
+     motor: value.motor === "gearless" ? "gearless" : "gearbox",
+-    capacity: value.capacity === "8" ? "8" : "4-6",
++    capacity: value.capacity === "13" ? "13" : value.capacity === "8" ? "8" : "4-6",
+     railTypes: normalizeRailSelection(value.railTypes),
+     stops: isSupportedStop(oldStop) ? oldStop : INITIAL_SETTINGS.stops,
+     customer: typeof value.customer === "string" ? value.customer : "",
+diff --git a/lib/price-manager/types.ts b/lib/price-manager/types.ts
+index 0e5c48a..c49a5d1 100644
+--- a/lib/price-manager/types.ts
++++ b/lib/price-manager/types.ts
+@@ -1,9 +1,11 @@
+ export type MotorType = "gearbox" | "gearless";
+-export type Capacity = "4-6" | "8";
+-export type SupportedStop = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
++export type Capacity = "4-6" | "8" | "13";
++export type SupportedStop = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+ export type PackageId =
+   | "rail" | "mechanic" | "auto" | "semi"
+-  | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
++  | "mech-auto" | "mech-semi" | "full-auto" | "full-semi"
++  | "gearless-mech-1to1-auto" | "gearless-mech-2to1-auto" | "gearless-mech-mrl-auto"
++  | "gearless-full-1to1-auto" | "gearless-full-2to1-auto" | "gearless-full-mrl-auto";
+ /** The four price groups, in the order they appear in the list and in the PDF. */
+ export type ProductGroup = "mechanic" | "startup" | "rail" | "cabin";
+ export type QuantitySource = "workbook" | "invoice" | "manual" | "catalog" | "missing";

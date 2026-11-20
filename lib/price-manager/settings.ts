@@ -25,7 +25,7 @@ export function parseSettings(value: unknown): QuoteSettings {
     schemaVersion: 2,
     pack: value.pack as QuoteSettings["pack"],
     motor: value.motor === "gearless" ? "gearless" : "gearbox",
-    capacity: value.capacity === "8" ? "8" : "4-6",
+    capacity: value.capacity === "13" ? "13" : value.capacity === "8" ? "8" : "4-6",
     railTypes: normalizeRailSelection(value.railTypes),
     stops: isSupportedStop(oldStop) ? oldStop : INITIAL_SETTINGS.stops,
     customer: typeof value.customer === "string" ? value.customer : "",

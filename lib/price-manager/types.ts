@@ -1,9 +1,11 @@
 export type MotorType = "gearbox" | "gearless";
-export type Capacity = "4-6" | "8";
-export type SupportedStop = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type Capacity = "4-6" | "8" | "13";
+export type SupportedStop = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 export type PackageId =
   | "rail" | "mechanic" | "auto" | "semi"
-  | "mech-auto" | "mech-semi" | "full-auto" | "full-semi";
+  | "mech-auto" | "mech-semi" | "full-auto" | "full-semi"
+  | "gearless-mech-1to1-auto" | "gearless-mech-2to1-auto" | "gearless-mech-mrl-auto"
+  | "gearless-full-1to1-auto" | "gearless-full-2to1-auto" | "gearless-full-mrl-auto";
 /** The four price groups, in the order they appear in the list and in the PDF. */
 export type ProductGroup = "mechanic" | "startup" | "rail" | "cabin";
 export type QuantitySource = "workbook" | "invoice" | "manual" | "catalog" | "missing";

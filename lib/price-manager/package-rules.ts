@@ -21,6 +21,15 @@ const PACKAGE_PARTS: Record<PackageId, PackageParts> = {
   "mech-semi": { mechanic: true, rail: false, startup: "semi", cabin: true },
   "full-auto": { mechanic: true, rail: true, startup: "auto", cabin: true },
   "full-semi": { mechanic: true, rail: true, startup: "semi", cabin: true },
+
+  // Phase 2: keep the new Gearless packages valid without leaking Gearbox rows into them.
+  // Their dedicated products/quantities will be added incrementally in the Gearless branch.
+  "gearless-mech-1to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
+  "gearless-mech-2to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
+  "gearless-mech-mrl-auto": { mechanic: false, rail: false, startup: null, cabin: false },
+  "gearless-full-1to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
+  "gearless-full-2to1-auto": { mechanic: false, rail: false, startup: null, cabin: false },
+  "gearless-full-mrl-auto": { mechanic: false, rail: false, startup: null, cabin: false },
 };
 
 /** Client rule: 4-6 persons use a 6.1 kW motor, 8 persons a 7.3 kW motor (brands Behran, Elco, ABB). */

@@ -8,7 +8,7 @@ export function QuoteMetadata({ settings, compact = false }: { settings: QuoteSe
     { kind: "motor" as const, label: "نوع موتور:", value: settings.motor === "gearbox" ? "موتور گیربکس" : "موتور گیرلس" },
     { kind: "package" as const, label: "نوع پکیج:", value: getPackageLabel(settings.pack) },
     { kind: "stops" as const, label: "تعداد توقف:", value: `آسانسور ${formatNumber(settings.stops)} توقف` },
-    { kind: "capacity" as const, label: "ظرفیت نفرات:", value: settings.capacity === "8" ? "۸ نفر" : "۴ تا ۶ نفر" },
+    { kind: "capacity" as const, label: "ظرفیت نفرات:", value: settings.capacity === "13" ? "۱۳ نفر" : settings.capacity === "8" ? "۸ نفر" : "۴ تا ۶ نفر" },
   ];
 
   return (
